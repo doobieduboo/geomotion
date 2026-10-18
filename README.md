@@ -61,3 +61,5 @@ python -m unittest discover -s tests
 ```
 
 Satellite maps default to NASA GIBS Blue Marble, with land relief and ocean bathymetry. See [basemap sources and setup](.agents/skills/geomotion/references/basemaps.md). Failed downloads are reported rather than silently replaced with a flat vector background.
+
+Requested Esri visual reference: [World Imagery item](https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9#overview) · [Map Viewer](https://www.arcgis.com/apps/mapviewer/index.html?layers=10df2279f9684e4a9f6a7f08febac2a9). See the [basemap reference](.agents/skills/geomotion/references/basemaps.md#esri-world-imagery--requested-visual-reference) for terms, attribution and current implementation status.

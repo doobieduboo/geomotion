@@ -15,3 +15,7 @@ The repository's MIT license applies to its code, not to external media. Source 
 ## Bundled fonts
 
 Open Sans (Regular/Bold) and Montserrat (ExtraBold) are bundled as static instances generated from Google Fonts variable fonts. Each family's SIL Open Font License 1.1 is included in the skill's `fonts/` directory. Sources: https://github.com/google/fonts/tree/main/ofl/opensans and https://github.com/google/fonts/tree/main/ofl/montserrat . Code's MIT license does not replace font licenses.
+
+## Esri reference
+
+The user-selected World Imagery item and Map Viewer, service metadata, Esri terms and source-credit guidance are recorded in the skill's [basemap reference](.agents/skills/geomotion/references/basemaps.md#esri-world-imagery--requested-visual-reference). Esri imagery rights are separate from this repo's MIT license. The executable default is still NASA; recording these links does not implement Esri support.
