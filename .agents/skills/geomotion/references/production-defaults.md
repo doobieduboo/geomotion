@@ -34,3 +34,7 @@ Subtitles default ON for narrated productions. Derive cues from actual word boun
 Preview 360×640 / 24 fps; final 1080×1920 / 30 fps only when requested. A requested 720p override remains valid. H.264/yuv420p, AAC and faststart. Inspect representative frames, cue timing, transitions, dimensions, fps, duration, audio and decode before delivery.
 
 The generic renderer reads export dimensions/fps and regular/bold font paths directly from `defaults.json`; a scene can override `export.preview` or `export.final`. The remaining preset fields guide the production workflow. Subtitle composition, speech generation, loudness normalization/ducking, display typography and custom effects require their own implemented/verified composition step; they are not automatically rendered by adding those fields to scene JSON. Do not claim a production feature exists until implemented for that output.
+
+## Compact export and delivery stages
+
+Follow `delivery.md`: editing is 360p only; native final is compact 1080p only when requested. Do not create a master export by default. Update the reusable Sites player after verification, with stage-appropriate qualities and one download action.

@@ -28,3 +28,7 @@ Vehicle types requested: tanks, planes, helicopters, ships, trucks, cars and arm
 ## Persistent production preset
 
 Read `../defaults.json` and `production-defaults.md`. A short, purposeful CTA over the map is permitted; keep the centered subtitle band at y68–77% free. Display text uses Montserrat ExtraBold, subtitles/labels use Open Sans Bold, supporting text uses Open Sans Regular. These fonts are bundled with their OFL licenses.
+
+## Compact export and delivery stages
+
+Follow `delivery.md`: editing is 360p only; native final is compact 1080p only when requested. Do not create a master export by default. Update the reusable Sites player after verification, with stage-appropriate qualities and one download action.

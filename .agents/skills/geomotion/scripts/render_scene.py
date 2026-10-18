@@ -121,8 +121,8 @@ def main():
     args.output.parent.mkdir(parents=True,exist_ok=True)
     command=['ffmpeg','-y','-loglevel','error','-f','rawvideo','-pix_fmt','rgb24','-s',f'{width}x{height}','-r',str(fps),'-i','-']
     if scene.get('audio'):command+=['-i',str(path(scene['audio'])),'-af','apad']
-    command+=['-c:v','libx264','-preset','fast','-crf','25' if args.mode=='preview' else '18','-pix_fmt','yuv420p']
-    if scene.get('audio'):command+=['-c:a','aac','-b:a','128k']
+    command+=['-c:v','libx264','-preset',export['preset'],'-crf',str(export['crf']),'-maxrate',export['maxrate'],'-bufsize',export['bufsize'],'-pix_fmt','yuv420p']
+    if scene.get('audio'):command+=['-c:a','aac','-b:a',export['audio_bitrate']]
     command+=['-t',str(count/fps),'-movflags','+faststart',str(args.output)]
     p=subprocess.Popen(command,stdin=subprocess.PIPE)
     try:

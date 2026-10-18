@@ -1,18 +1,30 @@
 {
-  "version": 1,
+  "version": 2,
   "design_width": 720,
   "export": {
     "preview": {
       "width": 360,
       "height": 640,
-      "fps": 24
+      "fps": 24,
+      "crf": 28,
+      "preset": "fast",
+      "maxrate": "650k",
+      "bufsize": "1300k",
+      "audio_bitrate": "80k"
     },
     "final": {
       "width": 1080,
       "height": 1920,
-      "fps": 30
+      "fps": 30,
+      "crf": 26,
+      "preset": "fast",
+      "maxrate": "3200k",
+      "bufsize": "6400k",
+      "audio_bitrate": "128k"
     },
-    "final_requires_request": true
+    "final_requires_request": true,
+    "create_master": false,
+    "final_from_native_sources": true
   },
   "typography": {
     "regular_font": "fonts/OpenSans-Regular.ttf",
@@ -82,5 +94,25 @@
     "gentle_continuous_motion": true,
     "ending": "widen_to_relevant_geographic_context",
     "preserve_part_continuity": true
+  },
+  "delivery": {
+    "provider": "sites",
+    "publish_after_verified_render": true,
+    "reuse_player": true,
+    "editing_qualities": [
+      360
+    ],
+    "final_qualities": [
+      360,
+      720,
+      1080
+    ],
+    "default_preview_quality": 360,
+    "default_final_quality": 1080,
+    "download_buttons": 1,
+    "download_follows_selection": true,
+    "show_master": false,
+    "site_binding": "delivery-target.json",
+    "prepare_script": "scripts/prepare_delivery.py"
   }
 }

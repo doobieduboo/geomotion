@@ -65,3 +65,9 @@ Preset utama: [.agents/skills/geomotion/defaults.json](.agents/skills/geomotion/
 Montserrat ExtraBold untuk judul/CTA; Open Sans Bold untuk subtitle/label; Open Sans Regular untuk informasi pendukung. Font beserta lisensi OFL disertakan. Subtitle aktif secara default untuk video bernarasi, kamera mengikuti frasa VO, CTA di area peta dan area bawah disediakan untuk subtitle. VO harus jelas di atas musik; target loudness dan aturan kontinuitas tersimpan dalam preset.
 
 Renderer membaca default font dan ekspor secara langsung. Subtitle, mixing audio, CTA dan efek khusus diterapkan lewat tahap komposisi terverifikasi sesuai panduan, bukan fitur JSON otomatis. Override ekspor per scene: `"export": {"final": {"width": 720, "height": 1280, "fps": 30}}`.
+
+## Preview dan final lewat media player
+
+Tahap editing tetap **360p / 24 fps** dan Sites hanya menampilkan 360p. Setelah final diminta, render ulang sumber ke **1080p / 30 fps** langsung dengan encoding ringkas; tidak membuat master besar dulu. Player final menyediakan kualitas ringkas 360p, 720p dan 1080p dengan satu tombol download mengikuti kualitas terpilih.
+
+UI dipakai ulang lewat `templates/player`; `scripts/prepare_delivery.py` menyiapkan media dan manifest per tahap. Agent tetap menjalankan workflow Sites untuk menerbitkan setiap revisi. Baca [delivery.md](.agents/skills/geomotion/references/delivery.md); binding situs pengguna tersimpan di `delivery-target.json` dan bisa diganti. Tidak otomatis terpasang atau terpublikasi di environment lain tanpa akses Sites.
