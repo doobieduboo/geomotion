@@ -16,7 +16,7 @@ The input is a scene description, not a story template. No subject, place, date 
 | `export` | Optional explicit mode overrides; omitted uses `defaults.json`. Standard delivery is preview 360p or final 1080p |
 | `duration` | Required scene length in seconds; no topic-specific fixed timeline |
 | `camera` | Required keyframes: `time`, `center`, `zoom`, optional `rotation` in degrees; `ease: "linear"` disables easing for that incoming segment |
-| `basemap` | Defaults to NASA GIBS satellite imagery; `type: "satellite"`, `provider: "nasa_gibs_blue_marble"`, optional `saturation` and `brightness`. `type: "solid"` with RGB `color` is an explicit alternative only. See [basemaps.md](basemaps.md) |
+| `basemap` | Esri World Imagery only: `type: "satellite"`, `provider: "esri_world_imagery"`; optional `saturation` and `brightness`, both default 1.0. Other providers and solid backgrounds are rejected. See [basemaps.md](basemaps.md) |
 | `regions` | Optional GeoJSON geometry layers with outline/reveal and optional flag fill |
 | `markers` | Optional geographic points, labels and flagpole markers |
 | `routes` | Optional animated paths and atlas sprites |

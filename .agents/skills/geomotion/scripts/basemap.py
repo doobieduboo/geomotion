@@ -1,9 +1,13 @@
-"""NASA GIBS background source; imagery is separate from event observations."""
-HOST = 'gibs.earthdata.nasa.gov'
-LAYER = 'BlueMarble_ShadedRelief_Bathymetry'
-DATE = '2004-07-01'
-MAX_ZOOM = 8
-ATTRIBUTION = 'NASA Blue Marble / NASA GIBS'
+"""Esri World Imagery only. Imagery access remains subject to Esri terms."""
+PROVIDER = 'esri_world_imagery'
+SERVICE = 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer'
+MAX_ZOOM = 23
+ATTRIBUTION = 'Esri, Vantor, Earthstar Geographics, and the GIS User Community'
+
+
+def validate_basemap(config):
+    if config.get('type') != 'satellite' or config.get('provider') != PROVIDER:
+        raise ValueError('Only Esri World Imagery satellite basemaps are supported; no provider or solid-map fallback')
 
 
 def tile_zoom(camera_zoom, mode):
@@ -12,6 +16,5 @@ def tile_zoom(camera_zoom, mode):
 
 def tile_url(z, x, y):
     if not 0 <= z <= MAX_ZOOM or not 0 <= y < 2**z:
-        raise ValueError('NASA Blue Marble tile outside supported matrix')
-    return (f'https://{HOST}/wmts/epsg3857/best/{LAYER}/default/{DATE}/'
-            f'GoogleMapsCompatible_Level8/{z}/{y}/{x % (2**z)}.jpeg')
+        raise ValueError('Esri World Imagery tile outside supported matrix')
+    return f'{SERVICE}/tile/{z}/{y}/{x % (2**z)}'

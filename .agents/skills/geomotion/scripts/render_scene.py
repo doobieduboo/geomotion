@@ -1,11 +1,11 @@
 """Topic-agnostic, scene-driven 2D geographic motion graphics renderer."""
-import argparse,json,math,shutil,subprocess,urllib.request
+import argparse,io,json,math,shutil,subprocess,urllib.request
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 from PIL import Image,ImageDraw,ImageFont,ImageFilter,ImageOps,ImageEnhance
 from map_assets import clip_flag,flagpole,select_sprite
-from basemap import tile_zoom,tile_url,ATTRIBUTION
+from basemap import tile_zoom,tile_url,ATTRIBUTION,validate_basemap
 
 
 def merc(lon,lat,zoom):
@@ -77,11 +77,11 @@ def main():
     if min(width,height,fps)<=0 or width%2 or height%2:raise ValueError('Export requires positive even dimensions and positive fps')
     duration=float(scene['duration']);count=max(1,round(duration*fps));scale=width/720
     basemap={**DEFAULTS['basemap'],**scene.get('basemap',{})}
-    if basemap.get('type','solid') not in ['solid','satellite']:raise ValueError('basemap.type must be solid or satellite')
-    if basemap['type']=='satellite' and basemap['provider']!='nasa_gibs_blue_marble':raise ValueError('Unsupported satellite provider; no automatic substitution')
-    if basemap['type']=='satellite' and ATTRIBUTION not in scene.get('attribution',''):
+    validate_basemap(basemap)
+    if ATTRIBUTION not in scene.get('attribution',''):
         scene['attribution']=' · '.join(filter(None,[scene.get('attribution'),ATTRIBUTION]))
-    cache=root/'cache'/'nasa-blue-marble-2004-07-01';cache.mkdir(parents=True,exist_ok=True)
+    # Session-memory tiles only: this viewing service does not allow offline tile export.
+    tile_images={}
     prepared=[camera_at(scene['camera'],n/fps) for n in range(count)]
     needed=set()
     if basemap.get('type')=='satellite':
@@ -89,19 +89,21 @@ def main():
             z=tile_zoom(camera['zoom'],args.mode);c=merc(*camera['center'],z);s=2**(camera['zoom']-z)*scale;r=math.hypot(width,height)/2/s+3
             for x in range(math.floor((c[0]-r)/256),math.floor((c[0]+r)/256)+1):
                 for y in range(max(0,math.floor((c[1]-r)/256)),min(2**z-1,math.floor((c[1]+r)/256))+1):needed.add((z,x,y))
-    def tile_file(z,x,y):return cache/f'{z}_{x%(2**z)}_{y}.jpg'
+    # Deduplicate wrapped tiles before parallel requests.
+    physical_tiles={(z,x%(2**z),y) for z,x,y in needed}
     def fetch(tile):
-        z,x,y=tile;p=tile_file(z,x,y)
-        if p.exists():return
-        url=tile_url(z,x,y)
+        z,x,y=tile;url=tile_url(z,x,y)
         req=urllib.request.Request(url,headers={'User-Agent':'GeoMotion/1.0'})
         try:
-            with urllib.request.urlopen(req,timeout=40) as r:data=r.read()
+            with urllib.request.urlopen(req,timeout=40) as response:data=response.read()
+            with Image.open(io.BytesIO(data)) as image:
+                image.load()
+                if image.size!=(256,256):raise ValueError('Expected a 256px imagery tile')
+                return tile,image.convert('RGB')
         except Exception as exc:
-            raise RuntimeError(f'Satellite download failed from {url}: {exc}. Check network policy/cache; do not replace with a solid map.') from exc
-        # Distinct unwrapped x values can refer to one physical tile. Write atomically.
-        temp=p.with_name(p.name+f'.{x}.part');temp.write_bytes(data);Image.open(temp).verify();temp.replace(p)
-    with ThreadPoolExecutor(max_workers=8) as pool:list(pool.map(fetch,needed))
+            raise RuntimeError(f'Esri World Imagery request failed from {url}: {exc}. Check access/network policy; no alternate basemap is permitted.') from exc
+    with ThreadPoolExecutor(max_workers=8) as pool:
+        tile_images.update(pool.map(fetch,physical_tiles))
     mosaics={}
     for z in sorted({k[0] for k in needed}):
         tiles=[k for k in needed if k[0]==z];xmin=min(k[1] for k in tiles);xmax=max(k[1] for k in tiles);ymin=min(k[2] for k in tiles);ymax=max(k[2] for k in tiles)
@@ -109,7 +111,7 @@ def main():
         if (xmax-xmin+1)*(ymax-ymin+1)>1800:raise ValueError('Tile mosaic too large; split camera sequence into shots')
         im=Image.new('RGB',((xmax-xmin+1)*256,(ymax-ymin+1)*256))
         for _,x,y in tiles:
-            with Image.open(tile_file(z,x,y)) as tile:im.paste(tile,((x-xmin)*256,(y-ymin)*256))
+            im.paste(tile_images[(z,x%(2**z),y)],((x-xmin)*256,(y-ymin)*256))
         mosaics[z]=(im,np.array([xmin*256,ymin*256]))
     image_cache={}
     def image_file(value):
@@ -145,8 +147,8 @@ def main():
                 mosaic,origin=mosaics[z];mid=center-origin
                 af=(cs/zoom_scale,sn/zoom_scale,mid[0]-(cs*width/2+sn*height/2)/zoom_scale,-sn/zoom_scale,cs/zoom_scale,mid[1]-(-sn*width/2+cs*height/2)/zoom_scale)
                 im=mosaic.transform((width,height),Image.Transform.AFFINE,af,Image.Resampling.BICUBIC)
-                im=ImageEnhance.Color(im).enhance(basemap.get('saturation',.6));im=ImageEnhance.Brightness(im).enhance(basemap.get('brightness',.75));im=im.convert('RGBA')
-            else:im=Image.new('RGBA',(width,height),tuple(basemap.get('color',[12,24,30]))+(255,))
+                im=ImageEnhance.Color(im).enhance(basemap.get('saturation',1.0));im=ImageEnhance.Brightness(im).enhance(basemap.get('brightness',1.0));im=im.convert('RGBA')
+            else:raise RuntimeError('Esri imagery is missing; cannot render an alternate basemap')
             def visible(item):return item.get('start',0)<=t<item.get('end',duration)
             edges=Image.new('RGBA',im.size);ed=ImageDraw.Draw(edges)
             for region,polys in regions:

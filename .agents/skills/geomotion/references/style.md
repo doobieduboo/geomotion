@@ -2,7 +2,7 @@
 
 Read [defaults.json](../defaults.json) for fonts, palette, design grid, subtitle safe area and CTA area. These values are the canonical preset; use normalized regions as starting positions, then resolve actual collisions in rendered frames.
 
-The map dominates. Prefer satellite/terrain imagery, real geometry and restrained border glow. Labels/pins stay attached to coordinates during camera moves. General and focal borders use different preset colors unless the content needs another palette. Deduplicate overlapping boundary networks; detailed behavior is in [composition.md](composition.md).
+The map dominates. Use Esri World Imagery as the only basemap; retain its original brightness/color by default. Overlay real geometry and restrained border glow. Labels/pins stay attached to coordinates during camera moves. General and focal borders use different preset colors unless the content needs another palette. Deduplicate overlapping boundary networks; detailed behavior is in [composition.md](composition.md).
 
 Use the bundled display face for short purposeful titles/CTA, bold reading face for geographic labels/subtitles, and regular face for supporting text. Do not substitute fonts silently. Scale typography, strokes, offsets and graphics from the design grid to the output resolution. The internal design-grid width is not a delivery resolution.
 

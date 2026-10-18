@@ -2,9 +2,9 @@
   "duration": 8,
   "basemap": {
     "type": "satellite",
-    "provider": "nasa_gibs_blue_marble",
-    "saturation": 0.6,
-    "brightness": 0.75
+    "provider": "esri_world_imagery",
+    "saturation": 1.0,
+    "brightness": 1.0
   },
   "camera": [
     {
@@ -74,5 +74,5 @@
     }
   ],
   "callouts": [],
-  "attribution": "NASA Blue Marble / NASA GIBS"
+  "attribution": "Esri, Vantor, Earthstar Geographics, and the GIS User Community"
 }
