@@ -10,9 +10,9 @@ Composition, camera, VO, subtitle or asset revisions stay at **360×640 / 24fps*
 
 An explicit final request authorizes **1080×1920 / 30fps**, rendered directly from scene geometry, original imagery/assets and native text/subtitle composition. Never upscale a 360p or 720p preview. Directly encode the deliverable as compact H.264/yuv420p, `preset fast`, CRF 26, maxrate 3200k / bufsize 6400k, AAC 128k, `+faststart`. Do not first create a large master and then recompress it. Do not create or publish a master download unless separately requested. Lossy intermediate parts should be minimized; if segmentation is needed for resources, assemble only needed sources once and use the same compact delivery settings at the final encode.
 
-After final exists, the player may offer compact **360p / 720p / 1080p** versions. Derive lower resolutions from the verified final, not new scene renders. Default selection is 1080p. There is exactly one download action following the selected quality. No separate preview/master download buttons, chunked master fetch, exposed technical metadata or placeholders for unavailable qualities.
+After final exists, the player may offer compact **360p / 1080p** versions. Derive lower resolutions from the verified final, not new scene renders. Default selection is 1080p. There is exactly one download action following the selected quality. No separate preview/master download buttons, chunked master fetch, exposed technical metadata or placeholders for unavailable qualities.
 
-Lower-quality playback encodes: 360p CRF28 / 650k / AAC80k (24fps), 720p CRF26 / 1800k / AAC128k. Use faststart, preload none, playsinline and native video controls. Keep title, stage, duration, file size, quality selector, one download and credits. Do not fetch the whole file on initial page load or when merely changing metadata. Preserve the current playback position on quality changes. Use revisioned filenames and no-store manifest reads to avoid stale revisions.
+Lower-quality playback encodes: 360p CRF28 / 650k / AAC80k (24fps). Use faststart, preload none, playsinline and native video controls. Keep title, stage, duration, file size, quality selector, one download and credits. Do not fetch the whole file on initial page load or when merely changing metadata. Preserve the current playback position on quality changes. Use revisioned filenames and no-store manifest reads to avoid stale revisions.
 
 ## Reuse, verify and publish
 
@@ -23,3 +23,5 @@ Before publishing, inspect representative frames and subtitle punctuation/case, 
 ## Efficiency
 
 Keep editing at 360p, use the existing player/template and manifest rather than redesigning UI, reuse unchanged media/caches, and render only affected parts when appropriate. Upgrade resolution once final is requested. Prefer the cheapest checks that verify the actual risk, with one full decode of a new deliverable. Compact files reduce transfer and storage; they do not guarantee fewer model tokens, and native final rendering still has a compute cost.
+
+Only two delivery resolutions are enabled: 360p for editing/light playback and compact native 1080p for final. Never render, derive or upload a 720p intermediate or player variant by default. The 720-wide internal design coordinate grid is unrelated to export resolutions and remains valid.

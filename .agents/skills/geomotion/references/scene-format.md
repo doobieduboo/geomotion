@@ -13,7 +13,7 @@ The input is a scene description, not a story template. No subject, place, date 
 
 | Field | Meaning |
 |---|---|
-| `export` | Optional mode overrides, e.g. `{"final":{"width":720,"height":1280,"fps":30}}`; omitted uses `defaults.json` |
+| `export` | Optional explicit mode overrides; omitted uses `defaults.json`. Standard delivery is preview 360p or final 1080p |
 | `duration` | Required scene length in seconds; no topic-specific fixed timeline |
 | `camera` | Required keyframes: `time`, `center`, `zoom`, optional `rotation` in degrees; `ease: "linear"` disables easing for that incoming segment |
 | `basemap` | `type: "solid"` with RGB `color`, or `type: "satellite"` with optional `saturation` and `brightness`; satellite mode fetches Esri World Imagery tiles |

@@ -1,5 +1,5 @@
 const video=document.querySelector('#video'),quality=document.querySelector('#quality'),error=document.querySelector('#error'),download=document.querySelector('#download');
-const allowed=stage=>stage==='final'?[360,720,1080]:[360];
+const allowed=stage=>stage==='final'?[360,1080]:[360];
 let variants=[];
 function choose(item,keepTime=false){
  const time=keepTime?(video.currentTime||0):0,wasPlaying=keepTime&&!video.paused;

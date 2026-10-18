@@ -26,7 +26,8 @@ def main():
   if height==expected['width']:
    if dest.resolve()!=video:shutil.copy2(video,dest)
   elif not dest.exists():
-   enc=cfg['export']['preview'] if height==360 else {'crf':26,'preset':'fast','maxrate':'1800k','bufsize':'3600k','audio_bitrate':'128k'}
+   if height!=360:raise ValueError('Only 360p preview and native 1080p final are supported by the delivery preset')
+   enc=cfg['export']['preview']
    fps=24 if height==360 else expected['fps']
    subprocess.run(['ffmpeg','-y','-v','error','-i',str(video),'-vf',f'scale={height}:{round(height*16/9)},fps={fps}','-c:v','libx264','-preset',enc['preset'],'-crf',str(enc['crf']),'-maxrate',enc['maxrate'],'-bufsize',enc['bufsize'],'-pix_fmt','yuv420p','-c:a','aac','-b:a',enc['audio_bitrate'],'-movflags','+faststart',str(dest)],check=True)
   variants.append({'height':height,'src':f'media/{dest.name}','bytes':dest.stat().st_size,'downloadName':f'geomotion-{revision}-{height}p.mp4'})
