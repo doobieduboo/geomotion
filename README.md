@@ -59,3 +59,5 @@ Instalasi tidak otomatis berlaku di semua perangkat/chat. Untuk mengganti instal
 ```bash
 python -m unittest discover -s tests
 ```
+
+Satellite maps default to NASA GIBS Blue Marble, with land relief and ocean bathymetry. See [basemap sources and setup](.agents/skills/geomotion/references/basemaps.md). Failed downloads are reported rather than silently replaced with a flat vector background.

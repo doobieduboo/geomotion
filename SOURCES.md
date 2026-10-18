@@ -8,7 +8,7 @@ Create a scene-specific SOURCES.md recording:
 - Required attribution and where it appears in the distributed result.
 - Whether a route, effect, boundary or marker is factual, reconstructed or illustrative.
 
-The optional satellite basemap uses Esri World Imagery. Its credits and use requirements depend on the contributed imagery and location. Service: https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer . Review the provider terms before distributing output. Use the scene's `attribution` field when on-video credit is required, or choose another compatible source.
+The default satellite basemap uses NASA GIBS Blue Marble Shaded Relief and Bathymetry. Layer/date, public NASA GitHub references, attribution, media guidance and cache behavior are documented in [.agents/skills/geomotion/references/basemaps.md](.agents/skills/geomotion/references/basemaps.md). No third-party viewer code or tile cache is vendored. Background imagery is not evidence of current events.
 
 The repository's MIT license applies to its code, not to external media. Source research is scene-specific. A missing scene credit or source file is not permission to omit required attribution.
 

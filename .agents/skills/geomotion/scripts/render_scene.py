@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 import numpy as np
 from PIL import Image,ImageDraw,ImageFont,ImageFilter,ImageOps,ImageEnhance
 from map_assets import clip_flag,flagpole,select_sprite
+from basemap import tile_zoom,tile_url,ATTRIBUTION
 
 
 def merc(lon,lat,zoom):
@@ -75,23 +76,29 @@ def main():
     width,height,fps=(int(export[k]) for k in ('width','height','fps'))
     if min(width,height,fps)<=0 or width%2 or height%2:raise ValueError('Export requires positive even dimensions and positive fps')
     duration=float(scene['duration']);count=max(1,round(duration*fps));scale=width/720
-    basemap=scene.get('basemap',{'type':'solid'})
+    basemap={**DEFAULTS['basemap'],**scene.get('basemap',{})}
     if basemap.get('type','solid') not in ['solid','satellite']:raise ValueError('basemap.type must be solid or satellite')
-    cache=Path(__file__).resolve().parents[1]/'cache'/'tiles';cache.mkdir(parents=True,exist_ok=True)
+    if basemap['type']=='satellite' and basemap['provider']!='nasa_gibs_blue_marble':raise ValueError('Unsupported satellite provider; no automatic substitution')
+    if basemap['type']=='satellite' and ATTRIBUTION not in scene.get('attribution',''):
+        scene['attribution']=' · '.join(filter(None,[scene.get('attribution'),ATTRIBUTION]))
+    cache=root/'cache'/'nasa-blue-marble-2004-07-01';cache.mkdir(parents=True,exist_ok=True)
     prepared=[camera_at(scene['camera'],n/fps) for n in range(count)]
     needed=set()
     if basemap.get('type')=='satellite':
         for camera in prepared:
-            z=int(camera['zoom']);c=merc(*camera['center'],z);s=2**(camera['zoom']-z)*scale;r=math.hypot(width,height)/2/s+3
+            z=tile_zoom(camera['zoom'],args.mode);c=merc(*camera['center'],z);s=2**(camera['zoom']-z)*scale;r=math.hypot(width,height)/2/s+3
             for x in range(math.floor((c[0]-r)/256),math.floor((c[0]+r)/256)+1):
                 for y in range(max(0,math.floor((c[1]-r)/256)),min(2**z-1,math.floor((c[1]+r)/256))+1):needed.add((z,x,y))
     def tile_file(z,x,y):return cache/f'{z}_{x%(2**z)}_{y}.jpg'
     def fetch(tile):
         z,x,y=tile;p=tile_file(z,x,y)
         if p.exists():return
-        url=f'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x%(2**z)}'
+        url=tile_url(z,x,y)
         req=urllib.request.Request(url,headers={'User-Agent':'GeoMotion/1.0'})
-        with urllib.request.urlopen(req,timeout=40) as r:data=r.read()
+        try:
+            with urllib.request.urlopen(req,timeout=40) as r:data=r.read()
+        except Exception as exc:
+            raise RuntimeError(f'Satellite download failed from {url}: {exc}. Check network policy/cache; do not replace with a solid map.') from exc
         # Distinct unwrapped x values can refer to one physical tile. Write atomically.
         temp=p.with_name(p.name+f'.{x}.part');temp.write_bytes(data);Image.open(temp).verify();temp.replace(p)
     with ThreadPoolExecutor(max_workers=8) as pool:list(pool.map(fetch,needed))
@@ -127,7 +134,7 @@ def main():
     p=subprocess.Popen(command,stdin=subprocess.PIPE)
     try:
         for n,camera in enumerate(prepared):
-            t=n/fps;z=int(camera['zoom']);zoom_scale=2**(camera['zoom']-z)*scale;center=merc(*camera['center'],z)
+            t=n/fps;z=tile_zoom(camera['zoom'],args.mode);zoom_scale=2**(camera['zoom']-z)*scale;center=merc(*camera['center'],z)
             a=math.radians(camera.get('rotation',0));cs,sn=math.cos(a),math.sin(a)
             def project(ll):
                 xy=merc(*ll,z);world=256*2**z

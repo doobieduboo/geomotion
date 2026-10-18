@@ -4,6 +4,7 @@ This directory is the skill's technical knowledge base. It is not a second agent
 
 | Reference | Owns |
 |---|---|
+| [basemaps.md](basemaps.md) | Default satellite background, NASA sources, cache and access failures |
 | [style.md](style.md) | Appearance, type roles and placement semantics |
 | [retention.md](retention.md) | Fast-paced voice/visual rhythm, hooks and readable information beats |
 | [composition.md](composition.md) | Camera timing, geographic layer behavior and continuity |

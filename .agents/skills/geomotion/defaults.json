@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "design_width": 720,
   "export": {
     "preview": {
@@ -156,5 +156,13 @@
     "preserve_meaningful_pauses": true,
     "automatic_audio_speedup": false,
     "retention_improvement_guaranteed": false
+  },
+  "basemap": {
+    "type": "satellite",
+    "provider": "nasa_gibs_blue_marble",
+    "saturation": 0.6,
+    "brightness": 0.75,
+    "attribution": "NASA Blue Marble / NASA GIBS",
+    "on_failure": "report_and_stop_no_silent_solid_fallback"
   }
 }
