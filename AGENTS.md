@@ -1,15 +1,23 @@
-# GeoMotion workspace
+# GeoMotion: repository instructions
 
-This is a topic-agnostic geographic animation toolkit. Read `.agents/skills/geomotion/SKILL.md`, its style defaults, scene format and asset contracts. Derive all content, locations, countries, time periods, duration and narrative from the current user's request. Do not infer a topic from repository history or anonymous template coordinates.
+GeoMotion is a topic-agnostic map animation toolkit. Derive every story, place, date, duration and optional layer from the current brief and verified project sources. Do not inherit content from repository history or examples.
 
-Compose only relevant layers. A scene can use camera movement, shapes, labels, markers, routes, fills, flags, 2.5D sprites, images, callouts and audio independently. The entry point is `scripts/render_scene.py` inside the skill, driven by scene JSON. No default story or fixed sequence.
+## Start here
 
-Preview 360×640/24fps; final 1080×1920/30fps only when requested. Prefer a map-first style, no giant presentation typography or permanent HUD. These defaults are adjustable. No Blender by default.
+1. Read [.agents/skills/geomotion/SKILL.md](.agents/skills/geomotion/SKILL.md).
+2. Load [.agents/skills/geomotion/defaults.json](.agents/skills/geomotion/defaults.json) for production settings; read only references relevant to the task.
+3. Inspect the current checkout/environment and existing project inputs before editing. Repository access, installed skill, cloud environment and API credentials are separate things.
 
-Keep scene-specific provenance and actual attribution requirements. Keep downloaded media, caches, credentials and exports out of Git. Do not claim unimplemented capabilities or assets that do not exist. After a verified render, update the configured private Sites media player using `references/delivery.md`; this is an established user preference. No publishing to YouTube or social platforms without explicit instruction.
+## Working rules
 
-Load `.agents/skills/geomotion/defaults.json` and `references/production-defaults.md` in every new conversation. Preserve these production preferences without repeated questions. Subtitles default on for narrated productions; keep their safe area free of CTA and image cards. Renderer directly reads export and regular/bold font defaults; additional production settings require explicit composition/audio steps.
+- Apply established defaults without repeated confirmation. Explicit user instructions override repository defaults; higher-priority session/platform instructions still apply.
+- Editing stays in the preview stage. Native final export requires the user's final request; never upscale a preview or make a large master by default. See the skill's delivery workflow.
+- TTS uses the exact model pinned in `defaults.json` → `audio.tts`. No automatic model/provider substitution, billing activation or paid fallback. Read the TTS reference before generating audio; reuse approved VO for visual-only changes.
+- Keep source scenes, media, narration, separate audio stems, subtitles and timing reproducible in the production workspace. Do not put production outputs, caches, secrets or downloaded topic-specific media into this reusable repo. Bundled fonts are licensed dependencies.
+- Preserve geographic/date accuracy and actual attribution. Keep factual data separate from illustrative effects; never invent observations or silently treat allegations as findings.
+- Verify the changed output, then update the configured private Sites player according to the delivery reference. This standing preference does not authorize YouTube/social publication or a change of audience.
+- Do not claim an effect, media library, TTS integration or end-to-end automation exists unless implemented and verified. See [docs/capabilities.md](docs/capabilities.md).
 
-Editing stays 360p/24fps and the player lists only 360p. Explicit final export uses native 1080p/30fps with compact encoding directly; no master deliverable. Final player may offer compact 360p/1080p with one download action. Read delivery-target.json and reuse the existing player across topics.
+## Repository maintenance
 
-TTS uses exact model `gemini-3.8-flash-lite-tts` via Google Gemini, configured in defaults.json → audio.tts. Read references/tts.md before any speech generation. Do not substitute a different model/provider or enable paid usage automatically. Respect actual free-tier quotas/reset guidance; cache approved VO for visual-only revisions.
+Keep numeric settings in `defaults.json`, task workflow in `SKILL.md`, and technical knowledge in `references/`. Do not add another competing `INSTRUCTIONS.md` or repeat entire workflows in agent metadata. Preserve old reference paths with short redirects when reorganizing. Keep the installer and script entry points compatible; run the checks relevant to the change. Structure and implementation coverage are documented in [docs/architecture.md](docs/architecture.md).

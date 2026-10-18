@@ -1,34 +1,13 @@
-# Established visual preferences
+# Map appearance and typography
 
-## Export
-- Preview: 360×640, 24 fps, vertical 9:16, light download. Experiment here.
-- Final: 1080×1920, 30 fps, only when requested.
-- MP4: H.264/yuv420p, AAC, moov atom first (`+faststart`).
-- Keep working files portable. Never return an unverified or incomplete render.
+Read [defaults.json](../defaults.json) for fonts, palette, design grid, subtitle safe area and CTA area. These values are the canonical preset; use normalized regions as starting positions, then resolve actual collisions in rendered frames.
 
-## Map presentation
-The map is the scene. Maintain continuous zoom, pan and gentle rotation rather than cutting among slides. Use satellite or terrain imagery, actual boundaries and restrained luminous outlines. Keep location pins and labels connected to geographic coordinates throughout camera moves.
+The map dominates. Prefer satellite/terrain imagery, real geometry and restrained border glow. Labels/pins stay attached to coordinates during camera moves. General and focal borders use different preset colors unless the content needs another palette. Deduplicate overlapping boundary networks; detailed behavior is in [composition.md](composition.md).
 
-No PowerPoint-like typography: no giant presentation titles, editorial paragraphs, presentation cards detached from locations, permanent date chip, north arrow, scale bar or source footer. Dates and historical information belong inside small connected infographic bubbles. A short bubble may contain a relevant image, title, date and two or three concise lines. Keep the map dominant.
+Use the bundled display face for short purposeful titles/CTA, bold reading face for geographic labels/subtitles, and regular face for supporting text. Do not substitute fonts silently. Scale typography, strokes, offsets and graphics from the design grid to the output resolution. The internal design-grid width is not a delivery resolution.
 
-Use cyan for general geographic outlines and warm amber for the focal region, unless the topic needs another palette. Avoid losing a departure marker off screen while following a destination; fit both endpoints before the final close-up.
+Avoid presentation paragraphs, giant unrelated headlines, permanent date chips, compasses, scale bars and decorative source footers. Put useful dates/details inside concise connected infographic bubbles. A relevant photograph may have a short caption/date and required credit. Preserve legibility and geographic context; do not make the video a sequence of slides.
 
-These are adjustable style defaults, independent of subject matter. The user requested clean maps. Retain source/accuracy notes separately and comply with actual attribution requirements. If a source requires on-video credit, use minimally intrusive compliant attribution or replace it with a source that supports the desired output.
+CTA is optional: use a concise relevant question when it fits the brief, place it over the map and reserve the subtitle area. No default hashtag/slogan. Subtitle placement follows the preset and [quality.md](quality.md); the safe area is not permission to cover another label/card.
 
-## Flags
-Two distinct layer types:
-1. A country's flag fills its land polygons, with sea and other countries excluded; preserve islands and polygon holes. For an archipelago, include all relevant islands without painting the surrounding ocean. Describe exactly whether the flag is stretched once over the whole country or repeated by island.
-2. Flagpole markers for countries, bases, locations or territorial control. Pin the pole's foot to the map. Animate flag flutter; keep readable size in screen pixels. A marker's meaning follows the story and must not silently assert sovereignty or control.
-
-## Vehicles and effects
-Prefer 2.5D-looking sprites: 16 or 32 headings, consistent elevated camera, transparent backgrounds, matching lighting and common ground anchor. Hull and turret may be independent. Select a view from relative world/camera heading, not only world heading. Shadows, wakes, dust, smoke and glows stay anchored to their intended space. Use original/licensed assets; mark illustrative effects appropriately for factual stories.
-
-Vehicle types requested: tanks, planes, helicopters, ships, trucks, cars and armored vehicles. Effects requested: smoke, fire, explosions, flashes, debris, shockwaves, water wakes and dust. These are desired asset categories, not a claim that all files already exist.
-
-## Persistent production preset
-
-Read `../defaults.json` and `production-defaults.md`. A short, purposeful CTA over the map is permitted; keep the centered subtitle band at y68–77% free. Display text uses Montserrat ExtraBold, subtitles/labels use Open Sans Bold, supporting text uses Open Sans Regular. These fonts are bundled with their OFL licenses.
-
-## Compact export and delivery stages
-
-Follow `delivery.md`: editing is 360p only; native final is compact 1080p only when requested. Do not create a master export by default. Update the reusable Sites player after verification, with stage-appropriate qualities and one download action.
+Keep the clean aesthetic while complying with actual source/license attribution. Use minimally intrusive required credit or choose a compatible replacement asset; source records alone do not waive attribution requirements. Flag and multi-angle sprite contracts are in [assets.md](assets.md).

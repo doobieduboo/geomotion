@@ -18,7 +18,7 @@ Reuse the project-approved voice, style and narration; log the actual requested 
 
 Cache approved audio by model ID, voice, text and generation settings. Visual-only edits reuse VO rather than spending quota again. Re-generate only affected narration when appropriate; preserve natural context and joins. Do not accidentally reuse an old Edge reference stem as the new Gemini VO.
 
-Measure the new WAV and rebuild actual subtitle/phrase/camera timings; do not reuse old provider word times unverified. Preserve punctuation, sentence capitalization, centered subtitle placement and map-first composition. Editing stays 360p; final native compact 1080p only after requested. Update the existing Sites player after verification using `delivery.md`.
+Measure the new WAV and rebuild actual phrase timings; do not reuse old provider word times unverified. Follow [quality.md](quality.md) for subtitle/mixing checks, [composition.md](composition.md) for camera alignment and [delivery.md](delivery.md) for the current preview/final stage.
 
 References (verify live before model-specific implementation):
 - https://ai.google.dev/gemini-api/docs/speech-generation

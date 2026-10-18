@@ -17,6 +17,8 @@ Use real coordinates, country/admin polygons, coastline/island geometry, and lic
 | Infographic | Real photo/image, verified caption/date, source/license; bubble is drawn procedurally |
 | Audio | Licensed/original score and SFX, levels, timing |
 
+A flag fill and a flagpole marker are separate layer types. A marker’s meaning comes from the brief; it must not silently assert sovereignty or territorial control. For archipelagos, document whether one texture spans the selected MultiPolygon or repeats per feature; see [scene-format.md](scene-format.md).
+
 ## Sprite atlas schema
 
 ```json
