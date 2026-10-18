@@ -19,7 +19,7 @@ Repo menyimpan kode dan preferensi; API key disimpan di environment. Membuka rep
 
 Satu tombol download mengikuti kualitas terpilih. UI player dipakai ulang. Tidak ada ekspor 720p atau master besar secara default; final bukan upscale preview.
 
-VO memakai model **`gemini-3.8-flash-lite-tts`**, suara default **Charon**, dan gaya **fast-paced yang tetap jelas**, tanpa fallback model/provider atau penggunaan berbayar otomatis. Audio yang disetujui dipakai ulang saat revisi visual. Kuota/reset mengikuti akun dan model. Baca [aturan TTS](.agents/skills/geomotion/references/tts.md).
+VO memakai model **`gemini-2.5-flash-preview-tts`**, suara default **Charon**, dan gaya **fast-paced yang tetap jelas**, tanpa fallback model/provider atau penggunaan berbayar otomatis. Audio yang disetujui dipakai ulang saat revisi visual. Kuota/reset mengikuti akun dan model. Baca [aturan TTS](.agents/skills/geomotion/references/tts.md).
 
 Gaya: peta dominan, kamera mengikuti frasa, Montserrat ExtraBold untuk CTA, Open Sans untuk label/subtitle, subtitle terpusat dan tidak bertabrakan dengan elemen lain. Semua nilai tersimpan di [defaults.json](.agents/skills/geomotion/defaults.json).
 
