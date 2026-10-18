@@ -11,13 +11,13 @@
 
 Pilih **geomotion** di pemilih lingkungan **sebelum memulai obrolan**, lalu buka repo. Jika environment disiapkan/disimpan tapi belum dipublikasikan, selesaikan publikasi dengan privasi yang sesuai. Memublikasikan environment tidak sama dengan membagikannya ke publik. Update setup tersimpan biasanya digunakan oleh tugas baru dari versi yang dipublikasikan; jangan menganggap sesi lama langsung berganti environment.
 
-Minta agent membaca `AGENTS.md`/skill dan memeriksa revisi checkout. Sinkronkan repo jika tertinggal tanpa menimpa pekerjaan lokal. Jika diperlukan, gunakan installer untuk salinan skill di mesin tersebut.
+Untuk obrolan baru maupun aktif, minta agent membaca repo terbaru. Agent mengikuti prosedur sinkronisasi pada AGENTS.md tanpa menimpa pekerjaan lokal, lalu memakai skill/preset checkout terbaru. Salinan skill terpasang perlu diperbarui terpisah bila dipakai.
 
 ```bash
 python scripts/install_skill.py
 ```
 
-Installer menolak menimpa salinan yang sudah ada. Untuk mengganti salinan setelah diperiksa, gunakan `--replace`; installer membuat backup dan berhenti jika lokasi backup sudah terpakai. Jangan menghapus perubahan lokal hanya agar installer bisa berjalan.
+Installer menolak menimpa salinan yang sudah ada. Untuk mengganti salinan setelah diperiksa, gunakan `--replace`; installer membuat backup bertanggal di luar direktori skill. Jangan menghapus perubahan lokal hanya agar installer bisa berjalan.
 
 ## API key Gemini
 
@@ -33,7 +33,7 @@ python .agents/skills/geomotion/scripts/render_scene.py scene.json --mode previe
 python .agents/skills/geomotion/scripts/prepare_delivery.py outputs/preview.mp4 --stage preview --output SITE/dist --title "Judul dari brief"
 ```
 
-`SITE/dist` adalah direktori static dari checkout Site yang dipilih; ganti dengan jalur sebenarnya. Perintah terakhir tidak memublikasikan. Baca [delivery.md](../.agents/skills/geomotion/references/delivery.md) dan gunakan skill Sites untuk menyiapkan source serta menerbitkan ke binding pengguna yang sama. Fitur komposisi yang belum ada di renderer memerlukan langkah proyek, lihat [capabilities.md](capabilities.md).
+`SITE/dist` adalah direktori static dari checkout Site yang dipilih; ganti dengan jalur sebenarnya. Perintah terakhir tidak memublikasikan. Baca [delivery.md](../.agents/skills/geomotion/references/delivery.md) dan gunakan skill Sites untuk menyiapkan source serta menerbitkan ke binding pengguna yang sama. Fitur komposisi yang belum ada di renderer memerlukan langkah proyek, lihat [capabilities.md](../.agents/skills/geomotion/references/capabilities.md).
 
 Final hanya dibuat saat diminta: render ulang dari sumber dengan `--mode final`, lakukan komposisi/cek, lalu siapkan `--stage final`. Tidak meng-upscale preview. Simpan sumber/licensing dan audio terpisah agar perubahan VO/teks tetap dapat diedit.
 

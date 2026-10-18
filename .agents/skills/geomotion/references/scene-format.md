@@ -16,13 +16,13 @@ The input is a scene description, not a story template. No subject, place, date 
 | `export` | Optional explicit mode overrides; omitted uses `defaults.json`. Standard delivery is preview 360p or final 1080p |
 | `duration` | Required scene length in seconds; no topic-specific fixed timeline |
 | `camera` | Required keyframes: `time`, `center`, `zoom`, optional `rotation` in degrees; `ease: "linear"` disables easing for that incoming segment |
-| `basemap` | Esri World Imagery only: `type: "satellite"`, `provider: "esri_world_imagery"`; optional `saturation` and `brightness`, both default 1.0. Other providers and solid backgrounds are rejected. See [basemaps.md](basemaps.md) |
+| `basemap` | Esri World Imagery only: `type: "satellite"`, `provider: "esri_world_imagery"`; optional `saturation` and `brightness` inherited from the preset. Other providers and solid backgrounds are rejected. See [basemaps.md](basemaps.md) |
 | `regions` | Optional GeoJSON geometry layers with outline/reveal and optional flag fill |
 | `markers` | Optional geographic points, labels and flagpole markers |
 | `routes` | Optional animated paths and atlas sprites |
 | `callouts` | Optional geographic infographic bubbles, with image and text |
 | `audio` | Optional path to an actual audio file; omitted means silent |
-| `attribution` | Optional on-video credit when needed by the chosen data/media source |
+| `attribution` | Additional on-video source credit; required Esri credit is always retained |
 
 A visual layer may have `start` and `end` visibility times unless specified below. RGB colors are three integers from 0 to 255. Avoid hidden mandatory decorative layers.
 

@@ -3,7 +3,7 @@
 | Bagian | Sudah tersedia di toolkit | Batas / langkah tambahan |
 |---|---|---|
 | Kamera | Pan/zoom/rotasi, keyframe, easing, lintasan bujur pendek | Peta datar Web Mercator; bukan globe 3D atau orbit bebas |
-| Peta | Warna polos / tile satelit, region, batas/reveal/glow | Data/lisensi berasal dari input proyek; proyeksi/seam/luas ekstrem perlu penanganan |
+| Peta | Esri World Imagery, region, batas/reveal/glow | Data/lisensi berasal dari input proyek; proyeksi/seam/luas ekstrem perlu penanganan |
 | Bendera | Flag fill polygon dengan holes, flagpole flutter | Tekstur dan geometri harus disediakan; bukan seluruh library bendera |
 | Kendaraan | Pemilihan frame atlas sesuai heading dan follower rute | Atlas multi-angle harus tersedia; bukan model 3D atau library kendaraan lengkap |
 | Info/gambar | Label/marker dan bubble dengan gambar/audio supplied | Fit/clipping/collision harus diperiksa; foto tidak diambil otomatis |

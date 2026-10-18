@@ -1,25 +1,24 @@
-# GeoMotion: repository instructions
+# GeoMotion repository instructions
 
-GeoMotion is a topic-agnostic map animation toolkit. Derive every story, place, date, duration and optional layer from the current brief and verified project sources. Do not inherit content from repository history or examples.
+GeoMotion is a topic-agnostic map animation toolkit. Use the current brief and verified project inputs; no story, location, date or duration is built in.
 
-## Start here
+## Read and apply
 
-1. Read [.agents/skills/geomotion/SKILL.md](.agents/skills/geomotion/SKILL.md).
-2. Load [.agents/skills/geomotion/defaults.json](.agents/skills/geomotion/defaults.json) for production settings; read only references relevant to the task.
-3. Inspect the current checkout/environment and existing project inputs before editing. Repository access, installed skill, cloud environment and API credentials are separate things.
+1. Read [.agents/skills/geomotion/SKILL.md](.agents/skills/geomotion/SKILL.md) and [defaults.json](.agents/skills/geomotion/defaults.json).
+2. Inspect the checkout, execution environment and production workspace. Repository access does not attach credentials or restore production files.
+3. When asked to use the latest repo in any conversation, fetch and compare the remote revision. Fast-forward a clean checkout; preserve local changes and resolve differences without reset/clean. Read the updated instructions and relevant references from that checkout, not an older installed skill or remembered chat rules. No commit-specific prompt or new conversation is required for repository changes. Environment/network changes are separate.
+4. Apply current defaults to the active project's scene/scripts as well as future templates. Preserve approved narration, VO, media and timing unless the change requires updating them. Verify the affected preview.
 
-## Working rules
+## Ownership
 
-- Apply established defaults without repeated confirmation. Explicit user instructions override repository defaults; higher-priority session/platform instructions still apply.
-- Editing stays in the preview stage. Native final export requires the user's final request; never upscale a preview or make a large master by default. See the skill's delivery workflow.
-- Use the fast-paced editorial preset for Shorts: brisk intelligible VO, prompt opening, meaningful phrase-aligned visual beats and minimal accidental dead air. Preserve reading time and context; do not promise retention gains without analytics. Read the retention reference for pacing changes.
-- TTS uses the exact model pinned in `defaults.json` → `audio.tts`. No automatic model/provider substitution, billing activation or paid fallback. Read the TTS reference before generating audio; reuse approved VO for visual-only changes.
-- Keep source scenes, media, narration, separate audio stems, subtitles and timing reproducible in the production workspace. Do not put production outputs, caches, secrets or downloaded topic-specific media into this reusable repo. Bundled fonts are licensed dependencies.
-- Use Esri World Imagery as the single permitted basemap in preset, templates and renders. Do not use other providers or plain vector backgrounds. Report access failures without substituting another basemap. Read the basemaps reference when creating maps.
-- Preserve geographic/date accuracy and actual attribution. Keep factual data separate from illustrative effects; never invent observations or silently treat allegations as findings.
-- Verify the changed output, then update the configured private Sites player according to the delivery reference. This standing preference does not authorize YouTube/social publication or a change of audience.
-- Do not claim an effect, media library, TTS integration or end-to-end automation exists unless implemented and verified. See [docs/capabilities.md](docs/capabilities.md).
+- `defaults.json` owns production values and provider/model policies.
+- `SKILL.md` owns the production workflow and reference routing.
+- `references/` owns technical contracts and verification guidance.
+- `delivery-target.json` owns the replaceable private player binding.
+- Scripts implement only the features documented in [capabilities.md](.agents/skills/geomotion/references/capabilities.md).
 
-## Repository maintenance
+Explicit user instructions override repository defaults; session/platform instructions retain their priority. Apply established preferences without repeated confirmation. Do not add a competing instruction file, duplicate a preset into templates, or append historical exceptions to multiple documents.
 
-Keep numeric settings in `defaults.json`, task workflow in `SKILL.md`, and technical knowledge in `references/`. Do not add another competing `INSTRUCTIONS.md` or repeat entire workflows in agent metadata. Preserve old reference paths with short redirects when reorganizing. Keep the installer and script entry points compatible; run the checks relevant to the change. Structure and implementation coverage are documented in [docs/architecture.md](docs/architecture.md).
+## Maintenance
+
+Keep production inputs/outputs, downloaded media, caches and credentials outside the reusable repo. Bundled licensed fonts are dependencies. Preserve factual source dates, geography, allegations and attribution. Update a rule at its owning source, then repair affected links/code/tests. Remove obsolete instructions and unreachable code instead of retaining migration notes or redirects. Preserve supported script entry points. Run checks relevant to the changed behavior; do not generate speech or full videos for documentation-only edits.

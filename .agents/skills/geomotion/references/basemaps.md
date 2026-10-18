@@ -19,7 +19,7 @@ The item metadata checked on 2026-10-18 credits Esri, Vantor, Earthstar Geograph
 
 ## Implemented source and rendering
 
-The renderer implements this exact service through `scripts/basemap.py`. Preset and template use `type: "satellite"` and `provider: "esri_world_imagery"`. Other provider/type values raise an error before rendering. Default brightness and saturation are 1.0, preserving source color instead of darkening the map.
+The renderer implements this exact service through `scripts/basemap.py`. The scene inherits the basemap preset; do not duplicate provider settings in templates. Other provider/type values raise an error before rendering. Brightness and saturation follow the preset, preserving source color by default.
 
 Service tiles use Web Mercator, 256px JPEG, levels 0–23; availability and detail vary by location/scale. Final mode requests two higher tile levels where supported and renders geometry/text at native final size. No preview upscaling. Preview stays 360p; final 1080p requires the user's request.
 

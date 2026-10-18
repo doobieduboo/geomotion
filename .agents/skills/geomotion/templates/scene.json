@@ -1,11 +1,5 @@
 {
   "duration": 8,
-  "basemap": {
-    "type": "satellite",
-    "provider": "esri_world_imagery",
-    "saturation": 1.0,
-    "brightness": 1.0
-  },
   "camera": [
     {
       "time": 0,
@@ -73,6 +67,5 @@
       "end": 6
     }
   ],
-  "callouts": [],
-  "attribution": "Esri, Vantor, Earthstar Geographics, and the GIS User Community"
+  "callouts": []
 }

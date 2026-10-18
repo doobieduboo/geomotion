@@ -22,6 +22,8 @@ Before publishing, complete the relevant [quality checks](quality.md). Validate 
 
 ## Efficiency
 
-Keep editing at 360p, use the existing player/template and manifest rather than redesigning UI, reuse unchanged media/caches, and render only affected parts when appropriate. Upgrade resolution once final is requested. Prefer the cheapest checks that verify the actual risk, with one full decode of a new deliverable. Compact files reduce transfer and storage; they do not guarantee fewer model tokens, and native final rendering still has a compute cost.
+Keep editing at 360p, use the existing player/template and manifest rather than redesigning UI, reuse unchanged approved media, and render only affected parts when appropriate. Upgrade resolution once final is requested. Prefer the cheapest checks that verify the actual risk, with one full decode of a new deliverable. Compact files reduce transfer and storage; they do not guarantee fewer model tokens, and native final rendering still has a compute cost.
 
 Only two delivery resolutions are enabled: 360p for editing/light playback and compact native 1080p for final. Never render, derive or upload a 720p intermediate or player variant by default. The 720-wide internal design coordinate grid is unrelated to export resolutions and remains valid.
+
+Portable raw/source ZIPs must stay below 20 MB for the user's upload workflow. Preserve editable scenes, narration, stems, subtitle cues, assets and provenance; omit reproducible exports and caches first. Verify archive integrity and actual size. This is a packaging requirement, not a claim that a universal packager exists.

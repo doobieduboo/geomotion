@@ -1,4 +1,217 @@
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b1215"><title>GeoMotion — Media Player</title><style>
-:root{color-scheme:dark;font-family:system-ui,-apple-system,sans-serif;background:#0b1215;color:#edf3ef}*{box-sizing:border-box}body{margin:0}main{max-width:960px;margin:auto;padding:28px 20px 48px}header{display:flex;justify-content:space-between;align-items:center;margin-bottom:32px}.brand{font-size:17px;font-weight:800;letter-spacing:-.6px}.brand span{color:#96d6bf}.badge{border:1px solid #30443c;color:#bdd2c8;padding:6px 10px;border-radius:30px;font-size:11px}.layout{display:grid;grid-template-columns:minmax(250px,360px) 1fr;gap:42px;align-items:center}.player{background:#000;border:1px solid #2b3b37;border-radius:18px;overflow:hidden;box-shadow:0 18px 70px #0007}video{display:block;width:100%;aspect-ratio:9/16;background:#000}h1{font-size:clamp(30px,6vw,46px);line-height:1.08;letter-spacing:-1.4px;margin:12px 0 15px}.eyebrow{font-size:11px;letter-spacing:2px;color:#96d6bf;font-weight:700}.muted{color:#a8b7b0;font-size:14px;line-height:1.65}.meta{font-size:13px;color:#becdc5;margin:20px 0 28px}.divider{border:0;border-top:1px solid #26352e;margin:26px 0}label{font-size:12px;color:#becdc5;display:block;margin-bottom:9px}select{width:100%;padding:12px 14px;border:1px solid #3c5047;border-radius:10px;background:#14201b;color:#edf3ef;font-size:14px;margin-bottom:16px}a.button,button{font:inherit;width:100%;cursor:pointer;display:block;text-align:center;padding:14px;border-radius:10px;border:1px solid #3c5047;text-decoration:none;color:#edf3ef;background:transparent;font-weight:650;font-size:14px;margin:10px 0}a.primary{background:#b3e8d2;color:#0c2017;border-color:transparent}button:disabled{opacity:.6;cursor:wait}small{font-size:12px;color:#93a89d}progress{width:100%;accent-color:#b3e8d2;margin-top:12px}#status{min-height:20px;font-size:12px;color:#b3e8d2;line-height:1.6}#error{color:#ffb9a5;background:#321e18;padding:12px;border-radius:10px;font-size:13px}footer{margin-top:32px;font-size:11px;color:#8da197}footer a{color:inherit}a:focus-visible,button:focus-visible,select:focus-visible{outline:3px solid #b3e8d2;outline-offset:3px}@media(max-width:650px){main{padding:18px 18px 32px}header{margin-bottom:22px}.layout{display:flex;flex-direction:column;gap:24px;align-items:stretch}.player{width:min(100%,320px);margin:auto}.info{max-width:420px;width:100%;margin:auto}h1{font-size:33px}.meta{margin:14px 0 20px}}
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#0b1215" />
+    <title>GeoMotion — Media Player</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background: #0b1215;
+        color: #edf3ef;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
+      main {
+        max-width: 960px;
+        margin: auto;
+        padding: 28px 20px 48px;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+      }
+      .brand {
+        font-size: 17px;
+        font-weight: 800;
+        letter-spacing: -0.6px;
+      }
+      .brand span {
+        color: #96d6bf;
+      }
+      .badge {
+        border: 1px solid #30443c;
+        color: #bdd2c8;
+        padding: 6px 10px;
+        border-radius: 30px;
+        font-size: 11px;
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(250px, 360px) 1fr;
+        gap: 42px;
+        align-items: center;
+      }
+      .player {
+        background: #000;
+        border: 1px solid #2b3b37;
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 18px 70px #0007;
+      }
+      video {
+        display: block;
+        width: 100%;
+        aspect-ratio: 9/16;
+        background: #000;
+      }
+      h1 {
+        font-size: clamp(30px, 6vw, 46px);
+        line-height: 1.08;
+        letter-spacing: -1.4px;
+        margin: 12px 0 15px;
+      }
+      .eyebrow {
+        font-size: 11px;
+        letter-spacing: 2px;
+        color: #96d6bf;
+        font-weight: 700;
+      }
+      .muted {
+        color: #a8b7b0;
+        font-size: 14px;
+        line-height: 1.65;
+      }
+      .meta {
+        font-size: 13px;
+        color: #becdc5;
+        margin: 20px 0 28px;
+      }
+      label {
+        font-size: 12px;
+        color: #becdc5;
+        display: block;
+        margin-bottom: 9px;
+      }
+      select {
+        width: 100%;
+        padding: 12px 14px;
+        border: 1px solid #3c5047;
+        border-radius: 10px;
+        background: #14201b;
+        color: #edf3ef;
+        font-size: 14px;
+        margin-bottom: 16px;
+      }
+      a.button {
+        font: inherit;
+        width: 100%;
+        cursor: pointer;
+        display: block;
+        text-align: center;
+        padding: 14px;
+        border-radius: 10px;
+        border: 1px solid #3c5047;
+        text-decoration: none;
+        color: #edf3ef;
+        background: transparent;
+        font-weight: 650;
+        font-size: 14px;
+        margin: 10px 0;
+      }
+      a.primary {
+        background: #b3e8d2;
+        color: #0c2017;
+        border-color: transparent;
+      }
+      small {
+        font-size: 12px;
+        color: #93a89d;
+      }
+      #error {
+        color: #ffb9a5;
+        background: #321e18;
+        padding: 12px;
+        border-radius: 10px;
+        font-size: 13px;
+      }
+      footer {
+        margin-top: 32px;
+        font-size: 11px;
+        color: #8da197;
+      }
+      footer a {
+        color: inherit;
+      }
+      a:focus-visible,
+      select:focus-visible {
+        outline: 3px solid #b3e8d2;
+        outline-offset: 3px;
+      }
+      @media (max-width: 650px) {
+        main {
+          padding: 18px 18px 32px;
+        }
+        header {
+          margin-bottom: 22px;
+        }
+        .layout {
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+          align-items: stretch;
+        }
+        .player {
+          width: min(100%, 320px);
+          margin: auto;
+        }
+        .info {
+          max-width: 420px;
+          width: 100%;
+          margin: auto;
+        }
+        h1 {
+          font-size: 33px;
+        }
+        .meta {
+          margin: 14px 0 20px;
+        }
+      }
 
-[hidden]{display:none!important}</style></head><body><main><header><div class="brand">GEO<span>MOTION</span></div><span class="badge" id="stage">Memuat video…</span></header><div class="layout"><section class="player" aria-label="Pemutar video GeoMotion"><video id="video" controls playsinline preload="none">Browser ini tidak mendukung video. Gunakan tombol download.</video></section><section class="info"><div class="eyebrow" id="eyebrow">GEOMOTION / VIDEO</div><h1 id="title">Video GeoMotion</h1><p class="muted" id="description"></p><div class="meta" id="meta"></div><div id="error" role="alert" hidden></div><label for="quality">Kualitas video</label><select id="quality" disabled></select><a id="download" class="button primary" hidden>Download video</a><small id="hint"></small><p id="status" role="status" aria-live="polite"></p></section></div><footer>GeoMotion · <a id="credits" href="credits.md">Sumber & kredit media</a></footer></main><script src="app.js"></script></body></html>
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="brand">GEO<span>MOTION</span></div>
+        <span class="badge" id="stage">Memuat video…</span>
+      </header>
+      <div class="layout">
+        <section class="player" aria-label="Pemutar video GeoMotion">
+          <video id="video" controls playsinline preload="none">
+            Browser ini tidak mendukung video. Gunakan tombol download.
+          </video>
+        </section>
+        <section class="info">
+          <div class="eyebrow" id="eyebrow">GEOMOTION / VIDEO</div>
+          <h1 id="title">Video GeoMotion</h1>
+          <p class="muted" id="description"></p>
+          <div class="meta" id="meta"></div>
+          <div id="error" role="alert" hidden></div>
+          <label for="quality">Kualitas video</label
+          ><select id="quality" disabled></select
+          ><a id="download" class="button primary" hidden>Download video</a
+          ><small id="hint"></small>
+        </section>
+      </div>
+      <footer>
+        GeoMotion · <a id="credits" href="credits.md">Sumber & kredit media</a>
+      </footer>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>

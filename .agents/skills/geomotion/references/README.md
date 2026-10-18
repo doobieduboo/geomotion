@@ -16,6 +16,4 @@ This directory is the skill's technical knowledge base. It is not a second agent
 | [capabilities.md](capabilities.md) | Fitur yang sudah diimplementasikan dan batasnya |
 | [troubleshooting.md](troubleshooting.md) | Diagnosis from observed session/data/output state |
 
-[production-defaults.md](production-defaults.md) is a compatibility index for older instructions, not a second preset.
-
 Project-specific facts, sources, coordinates, narration, dates, generated audio and raw media belong with that production, not in this knowledge base. Keep notes reusable and distinguish implemented features from desired asset categories. Repository structure and actual capabilities are documented in [repository architecture](https://github.com/doobieduboo/geomotion/blob/main/docs/architecture.md) and [capabilities](capabilities.md).

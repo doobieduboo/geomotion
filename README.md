@@ -1,65 +1,54 @@
 # GeoMotion
 
-Toolkit dan skill Codex untuk **animasi peta yang agnostik topik**. Negara, lokasi, periode, durasi dan narasi mengikuti brief; tidak ada cerita bawaan. Peta, batas, label, bendera, rute, aset 2.5D dan gambar dipilih sesuai kebutuhan.
+Toolkit dan skill Codex untuk animasi peta berdasarkan brief pengguna. Lokasi, topik, periode dan narasi berasal dari proyek, bukan cerita bawaan repo.
 
-## Mulai di chat baru
+## Mulai atau lanjutkan pekerjaan
 
-1. Pilih cloud environment **geomotion** sebelum memulai obrolan jika memakai konfigurasi pribadi yang sudah disiapkan.
-2. Buka repo ini, lalu minta: **“Pakai $geomotion untuk membuat animasi peta sesuai brief berikut: …”**
-3. Agent membaca [AGENTS.md](AGENTS.md), skill dan preset produksi. Checkout/skill lama perlu disinkronkan sebelum memakai aturan terbaru.
+Pilih environment yang memiliki dependensi dan kredensial proyek. Buka repo, lalu gunakan:
 
-Repo menyimpan kode dan preferensi; API key disimpan di environment. Membuka repo saja tidak memindahkan sesi dari Base Environment. Detail: [panduan mulai dan environment](docs/getting-started.md).
+> Baca repo GeoMotion terbaru dan terapkan konfigurasinya pada proyek ini. Lanjutkan dari hasil yang sudah disetujui.
 
-## Default produksi
+Instruksi ini berlaku untuk obrolan baru maupun yang sedang berjalan. Agent mengikuti [AGENTS.md](AGENTS.md), menyinkronkan checkout tanpa menimpa pekerjaan lokal, lalu membaca skill dan preset terbaru. Perubahan repo tidak mengganti environment sesi atau membawa source produksi dari obrolan lain.
 
-| Tahap | Hasil dan player |
-|---|---|
-| Komposisi / editing | 360×640, 24 fps; player hanya 360p |
-| Final diminta | Render sumber native 1080×1920, 30 fps, langsung ringkas; player menawarkan 360p/1080p |
+## Produksi
 
-Satu tombol download mengikuti kualitas terpilih. UI player dipakai ulang. Tidak ada ekspor 720p atau master besar secara default; final bukan upscale preview.
+- Esri World Imagery adalah satu-satunya basemap; atribusi dan ketentuan penggunaannya mengikuti [referensi basemap](.agents/skills/geomotion/references/basemaps.md).
+- Editing memakai preview ringan. Final native hanya dibuat saat diminta, langsung dalam encoding ringkas.
+- Narasi/VO yang disetujui dipakai ulang untuk revisi visual. Kamera, subtitle dan arsip mengikuti frasa aktual.
+- Player Sites dipakai ulang, dengan pilihan kualitas sesuai tahap dan satu tombol download.
 
-VO memakai model **`gemini-2.5-flash-preview-tts`**, suara default **Charon**, dan gaya **fast-paced yang tetap jelas**, tanpa fallback model/provider atau penggunaan berbayar otomatis. Audio yang disetujui dipakai ulang saat revisi visual. Kuota/reset mengikuti akun dan model. Baca [aturan TTS](.agents/skills/geomotion/references/tts.md).
+Nilai resolusi, model/suara TTS, font, posisi subtitle, audio, kamera dan pacing ada di [defaults.json](.agents/skills/geomotion/defaults.json). Jangan memelihara salinan preset di dokumen atau prompt lain.
 
-Gaya: peta dominan, kamera mengikuti frasa, Montserrat ExtraBold untuk CTA, Open Sans untuk label/subtitle, subtitle terpusat dan tidak bertabrakan dengan elemen lain. Semua nilai tersimpan di [defaults.json](.agents/skills/geomotion/defaults.json).
+## Menjalankan
 
-Pacing Shorts mengikuti [retention.md](.agents/skills/geomotion/references/retention.md): hook cepat, perubahan visual yang bermakna mengikuti frasa, subtitle terbaca, serta minim jeda kosong. Ini default editorial, bukan jaminan angka retensi.
-
-## Menjalankan toolkit
-
-Python 3.10+, FFmpeg, Pillow dan NumPy diperlukan; font Open Sans/Montserrat beserta lisensi OFL sudah disertakan.
+Python 3.10+ dan FFmpeg diperlukan. Font berlisensi sudah disertakan.
 
 ```bash
 python -m pip install -r .agents/skills/geomotion/scripts/requirements.txt
 python .agents/skills/geomotion/scripts/render_scene.py scene.json --mode preview --output outputs/preview.mp4
 ```
 
-Gunakan [template scene](.agents/skills/geomotion/templates/scene.json) sebagai struktur, lalu ganti input anonimnya. Jalur aset relatif terhadap scene. `--mode final` digunakan hanya setelah final diminta. Renderer menghasilkan layer scene dan bisa menyertakan audio yang sudah tersedia; pembuatan VO, komposisi subtitle/CTA dan mixing membutuhkan langkah produksi terpisah.
+Mulai dari [template scene](.agents/skills/geomotion/templates/scene.json), lalu isi kamera dan layer berdasarkan brief. Jalur aset relatif terhadap scene. Renderer menangani visual dan audio supplied; TTS, subtitle/CTA dan mixing memerlukan langkah produksi terpisah. Lihat [kemampuan aktual](.agents/skills/geomotion/references/capabilities.md).
 
-Untuk memasang skill pada mesin yang sama:
+Pemasangan skill pada mesin ini bersifat opsional:
 
 ```bash
 python scripts/install_skill.py
 ```
 
-Instalasi tidak otomatis berlaku di semua perangkat/chat. Untuk mengganti instalasi lama, lihat panduan mulai; jangan menimpa perubahan lokal yang belum diperiksa.
+Baca [panduan mulai](docs/getting-started.md) untuk penggantian instalasi dan diagnosis environment.
 
-## Peta dokumentasi
+## Dokumentasi
 
-| Berkas | Fungsi |
+| Sumber | Tanggung jawab |
 |---|---|
-| [AGENTS.md](AGENTS.md) | Instruksi utama agent di repo |
-| [SKILL.md](.agents/skills/geomotion/SKILL.md) | Workflow produksi dan pemilihan referensi |
-| [defaults.json](.agents/skills/geomotion/defaults.json) | Nilai konfigurasi produksi |
-| [Indeks pengetahuan](.agents/skills/geomotion/references/README.md) | Komposisi, aset, scene, audio, TTS, delivery dan troubleshooting |
-| [Arsitektur repo](docs/architecture.md) | Pembagian aturan, konfigurasi dan pengetahuan |
-| [Kemampuan aktual](docs/capabilities.md) | Fitur implementasi dan batasnya |
-| [SOURCES.md](SOURCES.md) | Kebijakan sumber/lisensi toolkit; setiap produksi punya sumber sendiri |
+| [AGENTS.md](AGENTS.md) | Cara agent membaca, memperbarui dan merawat repo |
+| [SKILL.md](.agents/skills/geomotion/SKILL.md) | Workflow produksi |
+| [defaults.json](.agents/skills/geomotion/defaults.json) | Preset tunggal |
+| [Indeks referensi](.agents/skills/geomotion/references/README.md) | Kontrak teknis per bidang |
+| [Arsitektur](docs/architecture.md) | Struktur dan batas implementasi |
+| [SOURCES.md](SOURCES.md) | Kebijakan sumber dan lisensi |
 
 ```bash
 python -m unittest discover -s tests
 ```
-
-Esri World Imagery is the single permitted basemap. Other providers and plain vector backgrounds are rejected; failed imagery requests do not trigger fallback. Default brightness and saturation are 1.0. See [basemap sources, terms and setup](.agents/skills/geomotion/references/basemaps.md).
-
-[World Imagery item](https://www.arcgis.com/home/item.html?id=10df2279f9684e4a9f6a7f08febac2a9#overview) · [Map Viewer](https://www.arcgis.com/apps/mapviewer/index.html?layers=10df2279f9684e4a9f6a7f08febac2a9).

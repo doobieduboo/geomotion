@@ -14,7 +14,7 @@ Always load `defaults.json`. Use [references/README.md](references/README.md) as
 | Task | Reference |
 |---|---|
 | Scene JSON, coordinate/projection behavior | [scene-format.md](references/scene-format.md) |
-| Satellite source, cache, licensing and download failures | [basemaps.md](references/basemaps.md) |
+| Satellite source, licensing and download failures | [basemaps.md](references/basemaps.md) |
 | Map appearance, typography and placement | [style.md](references/style.md) |
 | Fast-paced Shorts delivery and information rhythm | [retention.md](references/retention.md) |
 | Camera/narrative timing, part continuity and layer behavior | [composition.md](references/composition.md) |
@@ -26,7 +26,7 @@ Always load `defaults.json`. Use [references/README.md](references/README.md) as
 
 ## Production workflow
 
-1. Inspect the environment, applicable instructions, current repo/skill revision and existing project inputs. Resolve package paths against the skill and asset paths against the scene. A repo checkout does not attach its cloud environment or credentials.
+1. Inspect the environment, applicable instructions, current repo/skill revision and existing project inputs. When updating an active conversation, sync the checkout safely and reread the current preset/references; do not reuse a stale installed copy. Apply changed rules to the active source scene/scripts while preserving approved content and audio. Resolve package paths against the skill and asset paths against the scene. A repo checkout does not attach its cloud environment or credentials.
 2. Translate the brief into content, geography, duration, camera and optional layers. Obtain verified sources/media and record their dates, licenses and limitations in the production's `SOURCES.md`. Ask only for essential missing input.
 3. If narration is needed, use `audio.tts` from the preset and follow the TTS reference. Preserve approved wording/voice/audio; do not generate new speech for visual-only edits. Determine actual phrase timings before driving the camera and subtitle cues.
 4. Compose a source scene from `templates/scene.json` and actual assets. Use Esri World Imagery as the only basemap; read references/basemaps.md for map creation and Esri use/credit requirements. Other providers and solid vector backgrounds are prohibited; report request failures without fallback. Apply the fast-paced editorial preset without sacrificing voice clarity, geographic context or reading time. Keep the map dominant, geographic anchors correct and camera movement aligned with the narrative. Match adjacent parts as one continuous scene. Consult style/composition references only where needed.

@@ -4,7 +4,6 @@ __pycache__/
 .env
 cache/
 outputs/
-**/assets/demo/*
-!**/assets/demo/.gitkeep
+**/assets/
 *.mp4
 *.wav
