@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "design_width": 720,
   "export": {
     "preview": {
@@ -98,9 +98,16 @@
       "billing_policy": "free_quota_only_unless_user_explicitly_authorizes_paid",
       "auto_enable_billing": false,
       "cache_approved_audio": true,
-      "voice_policy": "reuse_project_approved_voice_and_style",
+      "voice_policy": "project_approved_voice_first_otherwise_use_default_Charon",
       "log_model_and_voice": true,
-      "on_quota_exhausted": "report_limit_and_retry_after_without_switching_model"
+      "on_quota_exhausted": "report_limit_and_retry_after_without_switching_model",
+      "voice_name": "Charon",
+      "voice_fallback": false,
+      "delivery_style": "Bahasa Indonesia natural seperti sedang menjelaskan kepada teman. Fast-paced, percaya diri, artikulasi jelas, dengan tempo cepat yang tetap nyaman diikuti. Gunakan jeda singkat dan alami sesuai tanda baca serta penekanan pada kata penting. Pertahankan variasi intonasi; hindari gaya pembaca berita, dramatisasi berlebihan, atau pengucapan terburu-buru. Baca persis narasi yang diberikan. Sesuaikan emosi dengan topik; sarkasme bukan default semua narasi.",
+      "initial_voice_sample_seconds": [
+        8,
+        12
+      ]
     }
   },
   "camera": {
@@ -127,5 +134,27 @@
     "show_master": false,
     "site_binding": "delivery-target.json",
     "prepare_script": "scripts/prepare_delivery.py"
+  },
+  "pacing": {
+    "mode": "fast-paced",
+    "target_words_per_minute": [
+      165,
+      185
+    ],
+    "opening_hook_seconds": [
+      0,
+      2
+    ],
+    "meaningful_visual_beat_seconds": [
+      2,
+      4
+    ],
+    "timing_ranges_are_editorial_guides": true,
+    "follow_actual_vo_phrases": true,
+    "preserve_readability_and_geographic_context": true,
+    "trim_unintentional_dead_air": true,
+    "preserve_meaningful_pauses": true,
+    "automatic_audio_speedup": false,
+    "retention_improvement_guaranteed": false
   }
 }

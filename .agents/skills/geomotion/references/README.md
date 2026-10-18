@@ -5,6 +5,7 @@ This directory is the skill's technical knowledge base. It is not a second agent
 | Reference | Owns |
 |---|---|
 | [style.md](style.md) | Appearance, type roles and placement semantics |
+| [retention.md](retention.md) | Fast-paced voice/visual rhythm, hooks and readable information beats |
 | [composition.md](composition.md) | Camera timing, geographic layer behavior and continuity |
 | [scene-format.md](scene-format.md) | Actual scene JSON schema and renderer projection behavior |
 | [assets.md](assets.md) | Asset families, atlas contracts and source metadata |

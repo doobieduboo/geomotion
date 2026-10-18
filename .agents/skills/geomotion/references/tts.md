@@ -4,6 +4,14 @@ Use **`gemini-3.8-flash-lite-tts`** for new GeoMotion TTS. This exact lowercase 
 
 Do not substitute another Gemini model, Pro/non-Lite variant, Edge, ElevenLabs or another provider merely because it is newer, recommended by search, present in an example, faster to configure or available after an error. A model/provider change requires an explicit user instruction. Legacy project README files and old default presets naming Edge or generic "choose an available model" do not override this rule. User-supplied recorded VO remains valid when specifically requested.
 
+## Default voice and delivery
+
+Read `defaults.json` → `audio.tts` and `pacing`. The default prebuilt voice is **Charon**, with fast-paced, conversational Indonesian delivery. Charon is a chosen starting voice, not a claim that it has already passed an Indonesian production audition. Reuse an already approved project voice/audio unless the user requests a change; do not replace an approved recording just because the default changed. A new project's first short sample uses Charon and the preset style. Do not randomly cycle through voices or switch when a request fails.
+
+Pass delivery instructions through the model's supported style metadata/prompt controls separately from the verbatim transcript so they are not spoken. Preserve actual script punctuation and wording. Do not copy another provider's numeric `rate` parameter or assume Gemini supports that control. The words-per-minute target is an editorial starting range, not a guaranteed TTS parameter: measure the WAV, listen for clear articulation, names and geographic terms, and relax the pace if understanding suffers. Do not silently speed up audio in post.
+
+Audition only a short representative phrase before spending quota on full narration for an unapproved voice. Keep tone confident and clear with varied intonation and brief natural pauses. Topic-specific sarcasm, urgency or solemnity follows the brief; do not turn every subject into sensational commentary. After approval, cache the voice/style/text/settings and actual WAV; see [retention.md](retention.md) for the complete pacing policy.
+
 ## Access and costs
 
 Use the published `geomotion` cloud environment when available. The repository stores configuration, not credentials. Inspect `environment_status` and the current readiness of the `GEMINI_API_KEY` network secret; proxy placeholders are expected. Use the credential normally in the request header to `generativelanguage.googleapis.com`, never print/persist the actual key or send it to a browser, Sites frontend, archive or Git. Use the cloud environment runtime skill for access diagnostics. If a session uses Base Environment, explain that it needs the configured environment; opening the repository alone cannot attach its credentials.

@@ -12,6 +12,7 @@ GeoMotion is a topic-agnostic map animation toolkit. Derive every story, place, 
 
 - Apply established defaults without repeated confirmation. Explicit user instructions override repository defaults; higher-priority session/platform instructions still apply.
 - Editing stays in the preview stage. Native final export requires the user's final request; never upscale a preview or make a large master by default. See the skill's delivery workflow.
+- Use the fast-paced editorial preset for Shorts: brisk intelligible VO, prompt opening, meaningful phrase-aligned visual beats and minimal accidental dead air. Preserve reading time and context; do not promise retention gains without analytics. Read the retention reference for pacing changes.
 - TTS uses the exact model pinned in `defaults.json` → `audio.tts`. No automatic model/provider substitution, billing activation or paid fallback. Read the TTS reference before generating audio; reuse approved VO for visual-only changes.
 - Keep source scenes, media, narration, separate audio stems, subtitles and timing reproducible in the production workspace. Do not put production outputs, caches, secrets or downloaded topic-specific media into this reusable repo. Bundled fonts are licensed dependencies.
 - Preserve geographic/date accuracy and actual attribution. Keep factual data separate from illustrative effects; never invent observations or silently treat allegations as findings.

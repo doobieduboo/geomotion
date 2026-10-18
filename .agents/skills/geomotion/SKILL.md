@@ -15,6 +15,7 @@ Always load `defaults.json`. Use [references/README.md](references/README.md) as
 |---|---|
 | Scene JSON, coordinate/projection behavior | [scene-format.md](references/scene-format.md) |
 | Map appearance, typography and placement | [style.md](references/style.md) |
+| Fast-paced Shorts delivery and information rhythm | [retention.md](references/retention.md) |
 | Camera/narrative timing, part continuity and layer behavior | [composition.md](references/composition.md) |
 | New flags, sprites, media or geographic data | [assets.md](references/assets.md) |
 | VO generation or access/quota errors | [tts.md](references/tts.md) |
@@ -27,7 +28,7 @@ Always load `defaults.json`. Use [references/README.md](references/README.md) as
 1. Inspect the environment, applicable instructions, current repo/skill revision and existing project inputs. Resolve package paths against the skill and asset paths against the scene. A repo checkout does not attach its cloud environment or credentials.
 2. Translate the brief into content, geography, duration, camera and optional layers. Obtain verified sources/media and record their dates, licenses and limitations in the production's `SOURCES.md`. Ask only for essential missing input.
 3. If narration is needed, use `audio.tts` from the preset and follow the TTS reference. Preserve approved wording/voice/audio; do not generate new speech for visual-only edits. Determine actual phrase timings before driving the camera and subtitle cues.
-4. Compose a source scene from `templates/scene.json` and actual assets. Keep the map dominant, geographic anchors correct and camera movement aligned with the narrative. Match adjacent parts as one continuous scene. Consult style/composition references only where needed.
+4. Compose a source scene from `templates/scene.json` and actual assets. Apply the fast-paced editorial preset without sacrificing voice clarity, geographic context or reading time. Keep the map dominant, geographic anchors correct and camera movement aligned with the narrative. Match adjacent parts as one continuous scene. Consult style/composition references only where needed.
 5. Implement any missing production step honestly. The generic renderer does not automatically generate TTS, mix stems, burn subtitles/CTA or simulate arbitrary effects. Compose those with verified project scripts or an appropriate supported tool; see [capabilities.md](references/capabilities.md).
 6. During editing, render `scripts/render_scene.py SCENE.json --mode preview --output outputs/preview.mp4`. Use the preview profile in `defaults.json`. Inspect the affected frames, geography, subtitle placement/punctuation and VO timing. Preserve project source files, separate stems and editable cues.
 7. Prepare the verified preview with `scripts/prepare_delivery.py VIDEO --stage preview --output SITE/dist --title TITLE`, then use the Sites workflow to publish to the configured player. Preparation alone is not publication. Return the verified URL and material limitations.

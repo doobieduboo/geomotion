@@ -2,6 +2,8 @@
 
 Use the current narration/brief and [defaults.json](../defaults.json), not timings from an older clip.
 
+Fast-paced production follows [retention.md](retention.md); align useful visual beats to actual speech rather than forcing constant zooms or cuts.
+
 ## Camera and continuity
 
 Establish geographic context before a specific location is spoken; start its focus move with the relevant phrase, not seconds early. A short hook push-in then contextual pullback is an option, not a mandatory sequence. Maintain gentle pan/zoom/rotation during longer holds without distracting from the narrative. End by widening to the relevant geographic context; do not always choose the same country.

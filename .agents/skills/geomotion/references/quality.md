@@ -10,6 +10,8 @@ Subtitles default on for narrated productions. Build phrase-level cues from actu
 
 Use the preset line count, font role, word-group range and centered safe area. Break at natural phrase boundaries, adapting long names for fit. Resolve label/card/CTA collisions by inspecting the actual frames; move only affected elements/cues when appropriate. Silence needs no caption. Keep the editable ASS/SRT and cue/timing metadata.
 
+For fast-paced edits, also inspect opening clarity, voice articulation, visual information beats and reading time using [retention.md](retention.md).
+
 ## Before delivery
 
 - Verify dimensions, frame rate, duration and audio presence with ffprobe; decode a new assembled deliverable to the end.
