@@ -1,0 +1,16 @@
+{
+  "assets": [
+    {
+      "filename": "boundaries.geojson",
+      "url": "https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/main/releaseData/gbOpen/IDN/ADM1/geoBoundaries-IDN-ADM1_simplified.geojson",
+      "sha256": "5a6be3d1484166132751fe535dd164e1491e657f2d38dced177f067a7bc00d8f",
+      "source": "geoBoundaries gbOpen Indonesia ADM1; modern boundaries"
+    },
+    {
+      "filename": "proclamation.jpg",
+      "url": "https://upload.wikimedia.org/wikipedia/commons/f/f1/Indonesia_declaration_of_independence_17_August_1945.jpg",
+      "sha256": "51f194ca06dfec02ce2380042715ca036ca15e9cc48034df24199abfffb553a6",
+      "source": "Wikimedia Commons; Indonesia declaration of independence 17 August 1945"
+    }
+  ]
+}

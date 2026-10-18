@@ -1,0 +1,4 @@
+interface:
+  display_name: "GeoMotion"
+  short_description: "Animasi peta, batas glow, bendera dan sprite 2.5D"
+  default_prompt: "Gunakan $geomotion untuk membuat preview animasi peta sesuai gaya yang tersimpan."
