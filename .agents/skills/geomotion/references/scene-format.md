@@ -6,13 +6,14 @@ The input is a scene description, not a story template. No subject, place, date 
 - Geographic positions are `[longitude, latitude]`, in WGS84 degrees.
 - Times are seconds on the scene timeline; duration is explicit and positive.
 - All media and GeoJSON paths resolve relative to the scene JSON file.
-- Preview is 360×640/24fps; final is 720×1280/30fps.
+- Preview is 360×640/24fps; final is 1080×1920/30fps.
 - Screen offsets, widths and font sizes use a 720-wide design grid and scale to the selected output. The preview renders directly at 360p.
 
 ## Top-level fields
 
 | Field | Meaning |
 |---|---|
+| `export` | Optional mode overrides, e.g. `{"final":{"width":720,"height":1280,"fps":30}}`; omitted uses `defaults.json` |
 | `duration` | Required scene length in seconds; no topic-specific fixed timeline |
 | `camera` | Required keyframes: `time`, `center`, `zoom`, optional `rotation` in degrees; `ease: "linear"` disables easing for that incoming segment |
 | `basemap` | `type: "solid"` with RGB `color`, or `type: "satellite"` with optional `saturation` and `brightness`; satellite mode fetches Esri World Imagery tiles |

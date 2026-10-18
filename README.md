@@ -35,7 +35,7 @@ Preview **360×640 / 24 fps**. Hanya saat final diminta:
 python .agents/skills/geomotion/scripts/render_scene.py scene.json --mode final --output outputs/final.mp4
 ```
 
-Final **720×1280 / 30 fps**. Template berisi koordinat anonim untuk memperlihatkan struktur; bukan konten yang harus dipakai. Format lengkap: [.agents/skills/geomotion/references/scene-format.md](.agents/skills/geomotion/references/scene-format.md).
+Final **1080×1920 / 30 fps**. Template berisi koordinat anonim untuk memperlihatkan struktur; bukan konten yang harus dipakai. Format lengkap: [.agents/skills/geomotion/references/scene-format.md](.agents/skills/geomotion/references/scene-format.md).
 
 ## Toolkit
 
@@ -57,3 +57,11 @@ Simpan sumber, lisensi dan catatan akurasi per scene. Tidak ada media atau data 
 ```bash
 python -m unittest discover -s tests
 ```
+
+## Default produksi yang tersimpan
+
+Preset utama: [.agents/skills/geomotion/defaults.json](.agents/skills/geomotion/defaults.json). Panduan komposisi: [production-defaults.md](.agents/skills/geomotion/references/production-defaults.md).
+
+Montserrat ExtraBold untuk judul/CTA; Open Sans Bold untuk subtitle/label; Open Sans Regular untuk informasi pendukung. Font beserta lisensi OFL disertakan. Subtitle aktif secara default untuk video bernarasi, kamera mengikuti frasa VO, CTA di area peta dan area bawah disediakan untuk subtitle. VO harus jelas di atas musik; target loudness dan aturan kontinuitas tersimpan dalam preset.
+
+Renderer membaca default font dan ekspor secara langsung. Subtitle, mixing audio, CTA dan efek khusus diterapkan lewat tahap komposisi terverifikasi sesuai panduan, bukan fitur JSON otomatis. Override ekspor per scene: `"export": {"final": {"width": 720, "height": 1280, "fps": 30}}`.

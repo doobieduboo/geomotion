@@ -49,11 +49,14 @@ def validate(scene):
 def color(value):return tuple(value or [75,222,239])
 
 
+SKILL_ROOT=Path(__file__).resolve().parents[1]
+DEFAULTS=json.loads((SKILL_ROOT/'defaults.json').read_text())
+
 def load_font(size,bold=False):
     import os
     name='DejaVuSans-Bold.ttf' if bold else 'DejaVuSans.ttf'
     env=os.environ.get('GEOMOTION_FONT_BOLD' if bold else 'GEOMOTION_FONT_REGULAR')
-    path=env or '/usr/share/fonts/truetype/dejavu/'+name
+    path=env or str(SKILL_ROOT/DEFAULTS['typography']['bold_font' if bold else 'regular_font'])
     if not Path(path).exists() and shutil.which('fc-match'):
         path=subprocess.check_output(['fc-match','-f','%{file}','DejaVu Sans:style='+('Bold' if bold else 'Book')],text=True)
     return ImageFont.truetype(path,size)
@@ -68,7 +71,9 @@ def main():
     if not shutil.which('ffmpeg'):parser.error('Install FFmpeg')
     root=args.scene.resolve().parent
     def path(value):return (root/value).resolve()
-    width,height=(360,640) if args.mode=='preview' else (720,1280);fps=24 if args.mode=='preview' else 30
+    export={**DEFAULTS['export'][args.mode],**scene.get('export',{}).get(args.mode,{})}
+    width,height,fps=(int(export[k]) for k in ('width','height','fps'))
+    if min(width,height,fps)<=0 or width%2 or height%2:raise ValueError('Export requires positive even dimensions and positive fps')
     duration=float(scene['duration']);count=max(1,round(duration*fps));scale=width/720
     basemap=scene.get('basemap',{'type':'solid'})
     if basemap.get('type','solid') not in ['solid','satellite']:raise ValueError('basemap.type must be solid or satellite')

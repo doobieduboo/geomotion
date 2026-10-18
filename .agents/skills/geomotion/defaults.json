@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "design_width": 720,
+  "export": {
+    "preview": {
+      "width": 360,
+      "height": 640,
+      "fps": 24
+    },
+    "final": {
+      "width": 1080,
+      "height": 1920,
+      "fps": 30
+    },
+    "final_requires_request": true
+  },
+  "typography": {
+    "regular_font": "fonts/OpenSans-Regular.ttf",
+    "bold_font": "fonts/OpenSans-Bold.ttf",
+    "display_font": "fonts/Montserrat-ExtraBold.ttf",
+    "cta_italic_optional": true
+  },
+  "palette": {
+    "text": "#FFFFFF",
+    "cta": "#FFF4DD",
+    "outline": "#78DCE8",
+    "focus": "#F3C873",
+    "text_shadow": "#081219"
+  },
+  "composition": {
+    "map_first": true,
+    "subtitle_safe_area_normalized": [
+      0.06,
+      0.77,
+      0.84,
+      0.9
+    ],
+    "cta_area_normalized": [
+      0.1,
+      0.43,
+      0.85,
+      0.65
+    ],
+    "cta_max_lines": 2,
+    "avoid_permanent_hud": true
+  },
+  "subtitles": {
+    "enabled_with_narration": true,
+    "font": "fonts/OpenSans-Bold.ttf",
+    "font_size_design": 38,
+    "max_lines": 2,
+    "target_words_per_cue": [
+      3,
+      5
+    ],
+    "stroke_design": 4,
+    "phrase_sync": true,
+    "karaoke": false
+  },
+  "audio": {
+    "free_tts_voice": "id-ID-ArdiNeural",
+    "tts_rate": "+15%",
+    "voice_integrated_lufs": -13,
+    "final_true_peak_dbtp": -1.5,
+    "music_below_voice_db": [
+      20,
+      26
+    ],
+    "duck_attack_ms": 20,
+    "duck_release_ms": 250
+  },
+  "camera": {
+    "follow_spoken_location": true,
+    "gentle_continuous_motion": true,
+    "ending": "widen_to_relevant_geographic_context",
+    "preserve_part_continuity": true
+  }
+}
