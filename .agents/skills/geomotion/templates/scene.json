@@ -1,0 +1,17 @@
+{
+  "duration": 8,
+  "basemap": {"type": "solid", "color": [12, 24, 30]},
+  "camera": [
+    {"time": 0, "center": [0, 0], "zoom": 6, "rotation": -5},
+    {"time": 8, "center": [1, 1], "zoom": 7, "rotation": 5}
+  ],
+  "regions": [],
+  "markers": [
+    {"position": [0, 0], "label": "Lokasi A", "color": [255, 196, 95]},
+    {"position": [1, 1], "label": "Lokasi B", "color": [75, 222, 239]}
+  ],
+  "routes": [
+    {"points": [[0, 0], [0.5, 0.3], [1, 1]], "start": 1, "end": 6}
+  ],
+  "callouts": []
+}

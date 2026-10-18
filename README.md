@@ -1,72 +1,59 @@
-# GeoMotion Skill
+# GeoMotion
 
-Skill Codex untuk animasi peta bergaya GeoLayers: kamera dinamis, batas wilayah glow, label lokasi, ikon, rute, serta bubble foto/info. Fokus pada video vertikal dan sprite 2.5D, tanpa Blender.
+Skill Codex untuk **map animation yang agnostik topik**. Isi, negara, lokasi, waktu, durasi dan alur ditentukan oleh permintaan pengguna serta data scene. Skill menyediakan kemampuan visual yang bisa dikomposisikan sesuai kebutuhan.
 
-**Gaya tersimpan:** peta mendominasi layar; tanpa judul presentasi besar, tanggal pojok, kompas, skala, atau footer dekoratif. Preview **360×640 / 24 fps**. Final **720×1280 / 30 fps**, hanya saat diminta.
+Kamera peta, geometri wilayah, batas glow, isian bendera, pin, label, rute, sprite 2.5D, gambar dan bubble info adalah layer opsional. Tidak ada topik atau cerita bawaan.
 
 ## Pakai di obrolan baru
 
-1. Buka repo ini sebagai workspace/environment di sesi Codex baru.
-2. Minta: **“Pakai $geomotion, buat preview animasi peta Indonesia ke Belanda.”**
+1. Buka repo ini di environment Codex baru.
+2. Minta: **“Pakai $geomotion untuk membuat animasi peta sesuai brief berikut: …”**
 3. Agent membaca `AGENTS.md` dan `.agents/skills/geomotion/SKILL.md`.
 
-Repo tidak otomatis membuat semua chat ChatGPT atau Work mengenal skill ini. Session perlu akses repo/file dan alat eksekusi. Jika ingin memasang untuk user Codex pada mesin yang sama:
+Atau pasang skill untuk user Codex pada mesin yang sama:
 
 ```bash
 python scripts/install_skill.py
 ```
 
-Mulai sesi baru setelah pemasangan. Di environment/mesin lain, buka repo atau install lagi. Jika platform tidak mendeteksi skill otomatis, arahkan agent untuk membaca `.agents/skills/geomotion/SKILL.md` secara eksplisit.
+Environment lain perlu membuka repo atau memasang ulang. Repo tidak otomatis menjadi skill di semua chat ChatGPT/Work; sesi tetap memerlukan akses file dan alat eksekusi. Jika deteksi otomatis tidak tersedia, minta agent membaca file `SKILL.md` tersebut.
 
-## Contoh render yang sudah berjalan
+## Render dari scene
 
-Memerlukan Python 3.10+, FFmpeg, font DejaVu Sans, Pillow dan NumPy. Installer skill tidak memasang dependency sistem. Bila font berbeda, set `GEOMOTION_FONT_BOLD` dan `GEOMOTION_FONT_REGULAR` ke file TTF/OTF yang sesuai.
+Input JSON menentukan kamera, layer dan timeline; renderer tidak memilih topik. Mulai dari `.agents/skills/geomotion/templates/scene.json`, lalu ganti koordinat anonim, label dan parameter sesuai kebutuhan. Jalur aset relatif terhadap file scene.
+
+Memerlukan Python 3.10+, FFmpeg, DejaVu Sans atau font pengganti, Pillow dan NumPy:
 
 ```bash
 python -m pip install -r .agents/skills/geomotion/scripts/requirements.txt
-python .agents/skills/geomotion/scripts/render_demo.py --mode preview --output outputs/preview.mp4
+python .agents/skills/geomotion/scripts/render_scene.py scene.json --mode preview --output outputs/preview.mp4
 ```
 
-Contoh ini adalah adegan **Jakarta–Rengasdengklok, 15 detik**. Skrip mendownload data wilayah, foto arsip dan tile peta pada pemakaian pertama. Cache dipakai ulang. Jalankan setelah meninjau sumber dan ketentuan aset di `SOURCES.md`.
-
-Cek cuplikan 1 detik:
+Preview **360×640 / 24 fps**. Hanya saat final diminta:
 
 ```bash
-python .agents/skills/geomotion/scripts/render_demo.py --mode preview --start 11 --duration 1 --output outputs/check.mp4
+python .agents/skills/geomotion/scripts/render_scene.py scene.json --mode final --output outputs/final.mp4
 ```
 
-Saat final sudah diminta:
+Final **720×1280 / 30 fps**. Template berisi koordinat anonim untuk memperlihatkan struktur; bukan konten yang harus dipakai. Format lengkap: [.agents/skills/geomotion/references/scene-format.md](.agents/skills/geomotion/references/scene-format.md).
 
-```bash
-python .agents/skills/geomotion/scripts/render_demo.py --mode final --output outputs/final.mp4
-```
+## Toolkit
 
-## Apa yang tersedia
+- Kamera keyframe: pan, zoom, rotasi dan easing.
+- Basemap warna polos atau citra satelit; border reveal/glow dari GeoJSON.
+- Bendera mengisi polygon wilayah, termasuk pulau dan lubang polygon.
+- Marker lokasi, label, flagpole berkibar, rute dan pengikut rute dari sprite atlas.
+- Bubble geografis dengan gambar, judul dan baris informasi; audio opsional.
+- Kontrak aset multi-angle 2.5D dan utility layer; installer lokal dan tes.
 
-- Skill dan pedoman visual yang bisa dibaca agent di sesi baru.
-- Renderer referensi dengan kamera peta, polygon glow, rute, ikon mobil bergerak, pin, serta bubble foto/info.
-- Utility untuk isian bendera mengikuti polygon/pulau/lubang, penanda bendera bertiang berkibar, dan pemilihan sprite berdasarkan arah relatif kamera.
-- Kontrak aset 16–32 arah untuk tank, pesawat, helikopter, kapal dan kendaraan lain; spesifikasi efek dan sumber.
-- Installer lokal, manifest input demo dengan checksum, serta tes utilitas layer.
+Aset dipilih per scene. Repo tidak menyertakan koleksi semua bendera, kendaraan, efek atau voice-over. Batas kemampuan: kamera peta datar Web Mercator, bukan globe 3D; scene tertentu memerlukan proyeksi lain, pemotongan geometri atau implementasi tambahan. Tanpa Blender secara default.
 
-**Belum termasuk:** koleksi sprite kendaraan, paket bendera semua negara, animasi ledakan siap pakai, voice-over, globe 3D, atau editor visual. Utility bendera/sprite perlu diintegrasikan ke scene dengan aset nyata. Renderer demo bukan engine scene JSON universal; agent mengadaptasi kode untuk cerita/lokasi baru.
+## Gaya dan sumber
 
-## Struktur
+Default visual: peta mendominasi layar, label terbaca, informasi menempel ke lokasi. Tanpa judul presentasi besar, tanggal pojok, kompas, skala atau footer dekoratif. Semua default bisa disesuaikan permintaan pengguna. Kredit yang diwajibkan lisensi tetap dipenuhi.
 
-```text
-AGENTS.md
-.agents/skills/geomotion/
-  SKILL.md
-  agents/openai.yaml
-  references/          # gaya, kontrak aset, manifest sumber
-  scripts/             # renderer demo, downloader, utility layer
-scripts/install_skill.py
-tests/test_layers.py
-SOURCES.md
-```
+Simpan sumber, lisensi dan catatan akurasi per scene. Tidak ada media atau data bertema tertentu yang dimuat otomatis. Lihat [SOURCES.md](SOURCES.md).
 
 ```bash
 python -m unittest discover -s tests
 ```
-
-Sumber, tanggal data dan lisensi media dicatat terpisah. Batas administratif modern bukan bukti batas tahun 1945. Hormati atribusi yang benar-benar diwajibkan penyedia; lisensi kode repo tidak mencakup media pihak ketiga.

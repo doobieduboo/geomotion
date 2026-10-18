@@ -13,11 +13,11 @@ No PowerPoint-like typography: no giant titles, editorial paragraphs, presentati
 
 Use cyan for general geographic outlines and warm amber for the focal region, unless the topic needs another palette. Avoid losing a departure marker off screen while following a destination; fit both endpoints before the final close-up.
 
-The user requested clean maps. Retain source/accuracy notes separately and comply with actual attribution requirements. If a source requires on-video credit, use minimally intrusive compliant attribution or replace it with a source that supports the desired output.
+These are adjustable style defaults, independent of subject matter. The user requested clean maps. Retain source/accuracy notes separately and comply with actual attribution requirements. If a source requires on-video credit, use minimally intrusive compliant attribution or replace it with a source that supports the desired output.
 
 ## Flags
 Two distinct layer types:
-1. A country's flag fills its land polygons, with sea and other countries excluded; preserve islands and polygon holes. Indonesia means all relevant islands from Sabang to Merauke, not one rectangle including surrounding ocean. Describe exactly whether the flag is stretched once over the whole country or repeated by island.
+1. A country's flag fills its land polygons, with sea and other countries excluded; preserve islands and polygon holes. For an archipelago, include all relevant islands without painting the surrounding ocean. Describe exactly whether the flag is stretched once over the whole country or repeated by island.
 2. Flagpole markers for countries, bases, locations or territorial control. Pin the pole's foot to the map. Animate flag flutter; keep readable size in screen pixels. A marker's meaning follows the story and must not silently assert sovereignty or control.
 
 ## Vehicles and effects
