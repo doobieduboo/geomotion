@@ -30,10 +30,10 @@
   "composition": {
     "map_first": true,
     "subtitle_safe_area_normalized": [
-      0.06,
-      0.77,
-      0.84,
-      0.9
+      0.07,
+      0.68,
+      0.93,
+      0.77
     ],
     "cta_area_normalized": [
       0.1,
@@ -47,7 +47,7 @@
   "subtitles": {
     "enabled_with_narration": true,
     "font": "fonts/OpenSans-Bold.ttf",
-    "font_size_design": 38,
+    "font_size_design": 44,
     "max_lines": 2,
     "target_words_per_cue": [
       3,
@@ -55,7 +55,15 @@
     ],
     "stroke_design": 4,
     "phrase_sync": true,
-    "karaoke": false
+    "karaoke": false,
+    "horizontal_alignment": "center",
+    "anchor_normalized": [
+      0.5,
+      0.77
+    ],
+    "preserve_authored_punctuation": true,
+    "capitalize_after_sentence_end": true,
+    "punctuation_by_sentence_meaning": true
   },
   "audio": {
     "free_tts_voice": "id-ID-ArdiNeural",
