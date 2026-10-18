@@ -23,7 +23,7 @@ Photographs are optional, source-verified, relevant to the phrase and dated when
 
 ## Voice, music and subtitles
 
-For Indonesian narration, default to free Edge TTS `id-ID-ArdiNeural`, rate `+15%`, when no recorded VO or requested voice is supplied. Free TTS can still sound synthetic; do not promise conversational ChatGPT voice. Check pronunciation, pauses and word boundaries; preserve approved wording and timing.
+For Indonesian narration, use Google Gemini TTS with the exact pinned model **`gemini-3.8-flash-lite-tts`**. Read `tts.md` and `defaults.json` → `audio.tts`. No automatic model/provider fallback or paid usage. Reuse the project-approved voice/style and cache approved audio, especially during visual-only edits. Edge/Ardi stems are legacy references, not the current default. Check pronunciation, pauses and actual audio timings; preserve approved wording.
 
 Make VO prominent: target approximately -13 LUFS integrated on the isolated speech program, then mix with final true peak at or below -1.5 dBTP. Treat these as measured targets, not unconditional +3 dB gain; avoid clipping or crushing dynamics. Keep music about 20–26 dB below active voice, ducking with roughly 20 ms attack / 250 ms release where useful. Check intelligibility at low phone volume, master loudness and peaks after encoding. Do not boost the music together with quiet speech.
 

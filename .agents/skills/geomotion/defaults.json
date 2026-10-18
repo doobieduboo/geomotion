@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "design_width": 720,
   "export": {
     "preview": {
@@ -78,8 +78,6 @@
     "punctuation_by_sentence_meaning": true
   },
   "audio": {
-    "free_tts_voice": "id-ID-ArdiNeural",
-    "tts_rate": "+15%",
     "voice_integrated_lufs": -13,
     "final_true_peak_dbtp": -1.5,
     "music_below_voice_db": [
@@ -87,7 +85,23 @@
       26
     ],
     "duck_attack_ms": 20,
-    "duck_release_ms": 250
+    "duck_release_ms": 250,
+    "tts": {
+      "provider": "google_gemini",
+      "model": "gemini-3.8-flash-lite-tts",
+      "model_locked": true,
+      "api_key_env": "GEMINI_API_KEY",
+      "allowed_host": "generativelanguage.googleapis.com",
+      "language": "id-ID",
+      "model_fallback": false,
+      "provider_fallback": false,
+      "billing_policy": "free_quota_only_unless_user_explicitly_authorizes_paid",
+      "auto_enable_billing": false,
+      "cache_approved_audio": true,
+      "voice_policy": "reuse_project_approved_voice_and_style",
+      "log_model_and_voice": true,
+      "on_quota_exhausted": "report_limit_and_retry_after_without_switching_model"
+    }
   },
   "camera": {
     "follow_spoken_location": true,

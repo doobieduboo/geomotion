@@ -71,3 +71,7 @@ Renderer membaca default font dan ekspor secara langsung. Subtitle, mixing audio
 Tahap editing tetap **360p / 24 fps** dan Sites hanya menampilkan 360p. Setelah final diminta, render ulang sumber ke **1080p / 30 fps** langsung dengan encoding ringkas; tidak membuat master besar dulu. Player final menyediakan kualitas ringkas 360p dan 1080p dengan satu tombol download mengikuti kualitas terpilih.
 
 UI dipakai ulang lewat `templates/player`; `scripts/prepare_delivery.py` menyiapkan media dan manifest per tahap. Agent tetap menjalankan workflow Sites untuk menerbitkan setiap revisi. Baca [delivery.md](.agents/skills/geomotion/references/delivery.md); binding situs pengguna tersimpan di `delivery-target.json` dan bisa diganti. Tidak otomatis terpasang atau terpublikasi di environment lain tanpa akses Sites.
+
+## Model VO tetap
+
+Model TTS default dikunci ke **`gemini-3.8-flash-lite-tts`**, memakai `GEMINI_API_KEY` di environment yang dikonfigurasi. Tidak beralih ke model/provider lain atau paket berbayar otomatis saat kuota habis. Revisi visual memakai ulang audio yang sudah disetujui. Batas/reset mengikuti kuota aktual akun/model, bukan asumsi kredit bulanan. Baca [tts.md](.agents/skills/geomotion/references/tts.md).

@@ -7,7 +7,7 @@ description: Create, edit and render topic-agnostic map animation and geographic
 
 A reusable geographic animation skill, independent of subject matter. Start from the user's requested scene and data. Do not inherit a storyline, place, era, country pair, vehicle type or duration from previous examples. A topic is content input, not part of the skill's identity.
 
-Load `defaults.json` as the persistent production preset before composing each new scene. Apply it without asking the user to repeat choices; explicit scene/user overrides take precedence. Read `references/delivery.md` for stage-aware compact export and reusable Sites delivery. Read `references/production-defaults.md` for typography, subtitle, audio and continuity requirements. Read `references/style.md` for editable visual defaults, `references/scene-format.md` for scene composition, and `references/assets.md` when additional media are needed. Explicit user instructions override defaults.
+Load `defaults.json` as the persistent production preset before composing each new scene. Apply it without asking the user to repeat choices; explicit scene/user overrides take precedence. For any TTS work, read `references/tts.md`; the model is pinned to `gemini-3.8-flash-lite-tts`, without automatic fallback or paid usage. Read `references/delivery.md` for stage-aware compact export and reusable Sites delivery. Read `references/production-defaults.md` for typography, subtitle, audio and continuity requirements. Read `references/style.md` for editable visual defaults, `references/scene-format.md` for scene composition, and `references/assets.md` when additional media are needed. Explicit user instructions override defaults.
 
 ## Workflow
 

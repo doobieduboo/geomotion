@@ -11,3 +11,5 @@ Keep scene-specific provenance and actual attribution requirements. Keep downloa
 Load `.agents/skills/geomotion/defaults.json` and `references/production-defaults.md` in every new conversation. Preserve these production preferences without repeated questions. Subtitles default on for narrated productions; keep their safe area free of CTA and image cards. Renderer directly reads export and regular/bold font defaults; additional production settings require explicit composition/audio steps.
 
 Editing stays 360p/24fps and the player lists only 360p. Explicit final export uses native 1080p/30fps with compact encoding directly; no master deliverable. Final player may offer compact 360p/1080p with one download action. Read delivery-target.json and reuse the existing player across topics.
+
+TTS uses exact model `gemini-3.8-flash-lite-tts` via Google Gemini, configured in defaults.json → audio.tts. Read references/tts.md before any speech generation. Do not substitute a different model/provider or enable paid usage automatically. Respect actual free-tier quotas/reset guidance; cache approved VO for visual-only revisions.
