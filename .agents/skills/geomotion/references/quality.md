@@ -15,6 +15,7 @@ For fast-paced edits, also inspect opening clarity, voice articulation, visual i
 ## Before delivery
 
 - Verify dimensions, frame rate, duration and audio presence with ffprobe; decode a new assembled deliverable to the end.
+- Check that the scene reads as a map documentary: no paragraph/bullet slides, no duplicate narration cards, and no persistent headline crowding the map.
 - Inspect representative frames and all changed/problem areas: boundaries, clipping, title/card/subtitle overlap, geographic anchors, sprite heading and effect scaling.
 - Verify VO, subtitle words and named-location camera beats agree, including the final word and audio tail.
 - Inspect joins for matching camera/layers/effect phase, smooth motion and no black gaps. Check source-to-output offsets rather than assuming concatenation is seamless.

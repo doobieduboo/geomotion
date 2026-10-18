@@ -6,7 +6,11 @@ The map dominates. Use Esri World Imagery as the only basemap; retain its origin
 
 Use the bundled display face for short purposeful titles/CTA, bold reading face for geographic labels/subtitles, and regular face for supporting text. Do not substitute fonts silently. Scale typography, strokes, offsets and graphics from the design grid to the output resolution. The internal design-grid width is not a delivery resolution.
 
-Avoid presentation paragraphs, giant unrelated headlines, permanent date chips, compasses, scale bars and decorative source footers. Put useful dates/details inside concise connected infographic bubbles. A relevant photograph may have a short caption/date and required credit. Preserve legibility and geographic context; do not make the video a sequence of slides.
+Use the preset's map-documentary composition and text policy. Tell the story through geographic focus, moving camera, meaningful map layers and relevant archival imagery. VO and phrase subtitles carry the explanation. Extra text is limited to brief location labels, a key figure, a short evidence/photo caption or an optional CTA; do not repeat a spoken sentence as a separate card above its subtitle.
+
+Do not build presentation slides, paragraph cards, bullet lists, repeated chapter-title screens or a persistent headline. Cards and infographic bubbles are optional: use one only when a specific fact needs it, keep its wording brief and remove it when that phrase ends. Sources, dates and attribution remain accurate and readable; put extended methodology/source notes in delivery credits rather than turning the frame into a report. Required on-video credits must remain visible.
+
+If a shot feels empty, add relevant imagery, geographic action or measured layers when supported by the story; do not fill it with more text. Keep camera motion restrained and information readable. A contextual hold is valid. The toolkit does not invent missing archival assets or facts to make a frame look busy.
 
 CTA is optional: use a concise relevant question when it fits the brief, place it over the map and reserve the subtitle area. No default hashtag/slogan. Subtitle placement follows the preset and [quality.md](quality.md); the safe area is not permission to cover another label/card.
 

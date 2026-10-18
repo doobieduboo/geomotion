@@ -1,5 +1,5 @@
 {
-  "version": 7,
+  "version": 8,
   "design_width": 720,
   "export": {
     "preview": {
@@ -54,7 +54,17 @@
       0.65
     ],
     "cta_max_lines": 2,
-    "avoid_permanent_hud": true
+    "avoid_permanent_hud": true,
+    "visual_style": "map_documentary",
+    "text_policy": {
+      "explanation": "voiceover_and_phrase_subtitles",
+      "overlays": "brief_labels_key_figures_evidence_captions_and_optional_cta",
+      "paragraphs": false,
+      "bullet_slides": false,
+      "duplicate_narration_as_cards": false,
+      "persistent_headlines": false,
+      "cards_optional": true
+    }
   },
   "subtitles": {
     "enabled_with_narration": true,
