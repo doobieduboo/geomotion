@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "purpose": "Library planning and inventory; not a renderable scene schema",
+  "categories": [
+    {
+      "id": "titles",
+      "label": "Titles",
+      "directory": "titles",
+      "planned_components": 5,
+      "items": []
+    },
+    {
+      "id": "callouts",
+      "label": "Call Outs",
+      "directory": "callouts",
+      "planned_components": 5,
+      "items": [
+        {
+          "id": "call-out-01l",
+          "status": "reference_received",
+          "definition": null,
+          "renderer": null
+        }
+      ]
+    },
+    {
+      "id": "media-callouts",
+      "label": "Media Call Outs",
+      "directory": "media-callouts",
+      "planned_components": 5,
+      "items": []
+    },
+    {
+      "id": "flags",
+      "label": "Flags of Countries",
+      "directory": "flags",
+      "planned_components": 2,
+      "items": []
+    },
+    {
+      "id": "time",
+      "label": "Time",
+      "directory": "time",
+      "planned_components": 5,
+      "items": []
+    },
+    {
+      "id": "counters",
+      "label": "Counter",
+      "directory": "counters",
+      "planned_components": 5,
+      "items": []
+    },
+    {
+      "id": "icons",
+      "label": "Icon",
+      "directory": "icons",
+      "planned_components": 5,
+      "items": []
+    },
+    {
+      "id": "effects",
+      "label": "Efek",
+      "directory": "effects",
+      "planned_components": 5,
+      "items": []
+    },
+    {
+      "id": "vehicles",
+      "label": "Kendaraan",
+      "directory": "vehicles",
+      "planned_components": 5,
+      "items": []
+    },
+    {
+      "id": "map-elements",
+      "label": "Elemen Peta",
+      "directory": "map-elements",
+      "planned_components": 5,
+      "items": []
+    }
+  ]
+}

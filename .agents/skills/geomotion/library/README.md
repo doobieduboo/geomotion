@@ -1,0 +1,53 @@
+# GeoMotion component library
+
+`catalog.json` owns category IDs, folders, planned counts and the inventory status. This catalog is a planning/inventory document, not a scene schema accepted by the current renderer. Only entries with verified implementations can be used as renderable components.
+
+| Folder | Scope |
+|---|---|
+| `titles/` | Short titles, emphasis and CTA |
+| `callouts/` | Pointer/leader, point and brief text |
+| `media-callouts/` | Photo/video container, caption and geographic leader |
+| `flags/` | Flagpole and geographic flag-fill components; country textures are separate inputs |
+| `time/` | Dates, timeline and timer |
+| `counters/` | Animated number and unit |
+| `icons/` | Standalone symbols |
+| `effects/` | Smoke, fire and animated highlights |
+| `vehicles/` | Directional vehicle assets and movement behavior |
+| `map-elements/` | Pins, routes, outlines, focus areas and magnifier |
+
+Category boundaries: titles carry short emphasis; explanatory text belongs in VO/subtitles. Callouts connect information to a point, while media callouts contain a real image/video. A standalone symbol is an icon; a moving directional transport asset is a vehicle. Focus/highlight behavior belongs to map-elements; atmospheric animations belong to effects. Use categories as choices, not a checklist for every scene.
+
+## Files and locations
+
+```text
+library/
+  catalog.json                 inventory and status
+  CATEGORY/
+    ASSET-ID.json              reusable definition, added when implemented
+scripts/
+  COMPONENT_RENDERER.py        shared renderer, added when implemented
+
+External working library:
+  manifest.json                local reference paths, hashes and source records
+  CATEGORY/ASSET-ID/
+    references/               supplied GIF, optional AEP and original media
+    aep-inspection.json        inspection report when available
+    inspection-frames/         extracted frames when available
+    working/                   create only when development starts
+    renders/                   create only when verification starts
+```
+
+GIFs show appearance and animation; optional AEP files help inspect source controls. Neither automatically becomes editable JSON. Definitions require a working renderer and declared editable parameters. Reuse one renderer across compatible variations instead of creating a new engine per asset. Keep photo/video/flag/sprite inputs separate from JSON.
+
+Reference sources, previews and licensed third-party packages stay outside the reusable repo. Add only reusable code/definitions and assets whose terms allow repository distribution; record their actual source/license. Workspace paths are local and are not an automatic cross-chat storage service.
+
+## Status
+
+- `planned`: no reference or implementation yet.
+- `reference_received`: preview/source available; not renderable.
+- `implemented`: definition and renderer exist; visual approval pending.
+- `verified`: rendered and inspected, editable controls work, provenance recorded.
+
+Planned counts are a starting scope, not completed assets. Do not add empty renderer modules or placeholder definitions to inflate the inventory. Existing low-level toolkit helpers remain documented in [assets.md](../references/assets.md); their presence does not mean all catalog variations exist.
+
+Call Out 01L currently has a supplied GIF/AEP and an inspection report in the external working library. Conversion and renderer implementation have not started.

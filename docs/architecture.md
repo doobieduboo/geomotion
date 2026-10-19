@@ -8,6 +8,7 @@
 | `defaults.json` | Nilai serta kebijakan produksi |
 | `delivery-target.json` | Binding player pengguna |
 | `references/` | Kontrak teknis; indeks `references/README.md` |
+| `library/catalog.json`, `library/` | Kategori, status dan definisi komponen reusable; referensi asli tetap di workspace eksternal |
 | `agents/openai.yaml` | Metadata UI skill |
 | `scripts/`, `templates/`, `fonts/` | Implementasi, struktur input dan dependensi font |
 | `tests/` | Verifikasi perilaku |

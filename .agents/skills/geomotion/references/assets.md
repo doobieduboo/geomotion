@@ -1,5 +1,9 @@
 # Asset contract and inventory
 
+## Reusable component inventory
+
+The [library catalog](../library/catalog.json) owns the ten category folders and item status. Read [library/README.md](../library/README.md) for file layout, reference intake and the distinction between a supplied preview and a verified component. Keep original GIF/AEP/media in the external working library; do not mistake inspection JSON for a renderable asset.
+
 ## Map data
 Use real coordinates, country/admin polygons, coastline/island geometry, and licensed imagery. Record the source version and historical applicability. GeoJSON is WGS84 lon/lat. Preserve Polygon holes and MultiPolygon parts. For long-distance scenes, unwrap longitudes or use a globe-aware projection to avoid antimeridian jumps.
 
