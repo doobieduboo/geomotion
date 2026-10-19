@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "id": "title-01",
+  "type": "title",
+  "duration": 5.04,
+  "content": {"headline": "TRENDY", "subline": "COLORS"},
+  "layout": {"center": [0.5, 0.45], "scale": 1.0, "max_width": 0.78},
+  "style": {
+    "font_role": "display_font",
+    "text_color": "#F5F5F7",
+    "panel_color": "#4C5E69",
+    "caret_color": "#858585",
+    "headline_size": 140,
+    "compact_headline_size": 120,
+    "headline_condense": 0.56,
+    "compact_condense": 0.40,
+    "subline_size": 34,
+    "panel_padding": [20, 8],
+    "panel_radius": 3,
+    "gap": 6,
+    "tilt_degrees": 5
+  },
+  "timing": {
+    "enter": [0.64, 1.60],
+    "compact": [1.80, 2.60],
+    "subline": [2.65, 3.50],
+    "tilt": [2.90, 3.90],
+    "exit_seconds": 0.0
+  }
+}

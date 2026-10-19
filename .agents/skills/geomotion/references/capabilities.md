@@ -9,6 +9,7 @@
 | Info/gambar | Label/marker dan bubble dengan gambar/audio supplied | Fit/clipping/collision harus diperiksa; foto tidak diambil otomatis |
 | Audio scene | Menyertakan file audio yang sudah ada | Tidak membuat VO atau mencampur stem otomatis |
 | Gemini TTS | Preset model tetap serta prosedur kredensial/kuota/reuse | Belum ada client Gemini TTS khusus di repo; agent membuat/memakai langkah API terverifikasi |
+| Title 01 | Title JSON editable, reveal/caret, compact, subline panel, tilt and optional exit; transparent scene layer | Reconstructed from GIF; user visual approval pending. Other title variants and general subtitle composition remain separate |
 | Subtitle/CTA/mixing | Aturan gaya, posisi, wording, timing dan target audio | Belum otomatis dibakar/mix oleh renderer generik; perlu script komposisi proyek |
 | Asap/api/ledakan | Kontrak aset dan aturan geografis/komposisi | Efek produksi khusus tidak otomatis menjadi primitive generik |
 | Ekspor | Preview dan final native langsung dengan profil ringkas | Source imagery/foto punya resolusi terbatas; native canvas bukan detail tanpa batas |

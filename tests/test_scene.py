@@ -131,6 +131,20 @@ class SceneRender(unittest.TestCase):
                     }
                 ],
             }
+            scene["titles"] = [
+                {
+                    "definition": "library/titles/title-01.json",
+                    "overrides": {
+                        "duration": 0.5,
+                        "timing": {
+                            "enter": [0, 0.05],
+                            "compact": [0.05, 0.1],
+                            "subline": [0.1, 0.2],
+                            "tilt": [0.2, 0.3],
+                        },
+                    },
+                }
+            ]
             (d / "scene.json").write_text(json.dumps(scene))
             out = d / "preview.mp4"
             tile = io.BytesIO()

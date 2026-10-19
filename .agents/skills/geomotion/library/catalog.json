@@ -9,11 +9,13 @@
       "planned_components": 2,
       "items": [
         {
-          "id": "opening-title",
-          "status": "planned",
-          "definition": null,
-          "renderer": null,
-          "role": "Opening title"
+          "id": "title-01",
+          "status": "implemented",
+          "definition": "titles/title-01.json",
+          "renderer": "scripts/title_layer.py",
+          "role": "Opening title",
+          "reference_name": "Title_01.gif",
+          "approval": "pending_user_review"
         },
         {
           "id": "question-cta",

@@ -1,6 +1,6 @@
 # GeoMotion component library
 
-`catalog.json` owns category IDs, folders, planned counts and the inventory status. This catalog is a planning/inventory document, not a scene schema accepted by the current renderer. Only entries with verified implementations can be used as renderable components.
+`catalog.json` owns category IDs, folders, planned counts and the inventory status. This catalog is a planning/inventory document, not a scene schema accepted by the current renderer. Entries with an implemented definition and renderer can be previewed; `verified` also requires visual approval.
 
 | Folder | Scope |
 |---|---|
@@ -19,7 +19,7 @@ Category boundaries: titles carry short emphasis; explanatory text belongs in VO
 
 ## Initial selection
 
-Build only the nine selected components listed in `catalog.json`: opening title, question CTA, left/right callouts, landscape/portrait media callouts, a number counter, flagpole and geographic flag fill. Call Out 01L is the received left-callout reference. The other names describe required roles, not verified filenames from the external preview pack; select their actual GIF references before development.
+Build only the nine selected components listed in `catalog.json`: Title 01 opening title, question CTA, left/right callouts, landscape/portrait media callouts, a number counter, flagpole and geographic flag fill. Call Out 01L is the received left-callout reference. The other names describe required roles, not verified filenames from the external preview pack; select their actual GIF references before development.
 
 Time, icons, effects, vehicles and map-elements remain folder categories for later needs. They have no initial asset quota. Do not populate every category merely to complete a pack. Country flag textures are interchangeable inputs, not a new component per country. Existing toolkit primitives can support development but do not count as approved catalog assets.
 
@@ -57,3 +57,7 @@ Reference sources, previews and licensed third-party packages stay outside the r
 Planned counts are a starting scope, not completed assets. Do not add empty renderer modules or placeholder definitions to inflate the inventory. Existing low-level toolkit helpers remain documented in [assets.md](../references/assets.md); their presence does not mean all catalog variations exist.
 
 Call Out 01L currently has a supplied GIF/AEP and an inspection report in the external working library. Conversion and renderer implementation have not started.
+
+## Title 01
+
+[Definition](titles/title-01.json) uses the shared `scripts/title_layer.py` renderer. Status: implemented, pending user visual approval. Read [titles.md](../references/titles.md) for editable fields, standalone preview and scene integration. This is a visual reconstruction from a supplied GIF, not an AEP/Lottie conversion.

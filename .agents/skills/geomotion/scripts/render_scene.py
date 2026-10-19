@@ -16,6 +16,7 @@ from basemap import ATTRIBUTION, tile_url, tile_zoom, validate_basemap
 from config import DEFAULTS, SKILL_ROOT
 from map_assets import clip_flag, flagpole, select_sprite
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont, ImageOps
+from title_layer import render_title, title_config
 
 
 def merc(lon, lat, zoom):
@@ -220,6 +221,19 @@ def main():
                 g["coordinates"] if g["type"] == "MultiPolygon" else [g["coordinates"]]
             )
             regions.append((region, polys))
+    titles = []
+    for item in scene.get("titles", []):
+        definition = item["definition"]
+        source = (
+            SKILL_ROOT / definition
+            if definition.startswith("library/")
+            else path(definition)
+        )
+        config = title_config(json.loads(source.read_text()), item.get("overrides"))
+        start = float(item.get("start", 0))
+        if not math.isfinite(start) or start < 0:
+            raise ValueError("Title start must be nonnegative and finite")
+        titles.append((start, config))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     command = [
         "ffmpeg",
@@ -472,6 +486,8 @@ def main():
                         font=load_font(max(9, round(19 * scale))),
                         fill=(196, 215, 218, 255),
                     )
+            for start, config in titles:
+                overlay.alpha_composite(render_title(config, t - start, im.size))
             if scene.get("attribution"):
                 draw.text(
                     (10, height - 20),

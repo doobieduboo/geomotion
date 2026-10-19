@@ -15,6 +15,7 @@ Always load `defaults.json`. Use [references/README.md](references/README.md) as
 |---|---|
 | Scene JSON, coordinate/projection behavior | [scene-format.md](references/scene-format.md) |
 | Satellite source, licensing and download failures | [basemaps.md](references/basemaps.md) |
+| Editable title assets and title preview | [titles.md](references/titles.md) |
 | Map appearance, typography and placement | [style.md](references/style.md) |
 | Fast-paced Shorts delivery and information rhythm | [retention.md](references/retention.md) |
 | Camera/narrative timing, part continuity and layer behavior | [composition.md](references/composition.md) |

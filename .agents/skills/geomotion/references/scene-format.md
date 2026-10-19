@@ -21,6 +21,7 @@ The input is a scene description, not a story template. No subject, place, date 
 | `markers` | Optional geographic points, labels and flagpole markers |
 | `routes` | Optional animated paths and atlas sprites |
 | `callouts` | Optional geographic infographic bubbles, with image and text |
+| `titles` | Editable title layers: `definition`, optional scene `start` and `overrides`; see [titles.md](titles.md) |
 | `audio` | Optional path to an actual audio file; omitted means silent |
 | `attribution` | Additional on-video source credit; required Esri credit is always retained |
 
