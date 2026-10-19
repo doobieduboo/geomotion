@@ -17,6 +17,12 @@
 
 Category boundaries: titles carry short emphasis; explanatory text belongs in VO/subtitles. Callouts connect information to a point, while media callouts contain a real image/video. A standalone symbol is an icon; a moving directional transport asset is a vehicle. Focus/highlight behavior belongs to map-elements; atmospheric animations belong to effects. Use categories as choices, not a checklist for every scene.
 
+## Initial selection
+
+Build only the nine selected components listed in `catalog.json`: opening title, question CTA, left/right callouts, landscape/portrait media callouts, a number counter, flagpole and geographic flag fill. Call Out 01L is the received left-callout reference. The other names describe required roles, not verified filenames from the external preview pack; select their actual GIF references before development.
+
+Time, icons, effects, vehicles and map-elements remain folder categories for later needs. They have no initial asset quota. Do not populate every category merely to complete a pack. Country flag textures are interchangeable inputs, not a new component per country. Existing toolkit primitives can support development but do not count as approved catalog assets.
+
 ## Files and locations
 
 ```text

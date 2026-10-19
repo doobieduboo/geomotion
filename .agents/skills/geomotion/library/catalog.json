@@ -1,83 +1,160 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "purpose": "Library planning and inventory; not a renderable scene schema",
   "categories": [
     {
       "id": "titles",
       "label": "Titles",
       "directory": "titles",
-      "planned_components": 5,
-      "items": []
+      "planned_components": 2,
+      "items": [
+        {
+          "id": "opening-title",
+          "status": "planned",
+          "definition": null,
+          "renderer": null,
+          "role": "Opening title"
+        },
+        {
+          "id": "question-cta",
+          "status": "planned",
+          "definition": null,
+          "renderer": null,
+          "role": "Question CTA"
+        }
+      ],
+      "phase": "initial",
+      "source_preview_folder": "06. Titles"
     },
     {
       "id": "callouts",
       "label": "Call Outs",
       "directory": "callouts",
-      "planned_components": 5,
+      "planned_components": 2,
       "items": [
         {
           "id": "call-out-01l",
           "status": "reference_received",
           "definition": null,
-          "renderer": null
+          "renderer": null,
+          "role": "Left leader callout"
+        },
+        {
+          "id": "right-callout",
+          "status": "planned",
+          "definition": null,
+          "renderer": null,
+          "role": "Right leader callout"
         }
-      ]
+      ],
+      "phase": "initial",
+      "source_preview_folder": "07. Call Outs"
     },
     {
       "id": "media-callouts",
       "label": "Media Call Outs",
       "directory": "media-callouts",
-      "planned_components": 5,
-      "items": []
+      "planned_components": 2,
+      "items": [
+        {
+          "id": "landscape-media-callout",
+          "status": "planned",
+          "definition": null,
+          "renderer": null,
+          "role": "Landscape photo/video callout"
+        },
+        {
+          "id": "portrait-media-callout",
+          "status": "planned",
+          "definition": null,
+          "renderer": null,
+          "role": "Portrait photo/video callout"
+        }
+      ],
+      "phase": "initial",
+      "source_preview_folder": "08. Media Call Outs"
     },
     {
       "id": "flags",
       "label": "Flags of Countries",
       "directory": "flags",
       "planned_components": 2,
-      "items": []
+      "items": [
+        {
+          "id": "flagpole",
+          "status": "planned",
+          "definition": null,
+          "renderer": null,
+          "role": "Waving flagpole marker"
+        },
+        {
+          "id": "flag-fill",
+          "status": "planned",
+          "definition": null,
+          "renderer": null,
+          "role": "Flag fill clipped to geographic region"
+        }
+      ],
+      "phase": "initial",
+      "source_preview_folder": "16. Flags"
     },
     {
       "id": "time",
       "label": "Time",
       "directory": "time",
-      "planned_components": 5,
-      "items": []
+      "planned_components": 0,
+      "items": [],
+      "phase": "deferred"
     },
     {
       "id": "counters",
       "label": "Counter",
       "directory": "counters",
-      "planned_components": 5,
-      "items": []
+      "planned_components": 1,
+      "items": [
+        {
+          "id": "number-with-unit",
+          "status": "planned",
+          "definition": null,
+          "renderer": null,
+          "role": "Animated number with editable label/unit"
+        }
+      ],
+      "phase": "initial",
+      "source_preview_folder": "01. Counters"
     },
     {
       "id": "icons",
       "label": "Icon",
       "directory": "icons",
-      "planned_components": 5,
-      "items": []
+      "planned_components": 0,
+      "items": [],
+      "phase": "deferred"
     },
     {
       "id": "effects",
       "label": "Efek",
       "directory": "effects",
-      "planned_components": 5,
-      "items": []
+      "planned_components": 0,
+      "items": [],
+      "phase": "deferred"
     },
     {
       "id": "vehicles",
       "label": "Kendaraan",
       "directory": "vehicles",
-      "planned_components": 5,
-      "items": []
+      "planned_components": 0,
+      "items": [],
+      "phase": "deferred"
     },
     {
       "id": "map-elements",
       "label": "Elemen Peta",
       "directory": "map-elements",
-      "planned_components": 5,
-      "items": []
+      "planned_components": 0,
+      "items": [],
+      "phase": "deferred"
     }
-  ]
+  ],
+  "scope": "Implement only the initial selection; deferred categories have no committed asset quota."
 }
