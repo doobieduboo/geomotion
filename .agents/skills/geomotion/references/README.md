@@ -10,7 +10,7 @@ This directory is the skill's technical knowledge base. It is not a second agent
 | [retention.md](retention.md) | Fast-paced voice/visual rhythm, hooks and readable information beats |
 | [composition.md](composition.md) | Camera timing, geographic layer behavior and continuity |
 | [scene-format.md](scene-format.md) | Actual scene JSON schema and renderer projection behavior |
-| [assets.md](assets.md) | Asset families, atlas contracts and source metadata |
+| [assets.md](assets.md) | Documentary archives, reuse assessment, AI reconstruction, asset families and atlas contracts |
 | [tts.md](tts.md) | Pinned speech model, access, quotas and audio reuse |
 | [quality.md](quality.md) | Mixing, editable subtitle correctness and verification |
 | [delivery.md](delivery.md) | Production stages, compact exports and reusable Sites player |

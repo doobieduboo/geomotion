@@ -18,6 +18,7 @@ For fast-paced edits, also inspect opening clarity, voice articulation, visual i
 - Check that the scene reads as a map documentary: no paragraph/bullet slides, no duplicate narration cards, and no persistent headline crowding the map.
 - Inspect representative frames and all changed/problem areas: boundaries, clipping, title/card/subtitle overlap, geographic anchors, sprite heading and effect scaling.
 - Verify VO, subtitle words and named-location camera beats agree, including the final word and audio tail.
+- Check documentary archives against [assets.md](assets.md): factual support and reuse status are recorded separately, credits match active media, reconstructions are identified, and approved evidence has not been silently removed or replaced.
 - Inspect joins for matching camera/layers/effect phase, smooth motion and no black gaps. Check source-to-output offsets rather than assuming concatenation is seamless.
 - Measure encoded loudness/true peak after audio-affecting changes. Reuse already verified audio when only pixels changed, checking the assembly retained timing.
 - Confirm stage-appropriate media files and one download action; report unavailable browser QA or other material verification limits. A script exit code alone is not visual QA.

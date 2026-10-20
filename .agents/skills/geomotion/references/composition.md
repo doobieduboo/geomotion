@@ -22,7 +22,7 @@ Vehicles follow meaningful paths, face their direction of travel, remain on appr
 
 Anchor smoke/fire and similar effects geographically. Scale them down during pullbacks and keep the map readable; illustrative effects do not establish measured coverage. Use only relevant layers, not a fixed inventory for every topic. Asset requirements and implementation coverage are separate; see [assets.md](assets.md).
 
-Photographs must relate to the spoken phrase, retain real archival dates/credits, and use clean originals without removing watermarks. Place them in restrained connected image/bubble compositions. Preserve context rather than assigning a generic archive image to an unsupported location/event.
+Photographs must relate to the spoken phrase, retain real archival dates/credits, and use clean originals without removing watermarks. Apply the documentary archive and reconstruction contract in [assets.md](assets.md). Place them in restrained connected image/bubble compositions. Preserve context rather than assigning a generic archive image to an unsupported location/event.
 
 ## Production workspace
 

@@ -7,6 +7,18 @@ The [library catalog](../library/catalog.json) owns the ten category folders and
 ## Map data
 Use real coordinates, country/admin polygons, coastline/island geometry, and licensed imagery. Record the source version and historical applicability. GeoJSON is WGS84 lon/lat. Preserve Polygon holes and MultiPolygon parts. For long-distance scenes, unwrap longitudes or use a globe-aware projection to avoid antimeridian jumps.
 
+## Documentary archives and reconstruction
+
+For map documentaries, prioritize authentic photographs, footage and primary records as visual evidence. Match each archive to the spoken claim. A press conference documents a statement; it does not by itself prove the alleged event. A response photograph does not establish an agency, deployment location or date beyond what its source supports. Do not replace relevant archives with generated imagery merely because reuse terms are not stated.
+
+Keep factual verification separate from the reuse assessment. In the production's `SOURCES.md`, record the original publisher/creator, source URL, publication and capture dates separately when known, place, supported claim, verification limits, and visible credit. Record reuse status accurately: explicit license, permission, public-domain basis, documented editorial-exception rationale, or terms not found. Never invent a license or mark uncertain use as cleared.
+
+Written permission is not a universal prerequisite for documentary research or every editorial use. Missing public reuse terms alone must not trigger automatic exclusion, a permission request, or deletion of an approved archive. Evaluate the intended use: applicable law, a relevant reporting/criticism/quotation exception where supportable, the amount and resolution needed, commentary/context, attribution, and known publisher restrictions. Source credit, public availability and a public-interest subject do not independently guarantee lawful reuse. Do not assume government, NGO or news photographs are public domain, or that only commercial photo libraries have protected material.
+
+Use archives to support the documentary's specific reporting rather than as an unrelated image collection or substitute for the original publication. Preserve existing attribution and required notices. Seek clean originals; do not remove watermarks or evade paywalls/access restrictions. If a concrete restriction or material unresolved issue prevents the intended use, explain the specific issue and a suitable alternative before changing the evidence presentation. Preserve originals and provenance locally; do not silently remove approved archives, change periods/locations, or describe an unverified replacement as equivalent evidence. Routine source uncertainty is documented, not turned into a blanket production approval gate.
+
+Generated or AI-assisted reconstructions are explanatory material, never archival proof. Identify them clearly as reconstruction in the presentation and source record; do not imply original camera capture. Preserve verified geography, chronology and factual details. Do not invent identifiable participants, actions, damage, deployment or fire extent. Retain the authentic source separately and document substantive alterations; matching a real image's style does not authenticate a reconstruction. Ordinary crop, exposure and placement adjustments must preserve evidentiary meaning. Illustrative fire, smoke and vehicle effects do not establish observed coverage or actual positions.
+
 ## Asset families
 | Family | Files / metadata |
 |---|---|

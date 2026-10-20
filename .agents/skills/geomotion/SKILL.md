@@ -19,7 +19,7 @@ Always load `defaults.json`. Use [references/README.md](references/README.md) as
 | Map appearance, typography and placement | [style.md](references/style.md) |
 | Fast-paced Shorts delivery and information rhythm | [retention.md](references/retention.md) |
 | Camera/narrative timing, part continuity and layer behavior | [composition.md](references/composition.md) |
-| New flags, sprites, media or geographic data | [assets.md](references/assets.md) |
+| Documentary archives, reuse assessment, AI reconstruction, flags, sprites or geographic data | [assets.md](references/assets.md) |
 | VO generation or access/quota errors | [tts.md](references/tts.md) |
 | Audio mixing, subtitle edits and final checks | [quality.md](references/quality.md) |
 | Preparing or publishing the media player | [delivery.md](references/delivery.md) plus the Sites skill |
@@ -28,7 +28,7 @@ Always load `defaults.json`. Use [references/README.md](references/README.md) as
 ## Production workflow
 
 1. Inspect the environment, applicable instructions, current repo/skill revision and existing project inputs. When updating an active conversation, sync the checkout safely and reread the current preset/references; do not reuse a stale installed copy. Apply changed rules to the active source scene/scripts while preserving approved content and audio. Resolve package paths against the skill and asset paths against the scene. A repo checkout does not attach its cloud environment or credentials.
-2. Translate the brief into content, geography, duration, camera and optional layers. Obtain verified sources/media and record their dates, licenses and limitations in the production's `SOURCES.md`. Ask only for essential missing input.
+2. Translate the brief into content, geography, duration, camera and optional layers. For documentary evidence, follow [assets.md](references/assets.md): prioritize authentic archives, distinguish factual verification from reuse status, and record sources, dates, credits, reuse basis or uncertainty, and limitations in the production's `SOURCES.md`. Missing written permission alone is not an automatic exclusion rule. Ask only for essential missing input.
 3. If narration is needed, use `audio.tts` from the preset and follow the TTS reference. Preserve approved wording/voice/audio; do not generate new speech for visual-only edits. Determine actual phrase timings before driving the camera and subtitle cues.
 4. Compose a source scene from `templates/scene.json` and actual assets. Use Esri World Imagery as the only basemap; read references/basemaps.md for map creation and Esri use/credit requirements. Other providers and solid vector backgrounds are prohibited; report request failures without fallback. Apply the map-documentary text policy from defaults.json and style.md: imagery/map action carries the scene; VO and phrase subtitles explain it. Do not turn the narration into paragraph cards or bullet slides. Apply the fast-paced editorial preset without sacrificing voice clarity, geographic context or reading time. Keep the map dominant, geographic anchors correct and camera movement aligned with the narrative. Match adjacent parts as one continuous scene. Consult style/composition references only where needed.
 5. Implement any missing production step honestly. The generic renderer does not automatically generate TTS, mix stems, burn subtitles/CTA or simulate arbitrary effects. Compose those with verified project scripts or an appropriate supported tool; see [capabilities.md](references/capabilities.md).
