@@ -82,8 +82,15 @@ def resolve_scene(scene):
         "callouts",
         "titles",
         "subtitles",
+        "focuses",
+        "cta",
     ):
-        for item in scene.get(group, []):
+        items = (
+            ([scene[group]] if scene.get(group) else [])
+            if group == "cta"
+            else scene.get(group, [])
+        )
+        for item in items:
             if "event" not in item:
                 continue
             event = events.get(item["event"])

@@ -20,6 +20,9 @@ The input is a scene description, not a story template. No subject, place, date 
 | `archive_manifest` | Version-1 provenance manifest; callouts may reference `archive_id` |
 | `inputs` | Additional local dependency paths by approval domain |
 | `metadata` | Optional informational project metadata; no renderer behavior |
+| `focuses` | Source/event-timed protected geographic bounds or region IDs; [composition contract](composition.md#executable-composition-contract) |
+| `composition` | Explicit overrides of preset layout limits, spacing and tracking |
+| `cta` | Optional authored text and source interval/event; centered clear placement above focus |
 | `camera` | Required keyframes: `time`, `center`, `zoom`, optional `rotation` in degrees; `ease: "linear"` disables easing for that incoming segment |
 | `basemap` | Esri World Imagery only: `type: "satellite"`, `provider: "esri_world_imagery"`; optional `saturation` and `brightness` inherited from the preset. Other providers and solid backgrounds are rejected. See [basemaps.md](basemaps.md) |
 | `regions` | Optional GeoJSON geometry layers with outline/reveal and optional flag fill |
@@ -48,7 +51,7 @@ Flag fill stretches one texture over the selected feature's projected bounding b
 
 ## Callouts
 
-`position` anchors the leader line. `title`, `lines` (explicit line breaks as separate strings), optional `image`, `color`, screen `width` and `offset` define a compact bubble. Width is a maximum for text-only bubbles: actual font measurement determines compact bounds and wrapping. Padding comes from the preset. Image panels use that width and preserve the original image ratio; oversized panels fail rather than crop silently. Inspect placement and subtitle collisions. This is an optional information layer, not a fixed slide layout.
+`position` anchors the leader line. `title`, `lines` (explicit line breaks as separate strings), optional `image`, `color`, screen `width` and preferred `offset` define a compact bubble. `placement` is `auto` by default; `manual` checks the authored position without relocation. Width is a maximum for text-only bubbles: actual font measurement determines compact bounds and wrapping. Padding comes from the preset. Image panels use that width and preserve the original image ratio; oversized panels fail rather than crop silently. Inspect placement and subtitle collisions. This is an optional information layer, not a fixed slide layout.
 
 ## Global movement
 

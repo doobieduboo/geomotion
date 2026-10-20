@@ -22,6 +22,7 @@ from project_state import (
 from qa import check, contact_sheet
 from timeline import resolve_scene
 from render_scene import validate
+from composition import validate_composition
 
 
 def checked_scene(path):
@@ -34,7 +35,8 @@ def checked_scene(path):
         )
     scene, timeline = resolve_scene(scene)
     validate(scene)
-    for group in ("regions", "routes", "markers", "callouts", "titles"):
+    validate_composition(scene)
+    for group in ("regions", "routes", "markers", "callouts", "titles", "focuses"):
         for item in scene.get(group, []):
             start, end = item.get("start", 0), item.get("end", timeline.source_duration)
             if not 0 <= start < end <= timeline.source_duration:
@@ -180,6 +182,21 @@ def main():
         }
         for item in scene.get("timeline", {}).get("events", []):
             times.add(timeline.output_time(item["start"]))
+        authored = (
+            scene.get("focuses", [])
+            + scene.get("callouts", [])
+            + scene.get("titles", [])
+            + ([scene["cta"]] if scene.get("cta") else [])
+        )
+        for item in authored:
+            times.add(timeline.output_time(item.get("start", 0)))
+            times.add(
+                max(
+                    0,
+                    timeline.output_time(item.get("end", timeline.source_duration))
+                    - 1 / DEFAULTS["export"][a.mode]["fps"],
+                )
+            )
         # Include both sides of every checkpoint join.
         step = DEFAULTS["execution"]["checkpoint_seconds"]
         for join in range(step, int(timeline.duration) + 1, step):

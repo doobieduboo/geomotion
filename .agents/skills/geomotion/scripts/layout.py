@@ -61,8 +61,6 @@ def inspect_boxes(boxes, size):
             errors.append(f"{name}: outside frame")
     for i, (name, box) in enumerate(boxes):
         for other, other_box in boxes[i + 1 :]:
-            if (
-                name.startswith("subtitle") or other.startswith("subtitle")
-            ) and overlaps(box, other_box):
+            if overlaps(box, other_box):
                 errors.append(f"{name}: overlaps {other}")
     return errors

@@ -6,12 +6,13 @@
 | Peta | Esri World Imagery, region, batas/reveal/glow | Data/lisensi berasal dari input proyek; proyeksi/seam/luas ekstrem perlu penanganan |
 | Bendera | Flag fill polygon dengan holes, flagpole flutter | Tekstur dan geometri harus disediakan; bukan seluruh library bendera |
 | Kendaraan | Pemilihan frame atlas sesuai heading dan follower rute | Atlas multi-angle harus tersedia; bukan model 3D atau library kendaraan lengkap |
-| Info/gambar | Bubble dengan ukuran font aktual, padding preset, rasio gambar asli dan telemetry benturan subtitle | Title dan benturan antarpanel masih perlu pemeriksaan visual; foto tidak dicari otomatis |
+| Info/gambar | Bubble dengan ukuran font aktual, padding preset, rasio gambar asli dan telemetry benturan subtitle | Layout otomatis menghindari fokus, subtitle, simbol dan panel lain; foto tidak dicari otomatis |
 | Audio scene | Menyertakan file audio yang sudah ada | Tidak membuat VO atau mencampur stem otomatis |
 | Gemini TTS | Preset model tetap serta prosedur kredensial/kuota/reuse | Belum ada client Gemini TTS khusus di repo; agent membuat/memakai langkah API terverifikasi |
-| Title 01 | Title JSON editable, reveal/caret, compact, subline panel, tilt and optional exit; transparent scene layer | Reconstructed from GIF; user visual approval pending. Other title variants and general subtitle composition remain separate |
+| Title 01 | Title JSON editable, reveal/caret, compact, subline panel, tilt and optional exit; transparent scene layer | Reconstructed from GIF; user visual approval pending. Other title variants remain separate; scene composition checks its visible bounds |
 | Subtitle | Cues aktual inline/file, phrase event, wrapping dan burn-in sesuai preset | Tidak membuat alignment otomatis; wording/pungtuasi perlu review |
-| CTA/mixing | Aturan gaya dan target audio; pengukuran encoded LUFS/true peak | CTA khusus, mixing stem/ducking dan TTS tetap langkah proyek |
+| Komposisi/CTA | Fokus geografis terlindungi, panel bergerak terbatas, CTA authored di tengah/atas fokus, batas jumlah/luas overlay dan pemeriksaan benturan | BBox konservatif; kasus tanpa ruang aman gagal; efek/compositor khusus perlu adapter dan review visual |
+| Mixing | Target preset dan pengukuran encoded LUFS/true peak | Mixing stem/ducking dan TTS tetap langkah proyek |
 | Timeline/provenance | Clock source/output, cut eksplisit, manifest arsip dan lock hash per domain | Status fakta/reuse dicatat agent; bukan sertifikasi oleh software |
 | Render pipeline | Worker terbatas CPU/memori, checkpoint hash/frame count, resume, concat native dan encoded QA | Recovery input identik; compositor khusus perlu adapter; Sites lewat native tools |
 | Asap/api/ledakan | Kontrak aset dan aturan geografis/komposisi | Efek produksi khusus tidak otomatis menjadi primitive generik |

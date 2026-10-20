@@ -251,10 +251,15 @@ def render(
         if int(v["nb_read_frames"]) != count:
             raise ValueError("Joined frame count mismatch")
         layout = {}
+        composition_frames = []
         for a, b in ranges:
             sidecar = checkpoint / f"{a}-{b}.layout.json"
             if sidecar.exists():
-                layout.update(json.loads(sidecar.read_text()).get("errors", {}))
+                report = json.loads(sidecar.read_text())
+                layout.update(report.get("errors", {}))
+                composition_frames.extend(
+                    report.get("composition", {}).get("frames", [])
+                )
             elif runner is None:
                 raise ValueError("Missing segment layout report")
         if snapshot(scene_path) != state:
@@ -262,7 +267,10 @@ def render(
                 "Inputs changed during audio assembly; keeping previous deliverable"
             )
         temporary.replace(output)
-        atomic_json(output.with_suffix(".layout.json"), {"errors": layout})
+        atomic_json(
+            output.with_suffix(".layout.json"),
+            {"errors": layout, "composition": {"frames": composition_frames}},
+        )
         receipt = {
             "fingerprint": identity,
             "sha256": digest(output),

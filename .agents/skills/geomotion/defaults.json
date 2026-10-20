@@ -1,5 +1,5 @@
 {
-  "version": 9,
+  "version": 10,
   "design_width": 720,
   "export": {
     "preview": {
@@ -64,7 +64,26 @@
       "duplicate_narration_as_cards": false,
       "persistent_headlines": false,
       "cards_optional": true
-    }
+    },
+    "layout": {
+      "margin_design": 20,
+      "gap_design": 12,
+      "fallback_focus_normalized": [
+        0.2,
+        0.34,
+        0.8,
+        0.65
+      ],
+      "max_move_design_per_second": 600,
+      "max_annotation_area_fraction": 0.3,
+      "max_callouts": 2,
+      "max_media": 1,
+      "max_markers": 6,
+      "max_routes": 6,
+      "max_titles": 1,
+      "placement_stability_weight": 0.25
+    },
+    "cta_font_size_design": 64
   },
   "subtitles": {
     "enabled_with_narration": true,

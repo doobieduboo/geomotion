@@ -93,3 +93,24 @@ def select_sprite(atlas, metadata, world_heading_deg, camera_heading_deg=0):
         tuple(metadata["anchor"]),
         index,
     )
+
+
+def route_pose(route, time_s, project):
+    """Shared screen-distance path pose for drawing and composition footprints."""
+    fraction = max(
+        0, min(1, (time_s - route["start"]) / (route["end"] - route["start"]))
+    )
+    progress = fraction * fraction * (3 - 2 * fraction)
+    points = [project(ll) for ll in route["points"]]
+    lengths = [math.dist(a, b) for a, b in zip(points, points[1:])]
+    remaining = sum(lengths) * progress
+    trail, heading = [points[0]], 0
+    for i, length in enumerate(lengths):
+        start, end = points[i : i + 2]
+        u = min(1, remaining / max(length, 0.0001))
+        trail.append(tuple(start[k] + u * (end[k] - start[k]) for k in range(2)))
+        heading = math.degrees(math.atan2(end[0] - start[0], -(end[1] - start[1])))
+        remaining -= length
+        if remaining <= 0:
+            break
+    return trail, heading

@@ -2,7 +2,7 @@
 
 `scripts/pipeline.py` orchestrates the **generic scene renderer**. Its contracts also expose reusable Python APIs for custom project renderers. Never replace an approved custom compositor with the generic renderer merely to use this command: unsupported top-level fields fail explicitly. Existing project-specific smoke, fire, camera ramps and other effects still require their compositor. Integration needs an explicit adapter, registered dependencies and equivalent QA; it is not automatic migration.
 
-Production values remain in `defaults.json`; `execution`, `layout` and `qa` own the new execution limits and technical tolerances. Encoding, voices, provider, fonts and audio targets are unchanged.
+Production values remain in `defaults.json`; `execution`, `layout`, `composition.layout` and `qa` own execution limits, layout and technical tolerances. Encoding, voices, provider, fonts and audio targets are unchanged.
 
 ## One clock
 
@@ -79,9 +79,9 @@ Final requires the user's explicit request, represented by `--mode final --final
 
 ## QA and agent review
 
-`run` emits `.render.json`, `.layout.json`, `.qa.json`, `.contact.jpg` and `.pipeline.json` beside the video. It checks native profile/frame count, full decode, presentation timestamp cadence (including segment joins), actual encoded integrated loudness/true peak, and reported callout/subtitle collisions/off-frame bounds. Callouts measure actual fonts with compact padding and preserve image ratio. Subtitle wrapping enforces preset max lines. Marker labels intersecting the frame and attribution also report bounds/subtitle collisions. Title bounds and mutual marker/callout/title collisions are not comprehensive; inspect them visually. Silence, black intervals and optional voice-tail checks are candidates for review, not automatic proof of dead air or a bad fade. Integrated mix measurements do not prove stem ducking or speech intelligibility; inspect stems/listen when tools allow, and state limitations.
+`run` emits `.render.json`, `.layout.json`, `.qa.json`, `.contact.jpg` and `.pipeline.json` beside the video. It checks native profile/frame count, full decode, presentation timestamp cadence (including segment joins), actual encoded integrated loudness/true peak, and reported callout/subtitle collisions/off-frame bounds. Callouts measure actual fonts with compact padding and preserve image ratio. Subtitle wrapping enforces preset max lines. Visible marker labels, titles, callouts, CTA, subtitles and attribution report mutual rectangle collisions. Focus protection, panel tracking, density budgets and remaining review limits follow the [composition contract](composition.md#executable-composition-contract). Silence, black intervals and optional voice-tail checks are candidates for review, not automatic proof of dead air or a bad fade. Integrated mix measurements do not prove stem ducking or speech intelligibility; inspect stems/listen when tools allow, and state limitations.
 
-The contact sheet samples the opening, middle, ending, event starts and both sides of segment joins. Inspect actual frames and relevant motion/audio; a sheet cannot establish smooth animation, factual correctness or listening quality. The agent records what was actually checked, without asking the user for another production approval:
+The contact sheet samples the opening, middle, ending, event starts, authored focus/media/title/CTA boundaries and both sides of segment joins. Inspect actual frames and relevant motion/audio; a sheet cannot establish smooth animation, factual correctness or listening quality. The agent records what was actually checked, without asking the user for another production approval:
 
 ```bash
 python scripts/pipeline.py review PROJECT/scene.json --video PROJECT/outputs/preview.mp4 --visual-note "Actual frame/motion checks and limitations" --fact-note "Original source/date/context checks" --audio-note "Encoded measurements, listening checks or limitation"

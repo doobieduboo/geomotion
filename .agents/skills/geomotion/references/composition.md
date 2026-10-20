@@ -27,3 +27,30 @@ Photographs must relate to the spoken phrase, retain real archival dates/credits
 ## Production workspace
 
 Keep source scene JSON, project renderer extensions, assets and licenses, approved narration, separate VO/music/SFX, editable subtitle cues, actual phrase timing, render/export settings and revision metadata together. Use relative asset paths in portable source bundles. Raw reference clips may retain geographic labels but must be identified if captions/audio are baked in; do not treat a finished MP4 as editable source. Final export uses the delivery reference.
+
+## Executable composition contract
+
+The generic renderer applies `composition.py` and `scene_layout.py`. Numeric limits, margin, gap, movement speed, stability weight, coverage budget and fallback focus live in `defaults.json` → `composition.layout`. A scene may override those named keys through its `composition` object when the brief justifies the change; never change the preset silently to make a failed render pass.
+
+Declare the geography currently being discussed with `focuses`:
+
+```json
+{
+  "regions": [{"id": "spoken-region", "geojson": "data/region.geojson"}],
+  "focuses": [{"event": "location-phrase", "region_id": "spoken-region"}]
+}
+```
+
+Alternatively a focus has `bounds: [west, south, east, north]` and source-clock `start`/`end`. Use a region ID **or** bounds, not both. Event IDs resolve through the shared phrase timeline. Region IDs must be unique and reference actual selected Polygon/MultiPolygon geometry. An active focus outside the camera view fails; correct the authored framing/timing. Split antimeridian geometries explicitly. Focus protection uses conservative projected bounding rectangles, including holes/sea inside those rectangles; it does not claim exact land occupancy or render another visible highlight. When no focus is active, the preset central screen reservation protects the camera's composition without inventing a geographic location.
+
+Callouts measure actual text/fonts and keep image ratio, then prefer their geographic anchor plus `offset`. `placement: "auto"` chooses feasible space within margins, outside focus, subtitles, attribution, visible titles/labels, other panels and map-symbol footprints. Evidence photos are placed before supporting panels; all requested panels must fit. `placement: "manual"` keeps the authored position and still checks constraints. No evidence, text or effect is removed, rewritten or reduced in size to satisfy limits.
+
+Positions are planned from output frame zero for every segment. Tracking is bounded by preset speed and favors stable placement; inactive panels release their positions. This preserves the same positions during checkpoint/resume and avoids abrupt corner switches. If a moving focus blocks every continuous path, rendering fails at the precise frame/output/source time; revise framing, timing or explicit panel size. The planner does not rewrite the camera. Inspect actual motion for readability even when constraints pass.
+
+An optional `cta` object has only authored `text` and source `start`/`end` or `event`. It uses preset display font, CTA color, maximum lines and stroke, with no frame or additional decoration. The preset CTA area supplies text width; vertical placement follows the protected geography rather than covering it. Unsupported CTA style/anchor fields fail instead of being ignored. The planner keeps it horizontally centered, prefers space directly above the protected geography and falls back to other clear vertical space. It never inserts a stock question or country name. A closing pullback remains authored by camera keyframes and the chosen geographic focus; no country or zoom move is generated automatically.
+
+The planner enforces simultaneous callout/media/marker/route/title counts and an annotation area budget. Area is a conservative sum of panel/text and visible symbol rectangles, not an exact union or opacity measurement. Routes use the same path pose for rendering and sprite footprints. Atlas padding counts toward a sprite's footprint; use suitably prepared original assets and scaling. Map symbols may share geographic space with each other, but panels avoid them and they cannot cover subtitle/attribution reservations. Route trails/glow and custom smoke/fire effects still need visual inspection; custom effects must supply their own footprint/coverage checks through the project compositor or adapter. The generic renderer does not implement those effects or silently replace their compositor.
+
+Visible marker labels, titles, callouts, CTA, subtitles and attribution are checked for mutual rectangle collisions. Related icon/label layout remains authored. Title 01 retains its explicit layout; move/re-time it when it obscures protected geography. Title telemetry measures the rendered alpha rectangle, so clipping that occurs inside a title component still needs manual review. Subtitle reservations include actual maximum line/font bounds; the preset subtitle anchor is not misread as the bottom of every glyph.
+
+`.layout.json` records global frame numbers, panel positions and protected focus rectangles. Checkpoint assembly retains this trace. Pipeline contact sheets include authored focus/media/title/CTA boundaries as well as phrase/segment samples. These diagnostics support agent review; they do not verify geography, archival context, visual balance or speech by themselves.

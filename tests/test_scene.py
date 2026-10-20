@@ -126,6 +126,7 @@ class SceneRender(unittest.TestCase):
                     {
                         "position": [0, 0],
                         "title": "Info",
+                        "offset": [-100, 240],
                         "lines": ["Value"],
                         "image": "flag.png",
                     }
@@ -136,6 +137,7 @@ class SceneRender(unittest.TestCase):
                     "definition": "library/titles/title-01.json",
                     "overrides": {
                         "duration": 0.5,
+                        "layout": {"center": [0.5, 0.13]},
                         "timing": {
                             "enter": [0, 0.05],
                             "compact": [0.05, 0.1],

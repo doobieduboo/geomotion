@@ -102,6 +102,9 @@ def load_project(path):
         "archive_manifest",
         "inputs",
         "metadata",
+        "composition",
+        "focuses",
+        "cta",
     }
     unknown = set(scene) - supported
     if unknown:

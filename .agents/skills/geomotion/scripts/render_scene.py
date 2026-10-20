@@ -14,10 +14,12 @@ from pathlib import Path
 import numpy as np
 from basemap import ATTRIBUTION, tile_url, tile_zoom, validate_basemap
 from config import DEFAULTS, SKILL_ROOT
-from map_assets import clip_flag, flagpole, select_sprite
+from map_assets import clip_flag, flagpole, select_sprite, route_pose
 from timeline import resolve_scene
 from project_state import load_project, atomic_json
-from layout import callout_layout, wrap, inspect_boxes
+from layout import wrap, inspect_boxes
+from scene_layout import build_plans
+from composition import validate_composition
 from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 from title_layer import render_title, title_config
 
@@ -104,6 +106,23 @@ def load_font(size, bold=False):
     return ImageFont.truetype(str(path), size)
 
 
+def projector(camera, width, height, scale, mode):
+    z = tile_zoom(camera["zoom"], mode)
+    center = merc(*camera["center"], z)
+    zoom_scale = 2 ** (camera["zoom"] - z) * scale
+    angle = math.radians(camera.get("rotation", 0))
+    cs, sn = math.cos(angle), math.sin(angle)
+
+    def project(ll):
+        xy = merc(*ll, z)
+        world = 256 * 2**z
+        xy[0] = center[0] + (xy[0] - center[0] + world / 2) % world - world / 2
+        v = (xy - center) * zoom_scale
+        return width / 2 + cs * v[0] - sn * v[1], height / 2 + sn * v[0] + cs * v[1]
+
+    return project
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("scene", type=Path)
@@ -127,6 +146,7 @@ def main():
         )
     scene, timeline = resolve_scene(scene)
     validate(scene)
+    validate_composition(scene)
     if not shutil.which("ffmpeg"):
         parser.error("Install FFmpeg")
     root = args.scene.resolve().parent
@@ -161,12 +181,13 @@ def main():
         )
     # Session-memory tiles only: this viewing service does not allow offline tile export.
     tile_images = {}
-    prepared = [
+    all_cameras = [
         camera_at(
             scene["camera"], timeline.source_time(min(n / fps, timeline.duration))
         )
-        for n in range(first, stop)
+        for n in range(stop)
     ]
+    prepared = all_cameras[first:stop]
     needed = set()
     for camera in prepared:
         z = tile_zoom(camera["zoom"], args.mode)
@@ -224,6 +245,12 @@ def main():
             )
         mosaics[z] = (im, np.array([xmin * 256, ymin * 256]))
     image_cache = {}
+    metadata_cache = {}
+
+    def metadata_file(value):
+        if value not in metadata_cache:
+            metadata_cache[value] = json.loads(path(value).read_text())
+        return metadata_cache[value]
 
     def image_file(value):
         if value not in image_cache:
@@ -268,6 +295,19 @@ def main():
         if not math.isfinite(start) or start < 0:
             raise ValueError("Title start must be nonnegative and finite")
         titles.append((start, item.get("end", duration), config))
+    plans, callout_layouts, cta_layout = build_plans(
+        scene,
+        timeline,
+        all_cameras,
+        fps,
+        (width, height),
+        lambda camera: projector(camera, width, height, scale, args.mode),
+        regions,
+        titles,
+        image_file,
+        load_font,
+        metadata_file,
+    )
     args.output.parent.mkdir(parents=True, exist_ok=True)
     command = [
         "ffmpeg",
@@ -412,26 +452,7 @@ def main():
             for route in scene.get("routes", []):
                 if t < route["start"] or t >= route.get("hide_at", duration):
                     continue
-                u = ease((t - route["start"]) / (route["end"] - route["start"]))
-                points = route["points"]
-                projected = [project(ll) for ll in points]
-                lengths = [math.dist(a, b) for a, b in zip(projected, projected[1:])]
-                remaining = sum(lengths) * u
-                trail = [projected[0]]
-                heading = 0
-                for i, length in enumerate(lengths):
-                    start, end = projected[i : i + 2]
-                    fraction = min(1, remaining / max(length, 0.0001))
-                    tail = tuple(
-                        start[k] + fraction * (end[k] - start[k]) for k in range(2)
-                    )
-                    trail.append(tail)
-                    heading = math.degrees(
-                        math.atan2(end[0] - start[0], -(end[1] - start[1]))
-                    )
-                    remaining -= length
-                    if remaining <= 0:
-                        break
+                trail, heading = route_pose(route, t, project)
                 col = color(route.get("color", [255, 105, 68]))
                 rd.line(
                     trail,
@@ -441,7 +462,7 @@ def main():
                 )
                 x, y = trail[-1]
                 if route.get("atlas"):
-                    meta = json.loads(path(route["atlas_metadata"]).read_text())
+                    meta = metadata_file(route["atlas_metadata"])
                     frame, anchor, _ = select_sprite(
                         image_file(route["atlas"]), meta, heading
                     )
@@ -516,7 +537,7 @@ def main():
                         stroke_width=1,
                         stroke_fill=(0, 0, 0, 230),
                     )
-            for callout in scene.get("callouts", []):
+            for i, callout, geometry in callout_layouts:
                 if not visible(callout):
                     continue
                 ax, ay = project(callout["position"])
@@ -524,37 +545,10 @@ def main():
                 padding = max(
                     2, round(DEFAULTS["layout"]["callout_padding_design"] * scale)
                 )
-                max_width = min(
-                    width - 20,
-                    round(
-                        callout.get(
-                            "width", DEFAULTS["layout"]["callout_max_width_design"]
-                        )
-                        * scale
-                    ),
-                )
-                w, h, image_height, rows = callout_layout(
-                    callout.get("title", ""),
-                    callout.get("lines", []),
-                    load_font(max(11, round(22 * scale)), True),
-                    load_font(max(9, round(19 * scale))),
-                    max_width,
-                    padding,
-                    image.size if image else None,
-                )
-                if h > height - 20:
-                    raise ValueError(
-                        "Callout exceeds frame height; revise content/placement"
-                    )
-                offset = callout.get("offset", [-100, -300])
-                x = round(max(10, min(width - w - 10, ax + offset[0] * scale)))
-                y = round(max(10, min(height - h - 10, ay + offset[1] * scale)))
-                boxes.append(
-                    (
-                        "callout:" + str(scene["callouts"].index(callout)),
-                        (x, y, x + w, y + h),
-                    )
-                )
+                w, h, image_height, rows = geometry
+                box = plans[n]["positions"]["callout:" + str(i)]
+                x, y = round(box[0]), round(box[1])
+                boxes.append(("callout:" + str(i), (x, y, x + w, y + h)))
                 col = color(callout.get("color"))
                 px = max(x + padding, min(x + w - padding, ax))
                 edge = y + h if ay > y + h / 2 else y
@@ -611,9 +605,38 @@ def main():
                     stroke_width=stroke,
                     stroke_fill=DEFAULTS["palette"]["text_shadow"],
                 )
+            if "cta" in plans[n]["positions"]:
+                box = plans[n]["positions"]["cta"]
+                metric = cta_layout["metric"]
+                position = (box[0] - metric[0], box[1] - metric[1])
+                draw.multiline_text(
+                    position,
+                    cta_layout["text"],
+                    font=cta_layout["font"],
+                    align="center",
+                    fill=DEFAULTS["palette"]["cta"],
+                    stroke_width=cta_layout["stroke"],
+                    stroke_fill=DEFAULTS["palette"]["text_shadow"],
+                )
+                boxes.append(
+                    (
+                        "cta",
+                        draw.multiline_textbbox(
+                            position,
+                            cta_layout["text"],
+                            font=cta_layout["font"],
+                            align="center",
+                            stroke_width=cta_layout["stroke"],
+                        ),
+                    )
+                )
             for start, end, config in titles:
                 if start <= t < end:
-                    overlay.alpha_composite(render_title(config, t - start, im.size))
+                    title_image = render_title(config, t - start, im.size)
+                    title_box = title_image.getchannel("A").getbbox()
+                    if title_box:
+                        boxes.append(("title:" + str(start), title_box))
+                    overlay.alpha_composite(title_image)
             if scene.get("attribution"):
                 credit_font = load_font(max(8, round(12 * scale)))
                 margin = max(4, round(10 * scale))
@@ -656,7 +679,20 @@ def main():
     temporary.replace(args.output)
     atomic_json(
         args.output.with_suffix(".layout.json"),
-        {"errors": layout_issues, "archive_warnings": archive_warnings},
+        {
+            "errors": layout_issues,
+            "archive_warnings": archive_warnings,
+            "composition": {
+                "frames": [
+                    {
+                        "frame": n,
+                        "positions": plans[n]["positions"],
+                        "focuses": plans[n]["focuses"],
+                    }
+                    for n in range(first, stop)
+                ]
+            },
+        },
     )
     print(args.output.resolve())
 

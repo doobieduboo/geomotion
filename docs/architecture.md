@@ -22,6 +22,7 @@ Path skill di tabel bersifat relatif terhadap `.agents/skills/geomotion/`. Insta
 - Renderer menerapkan basemap, profil ekspor, font dan design grid. Template berisi struktur konten, tanpa menyalin nilai default provider/encoding.
 - Persiapan player membaca profil ekspor dan kualitas tahap dari preset, lalu menulis `media.json`. Player memvalidasi kualitas yang diizinkan sebelum menampilkan pilihan.
 - `timeline.py` menyatukan clock source/output; `project_state.py` mencatat provenance serta hash persetujuan. `execution.py` mengatur segmen native/checkpoint; `qa.py` memeriksa hasil encode; `pipeline.py` mengikat render, review dan handoff Sites. [Kontrak pipeline](../.agents/skills/geomotion/references/pipeline.md) menjelaskan batasnya.
+- `composition.py` dan `scene_layout.py` merencanakan posisi global frame, melindungi fokus geografis, memeriksa kepadatan/benturan, dan menempatkan CTA authored tanpa dekorasi tambahan.
 - Subtitle aktual didukung renderer. Preset narasi, mixing, kamera editorial dan TTS tetap memandu agent; fitur itu tidak otomatis menjadi primitive renderer. Lihat [kemampuan aktual](../.agents/skills/geomotion/references/capabilities.md).
 - Binding Sites adalah target delivery, bukan deployment otomatis. Agent menjalankan persiapan dan workflow Sites.
 
