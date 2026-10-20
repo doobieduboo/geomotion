@@ -66,6 +66,106 @@
         aspect-ratio: 9/16;
         background: #000;
       }
+      .video-stage {
+        position: relative;
+        isolation: isolate;
+        background: #000;
+      }
+      .video-stage:fullscreen {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .video-stage:fullscreen video {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      video::-webkit-media-controls-overlay-play-button {
+        display: none !important;
+      }
+      .tap-toggle {
+        position: absolute;
+        inset: 0 0 104px;
+        width: 100%;
+        border: 0;
+        padding: 0;
+        background: transparent;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      .video-controls {
+        position: absolute;
+        inset: auto 0 0;
+        padding: 12px 12px max(4px, env(safe-area-inset-bottom));
+        color: #fff;
+        background: linear-gradient(transparent, #000b 38%, #000e);
+      }
+      .control-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 36px;
+      }
+      .control-button {
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        padding: 9px;
+        border: 0;
+        border-radius: 8px;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .control-button svg { width: 20px; height: 20px; fill: currentColor; }
+      .time-display {
+        flex: 1;
+        white-space: nowrap;
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+      }
+      .timeline {
+        --progress: 0%;
+        display: block;
+        appearance: none;
+        -webkit-appearance: none;
+        width: 100%;
+        height: 44px;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        cursor: pointer;
+        touch-action: none;
+      }
+      .timeline::-webkit-slider-runnable-track {
+        height: 4px;
+        border-radius: 4px;
+        background: linear-gradient(to right, #b3e8d2 var(--progress), #ffffff60 var(--progress));
+      }
+      .timeline::-moz-range-track { height: 4px; border-radius: 4px; background: #ffffff60; }
+      .timeline::-moz-range-progress { height: 4px; border-radius: 4px; background: #b3e8d2; }
+      .timeline::-webkit-slider-thumb {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 14px;
+        height: 14px;
+        margin-top: -5px;
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: 0 0 5px #0008;
+      }
+      .timeline::-moz-range-thumb { width: 14px; height: 14px; border: 0; border-radius: 50%; background: #fff; }
+      button:focus-visible, .timeline:focus-visible {
+        outline: 2px solid #b3e8d2;
+        outline-offset: -2px;
+      }
       h1 {
         font-size: clamp(30px, 6vw, 46px);
         line-height: 1.08;
@@ -192,9 +292,27 @@
       </header>
       <div class="layout">
         <section class="player" aria-label="Pemutar video GeoMotion">
-          <video id="video" controls playsinline preload="none">
-            Browser ini tidak mendukung video. Gunakan tombol download.
-          </video>
+          <div class="video-stage" id="video-stage">
+            <video id="video" controls playsinline preload="none">
+              Browser ini tidak mendukung video. Gunakan tombol download.
+            </video>
+            <button id="tap-toggle" class="tap-toggle" type="button" aria-label="Putar video" aria-controls="video" hidden></button>
+            <div id="video-controls" class="video-controls" role="group" aria-label="Kontrol video" hidden>
+              <div class="control-row">
+                <button id="play-toggle" class="control-button" type="button" aria-label="Putar video" aria-controls="video">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path id="play-icon" d="M8 5v14l11-7z"/></svg>
+                </button>
+                <span class="time-display"><span id="current-time">0:00</span> / <span id="total-time">0:00</span></span>
+                <button id="mute-toggle" class="control-button" type="button" aria-label="Bisukan audio" aria-controls="video">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path id="mute-icon" d="M3 9v6h4l5 4V5L7 9zm12-2v2a4 4 0 010 6v2a6 6 0 000-10z"/></svg>
+                </button>
+                <button id="fullscreen-toggle" class="control-button" type="button" aria-label="Layar penuh">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h7v2H5v5H3zm11 0h7v7h-2V5h-5zM3 14h2v5h5v2H3zm16 0h2v7h-7v-2h5z"/></svg>
+                </button>
+              </div>
+              <input id="timeline" class="timeline" type="range" min="0" max="0" step="0.01" value="0" aria-label="Posisi pemutaran video" aria-controls="video" disabled />
+            </div>
+          </div>
         </section>
         <section class="info">
           <div class="eyebrow" id="eyebrow">GEOMOTION / VIDEO</div>
@@ -212,6 +330,6 @@
         GeoMotion · <a id="credits" href="credits.md">Sumber & kredit media</a>
       </footer>
     </main>
-    <script src="app.js"></script>
+    <script src="app.js?v=2"></script>
   </body>
 </html>
