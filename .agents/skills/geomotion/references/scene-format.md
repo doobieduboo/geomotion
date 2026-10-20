@@ -4,7 +4,7 @@ The input is a scene description, not a story template. No subject, place, date 
 
 ## Coordinates, paths and time
 - Geographic positions are `[longitude, latitude]`, in WGS84 degrees.
-- Times are seconds on the scene timeline; duration is explicit and positive.
+- Times are source seconds; duration is explicit, positive and finite. Optional timeline cuts change playback time consistently; see [pipeline.md](pipeline.md).
 - All media and GeoJSON paths resolve relative to the scene JSON file.
 - Preview is 360×640/24fps; final is 1080×1920/30fps.
 - Screen offsets, widths and font sizes use a 720-wide design grid and scale to the selected output. The preview renders directly at 360p.
@@ -14,7 +14,12 @@ The input is a scene description, not a story template. No subject, place, date 
 | Field | Meaning |
 |---|---|
 | `export` | Optional explicit mode overrides; omitted uses `defaults.json`. Standard delivery is preview 360p or final 1080p |
-| `duration` | Required scene length in seconds; no topic-specific fixed timeline |
+| `duration` | Required original source timeline length; no topic-specific fixed duration |
+| `timeline` | Explicit silence cuts, source/output audio clock and shared phrase events; [contract](pipeline.md) |
+| `subtitles` / `subtitle_cues` | Inline or JSON-file actual phrase cues, source-timed; use one form |
+| `archive_manifest` | Version-1 provenance manifest; callouts may reference `archive_id` |
+| `inputs` | Additional local dependency paths by approval domain |
+| `metadata` | Optional informational project metadata; no renderer behavior |
 | `camera` | Required keyframes: `time`, `center`, `zoom`, optional `rotation` in degrees; `ease: "linear"` disables easing for that incoming segment |
 | `basemap` | Esri World Imagery only: `type: "satellite"`, `provider: "esri_world_imagery"`; optional `saturation` and `brightness` inherited from the preset. Other providers and solid backgrounds are rejected. See [basemaps.md](basemaps.md) |
 | `regions` | Optional GeoJSON geometry layers with outline/reveal and optional flag fill |
@@ -43,8 +48,10 @@ Flag fill stretches one texture over the selected feature's projected bounding b
 
 ## Callouts
 
-`position` anchors the leader line. `title`, `lines` (explicit line breaks as separate strings), optional `image`, `color`, screen `width` and `offset` define a compact bubble. Fit text to the box and inspect the output. This is an optional information layer, not a fixed slide layout.
+`position` anchors the leader line. `title`, `lines` (explicit line breaks as separate strings), optional `image`, `color`, screen `width` and `offset` define a compact bubble. Width is a maximum for text-only bubbles: actual font measurement determines compact bounds and wrapping. Padding comes from the preset. Image panels use that width and preserve the original image ratio; oversized panels fail rather than crop silently. Inspect placement and subtitle collisions. This is an optional information layer, not a fixed slide layout.
 
 ## Global movement
 
 The camera interpolates the shortest longitude path and wraps satellite tile x coordinates. The flat map is Web Mercator, with supported scene coordinates between latitude −85 and +85 degrees. It does not simulate a globe. Inspect dateline-crossing polygons/routes and adapt projection or split shots when needed. Very wide same-zoom sequences have an explicit memory guard and may need multiple shots.
+
+Unknown top-level fields are rejected by the generic loader. Do not pass custom production fields and assume their effects were rendered. For resumable native export, review/approval contracts and pipeline commands, see [pipeline.md](pipeline.md).

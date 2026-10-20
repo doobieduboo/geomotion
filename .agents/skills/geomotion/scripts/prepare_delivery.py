@@ -25,6 +25,11 @@ def main():
     p.add_argument(
         "--revision", help="Optional filename revision; default is content hash"
     )
+    p.add_argument(
+        "--refresh-player-template",
+        action="store_true",
+        help="Explicitly replace existing player UI",
+    )
     a = p.parse_args()
     video = a.video.resolve()
     out = a.output.resolve()
@@ -65,7 +70,8 @@ def main():
     media = out / "media"
     media.mkdir(parents=True, exist_ok=True)
     for name in ["index.html", "app.js"]:
-        shutil.copy2(SKILL_ROOT / "templates/player" / name, out / name)
+        if a.refresh_player_template or not (out / name).exists():
+            shutil.copy2(SKILL_ROOT / "templates/player" / name, out / name)
     qualities = cfg["delivery"][
         "editing_qualities" if a.stage == "preview" else "final_qualities"
     ]
@@ -75,7 +81,7 @@ def main():
         if width == expected["width"]:
             if dest.resolve() != video:
                 shutil.copy2(video, dest)
-        elif not dest.exists():
+        else:
             if width != cfg["export"]["preview"]["width"]:
                 raise ValueError(
                     "Only 360p preview and native 1080p final are supported by the delivery preset"
@@ -149,9 +155,11 @@ def main():
         "narrated": a.narrated,
         "poster": f"media/{poster.name}",
         "defaultQuality": cfg["delivery"][
-            "default_preview_quality"
-            if a.stage == "preview"
-            else "default_final_quality"
+            (
+                "default_preview_quality"
+                if a.stage == "preview"
+                else "default_final_quality"
+            )
         ],
         "variants": variants,
     }

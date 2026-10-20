@@ -24,3 +24,5 @@ For fast-paced edits, also inspect opening clarity, voice articulation, visual i
 - Confirm stage-appropriate media files and one download action; report unavailable browser QA or other material verification limits. A script exit code alone is not visual QA.
 
 Scale verification to the change. Do not repeatedly run expensive full renders or regenerate TTS for documentation/UI edits. Preserve provenance and reproducible settings alongside the production.
+
+For executable encoded/layout checks, checkpoint joins and review-bound delivery, use [pipeline.md](pipeline.md). Automated checks do not certify sources, archive reuse or listening quality.

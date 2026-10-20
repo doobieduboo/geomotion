@@ -15,7 +15,10 @@ import numpy as np
 from basemap import ATTRIBUTION, tile_url, tile_zoom, validate_basemap
 from config import DEFAULTS, SKILL_ROOT
 from map_assets import clip_flag, flagpole, select_sprite
-from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont, ImageOps
+from timeline import resolve_scene
+from project_state import load_project, atomic_json
+from layout import callout_layout, wrap, inspect_boxes
+from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 from title_layer import render_title, title_config
 
 
@@ -58,14 +61,14 @@ def camera_at(keys, t):
 
 
 def validate(scene):
-    if scene.get("duration", 0) <= 0:
+    if not math.isfinite(scene.get("duration", 0)) or scene.get("duration", 0) <= 0:
         raise ValueError("duration must be positive")
     keys = scene.get("camera", [])
     if not keys:
         raise ValueError("camera requires at least one keyframe")
     last = -1
     for k in keys:
-        if k["time"] < 0 or k["time"] <= last:
+        if not math.isfinite(k["time"]) or k["time"] < 0 or k["time"] <= last:
             raise ValueError("camera times must increase strictly")
         last = k["time"]
         lon, lat = k["center"]
@@ -106,8 +109,23 @@ def main():
     parser.add_argument("scene", type=Path)
     parser.add_argument("--mode", choices=["preview", "final"], default="preview")
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--final-requested", action="store_true")
+    parser.add_argument("--start-frame", type=int, default=0)
+    parser.add_argument("--end-frame", type=int)
+    parser.add_argument("--video-only", action="store_true")
     args = parser.parse_args()
-    scene = json.loads(args.scene.read_text())
+    if args.mode == "final" and not args.final_requested:
+        parser.error(
+            "Final requires the user's explicit request; pass --final-requested to record it"
+        )
+    scene, archive_warnings = load_project(args.scene)
+    if scene.get("subtitle_cues"):
+        if scene.get("subtitles"):
+            raise ValueError("Use subtitle_cues or inline subtitles, not both")
+        scene["subtitles"] = json.loads(
+            (args.scene.resolve().parent / scene["subtitle_cues"]).read_text()
+        )
+    scene, timeline = resolve_scene(scene)
     validate(scene)
     if not shutil.which("ffmpeg"):
         parser.error("Install FFmpeg")
@@ -123,8 +141,17 @@ def main():
     width, height, fps = (int(export[k]) for k in ("width", "height", "fps"))
     if min(width, height, fps) <= 0 or width % 2 or height % 2:
         raise ValueError("Export requires positive even dimensions and positive fps")
-    duration = float(scene["duration"])
-    count = max(1, round(duration * fps))
+    duration = timeline.source_duration
+    count = max(1, round(timeline.duration * fps))
+    first, stop = args.start_frame, (
+        args.end_frame if args.end_frame is not None else count
+    )
+    if not 0 <= first < stop <= count:
+        parser.error("Frame range must satisfy 0 <= start < end <= total frames")
+    if scene.get("audio") and not args.video_only and (first != 0 or stop != count):
+        parser.error("Partial render requires --video-only when scene has audio")
+    if args.video_only:
+        scene.pop("audio", None)
     scale = width / DEFAULTS["design_width"]
     basemap = {**DEFAULTS["basemap"], **scene.get("basemap", {})}
     validate_basemap(basemap)
@@ -134,7 +161,12 @@ def main():
         )
     # Session-memory tiles only: this viewing service does not allow offline tile export.
     tile_images = {}
-    prepared = [camera_at(scene["camera"], n / fps) for n in range(count)]
+    prepared = [
+        camera_at(
+            scene["camera"], timeline.source_time(min(n / fps, timeline.duration))
+        )
+        for n in range(first, stop)
+    ]
     needed = set()
     for camera in prepared:
         z = tile_zoom(camera["zoom"], args.mode)
@@ -204,9 +236,11 @@ def main():
         features = (
             data["features"]
             if data["type"] == "FeatureCollection"
-            else [data]
-            if data["type"] == "Feature"
-            else [{"geometry": data, "properties": {}}]
+            else (
+                [data]
+                if data["type"] == "Feature"
+                else [{"geometry": data, "properties": {}}]
+            )
         )
         for feature in features:
             if any(
@@ -233,7 +267,7 @@ def main():
         start = float(item.get("start", 0))
         if not math.isfinite(start) or start < 0:
             raise ValueError("Title start must be nonnegative and finite")
-        titles.append((start, config))
+        titles.append((start, item.get("end", duration), config))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     command = [
         "ffmpeg",
@@ -252,7 +286,21 @@ def main():
         "-",
     ]
     if scene.get("audio"):
-        command += ["-i", str(path(scene["audio"])), "-af", "apad"]
+        command += ["-i", str(path(scene["audio"]))]
+        if (
+            scene.get("timeline", {}).get("cuts")
+            and scene["timeline"].get("audio_clock", "source") == "source"
+        ):
+            command += [
+                "-filter_complex",
+                timeline.audio_filter(),
+                "-map",
+                "0:v",
+                "-map",
+                "[audio]",
+            ]
+        else:
+            command += ["-af", "apad"]
     command += [
         "-c:v",
         "libx264",
@@ -269,11 +317,20 @@ def main():
     ]
     if scene.get("audio"):
         command += ["-c:a", "aac", "-b:a", export["audio_bitrate"]]
-    command += ["-t", str(count / fps), "-movflags", "+faststart", str(args.output)]
+    temporary = args.output.with_name(args.output.stem + ".rendering.mp4")
+    command += [
+        "-t",
+        str((stop - first) / fps),
+        "-movflags",
+        "+faststart",
+        str(temporary),
+    ]
     p = subprocess.Popen(command, stdin=subprocess.PIPE)
+    layout_issues = {}
     try:
-        for n, camera in enumerate(prepared):
-            t = n / fps
+        for n, camera in enumerate(prepared, start=first):
+            t = timeline.source_time(min(n / fps, timeline.duration))
+            boxes = []
             z = tile_zoom(camera["zoom"], args.mode)
             zoom_scale = 2 ** (camera["zoom"] - z) * scale
             center = merc(*camera["center"], z)
@@ -432,12 +489,29 @@ def main():
                 label = marker.get("label")
                 if label:
                     offset = marker.get("offset", [18, 15])
+                    label_position = (x + offset[0] * scale, y + offset[1] * scale)
+                    label_font = load_font(
+                        max(10, round(marker.get("font_size", 21) * scale)), True
+                    )
+                    label_bounds = draw.textbbox(
+                        label_position, label, font=label_font, stroke_width=1
+                    )
+                    if (
+                        label_bounds[2] > 0
+                        and label_bounds[3] > 0
+                        and label_bounds[0] < width
+                        and label_bounds[1] < height
+                    ):
+                        boxes.append(
+                            (
+                                "marker:" + str(scene["markers"].index(marker)),
+                                label_bounds,
+                            )
+                        )
                     draw.text(
-                        (x + offset[0] * scale, y + offset[1] * scale),
+                        label_position,
                         label,
-                        font=load_font(
-                            max(10, round(marker.get("font_size", 21) * scale)), True
-                        ),
+                        font=label_font,
                         fill=(239, 247, 239, 255),
                         stroke_width=1,
                         stroke_fill=(0, 0, 0, 230),
@@ -446,15 +520,43 @@ def main():
                 if not visible(callout):
                     continue
                 ax, ay = project(callout["position"])
-                image = callout.get("image")
-                lines = callout.get("lines", [])
-                w = round(callout.get("width", 330) * scale)
-                h = round((80 + len(lines) * 27 + (160 if image else 0)) * scale)
+                image = image_file(callout["image"]) if callout.get("image") else None
+                padding = max(
+                    2, round(DEFAULTS["layout"]["callout_padding_design"] * scale)
+                )
+                max_width = min(
+                    width - 20,
+                    round(
+                        callout.get(
+                            "width", DEFAULTS["layout"]["callout_max_width_design"]
+                        )
+                        * scale
+                    ),
+                )
+                w, h, image_height, rows = callout_layout(
+                    callout.get("title", ""),
+                    callout.get("lines", []),
+                    load_font(max(11, round(22 * scale)), True),
+                    load_font(max(9, round(19 * scale))),
+                    max_width,
+                    padding,
+                    image.size if image else None,
+                )
+                if h > height - 20:
+                    raise ValueError(
+                        "Callout exceeds frame height; revise content/placement"
+                    )
                 offset = callout.get("offset", [-100, -300])
-                x = int(max(10, min(width - w - 10, ax + offset[0] * scale)))
-                y = int(max(10, min(height - h - 10, ay + offset[1] * scale)))
+                x = round(max(10, min(width - w - 10, ax + offset[0] * scale)))
+                y = round(max(10, min(height - h - 10, ay + offset[1] * scale)))
+                boxes.append(
+                    (
+                        "callout:" + str(scene["callouts"].index(callout)),
+                        (x, y, x + w, y + h),
+                    )
+                )
                 col = color(callout.get("color"))
-                px = max(x + 12, min(x + w - 12, ax))
+                px = max(x + padding, min(x + w - padding, ax))
                 edge = y + h if ay > y + h / 2 else y
                 draw.line([(ax, ay), (px, edge)], fill=col + (210,), width=1)
                 draw.rounded_rectangle(
@@ -464,37 +566,77 @@ def main():
                     outline=col + (210,),
                     width=1,
                 )
-                yy = y + round(15 * scale)
                 if image:
-                    pic = ImageOps.fit(
-                        image_file(image),
-                        (w - round(24 * scale), round(150 * scale)),
-                        method=Image.Resampling.LANCZOS,
+                    pic = image.resize(
+                        (w - 2 * padding, image_height), Image.Resampling.LANCZOS
                     )
-                    overlay.alpha_composite(pic, (x + round(12 * scale), yy))
-                    yy += round(165 * scale)
-                draw.text(
-                    (x + 12 * scale, yy),
-                    callout.get("title", ""),
-                    font=load_font(max(11, round(22 * scale)), True),
-                    fill=(239, 247, 239, 255),
-                )
-                for i, line in enumerate(lines):
+                    overlay.alpha_composite(pic, (x + padding, y + padding))
+                for text, font, xx, yy in rows:
                     draw.text(
-                        (x + 12 * scale, yy + (35 + i * 27) * scale),
-                        line,
-                        font=load_font(max(9, round(19 * scale))),
-                        fill=(196, 215, 218, 255),
+                        (x + xx, y + yy), text, font=font, fill=(239, 247, 239, 255)
                     )
-            for start, config in titles:
-                overlay.alpha_composite(render_title(config, t - start, im.size))
-            if scene.get("attribution"):
-                draw.text(
-                    (10, height - 20),
-                    scene["attribution"],
-                    font=load_font(max(8, round(12 * scale))),
-                    fill=(185, 207, 212, 240),
+            for cue in scene.get("subtitles", []):
+                if not visible(cue):
+                    continue
+                sub = DEFAULTS["subtitles"]
+                font = ImageFont.truetype(
+                    str(SKILL_ROOT / sub["font"]),
+                    max(1, round(sub["font_size_design"] * scale)),
                 )
+                safe = DEFAULTS["composition"]["subtitle_safe_area_normalized"]
+                lines = wrap(cue["text"], font, width * (safe[2] - safe[0]))
+                if len(lines) > sub["max_lines"]:
+                    raise ValueError(
+                        "Subtitle exceeds preset max_lines; revise phrase cues"
+                    )
+                stroke = max(1, round(sub["stroke_design"] * scale))
+                text = "\n".join(lines)
+                anchor = sub["anchor_normalized"]
+                bounds = draw.multiline_textbbox(
+                    (width * anchor[0], height * anchor[1]),
+                    text,
+                    font=font,
+                    anchor="mm",
+                    align="center",
+                    stroke_width=stroke,
+                )
+                boxes.append(("subtitle", bounds))
+                draw.multiline_text(
+                    (width * anchor[0], height * anchor[1]),
+                    text,
+                    font=font,
+                    anchor="mm",
+                    align="center",
+                    fill=DEFAULTS["palette"]["text"],
+                    stroke_width=stroke,
+                    stroke_fill=DEFAULTS["palette"]["text_shadow"],
+                )
+            for start, end, config in titles:
+                if start <= t < end:
+                    overlay.alpha_composite(render_title(config, t - start, im.size))
+            if scene.get("attribution"):
+                credit_font = load_font(max(8, round(12 * scale)))
+                margin = max(4, round(10 * scale))
+                credit = "\n".join(
+                    wrap(scene["attribution"], credit_font, width - 2 * margin)
+                )
+                credit_bounds = draw.multiline_textbbox(
+                    (0, 0), credit, font=credit_font
+                )
+                position = (margin, height - margin - credit_bounds[3])
+                boxes.append(
+                    (
+                        "attribution",
+                        draw.multiline_textbbox(position, credit, font=credit_font),
+                    )
+                )
+                draw.multiline_text(
+                    position, credit, font=credit_font, fill=(185, 207, 212, 240)
+                )
+            for issue in inspect_boxes(boxes, (width, height)):
+                layout_issues.setdefault(issue, {"first_frame": n, "last_frame": n})[
+                    "last_frame"
+                ] = n
             im.alpha_composite(overlay)
             if n in {0, count // 2, count - 1}:
                 im.convert("RGB").save(
@@ -504,13 +646,18 @@ def main():
     except BaseException:
         p.stdin.close()
         p.wait()
-        args.output.unlink(missing_ok=True)
+        temporary.unlink(missing_ok=True)
         raise
     else:
         p.stdin.close()
     if p.wait() != 0:
-        args.output.unlink(missing_ok=True)
+        temporary.unlink(missing_ok=True)
         raise RuntimeError("FFmpeg render failed")
+    temporary.replace(args.output)
+    atomic_json(
+        args.output.with_suffix(".layout.json"),
+        {"errors": layout_issues, "archive_warnings": archive_warnings},
+    )
     print(args.output.resolve())
 
 

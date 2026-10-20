@@ -1,5 +1,5 @@
 {
-  "version": 8,
+  "version": 9,
   "design_width": 720,
   "export": {
     "preview": {
@@ -176,5 +176,23 @@
     "provider_fallback": false,
     "attribution": "Esri, Vantor, Earthstar Geographics, and the GIS User Community",
     "on_failure": "report_and_stop_no_provider_substitution"
+  },
+  "execution": {
+    "max_workers": 2,
+    "checkpoint_seconds": 4,
+    "memory_reserve_mb": 512,
+    "estimated_worker_mb": 1536
+  },
+  "layout": {
+    "callout_padding_design": 12,
+    "callout_max_width_design": 330
+  },
+  "qa": {
+    "loudness_tolerance_lu": 1.0,
+    "duration_tolerance_frames": 1,
+    "tail_warning_seconds": 0.75,
+    "black_min_seconds": 0.4,
+    "silence_noise_db": -40,
+    "silence_min_seconds": 0.6
   }
 }

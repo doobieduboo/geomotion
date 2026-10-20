@@ -4,6 +4,7 @@ This directory is the skill's technical knowledge base. It is not a second agent
 
 | Reference | Owns |
 |---|---|
+| [pipeline.md](pipeline.md) | Unified source/output clock, manifests, approval hashes, checkpoint workers, encoded QA and truthful publication handoff |
 | [basemaps.md](basemaps.md) | Default satellite background, Esri sources, terms, attribution and access failures |
 | [titles.md](titles.md) | Editable title definition, transparent rendering and scene integration |
 | [style.md](style.md) | Appearance, type roles and placement semantics |

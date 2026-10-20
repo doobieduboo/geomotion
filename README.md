@@ -28,7 +28,7 @@ python -m pip install -r .agents/skills/geomotion/scripts/requirements.txt
 python .agents/skills/geomotion/scripts/render_scene.py scene.json --mode preview --output outputs/preview.mp4
 ```
 
-Mulai dari [template scene](.agents/skills/geomotion/templates/scene.json), lalu isi kamera dan layer berdasarkan brief. Jalur aset relatif terhadap scene. Renderer menangani visual dan audio supplied; TTS, subtitle/CTA dan mixing memerlukan langkah produksi terpisah. Lihat [kemampuan aktual](.agents/skills/geomotion/references/capabilities.md).
+Mulai dari [template scene](.agents/skills/geomotion/templates/scene.json), lalu isi kamera dan layer berdasarkan brief. Jalur aset relatif terhadap scene. Renderer menangani visual dan audio supplied; Subtitle dari cue aktual dapat dibakar; TTS, CTA khusus dan mixing tetap memerlukan langkah produksi terpisah. Pipeline menyediakan render paralel/checkpoint, clock terpadu, manifest arsip, lock revisi dan QA hasil encode; lihat [kontrak pipeline](.agents/skills/geomotion/references/pipeline.md). Lihat [kemampuan aktual](.agents/skills/geomotion/references/capabilities.md).
 
 Pemasangan skill pada mesin ini bersifat opsional:
 

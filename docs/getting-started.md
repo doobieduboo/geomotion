@@ -35,6 +35,8 @@ python .agents/skills/geomotion/scripts/prepare_delivery.py outputs/preview.mp4 
 
 `SITE/dist` adalah direktori static dari checkout Site yang dipilih; ganti dengan jalur sebenarnya. Perintah terakhir tidak memublikasikan. Baca [delivery.md](../.agents/skills/geomotion/references/delivery.md) dan gunakan skill Sites untuk menyiapkan source serta menerbitkan ke binding pengguna yang sama. Fitur komposisi yang belum ada di renderer memerlukan langkah proyek, lihat [capabilities.md](../.agents/skills/geomotion/references/capabilities.md).
 
-Final hanya dibuat saat diminta: render ulang dari sumber dengan `--mode final`, lakukan komposisi/cek, lalu siapkan `--stage final`. Tidak meng-upscale preview. Simpan sumber/licensing dan audio terpisah agar perubahan VO/teks tetap dapat diedit.
+Final hanya dibuat saat diminta: render ulang dari sumber dengan `--mode final --final-requested`, lakukan komposisi/cek, lalu siapkan `--stage final`. Tidak meng-upscale preview. Simpan sumber/licensing dan audio terpisah agar perubahan VO/teks tetap dapat diedit.
 
 Referensi platform: [Cloud environments](https://learn.chatgpt.com/docs/environments/cloud-environments), [Gemini API keys](https://ai.google.dev/gemini-api/docs/api-key). UI dan kuota bisa berubah; gunakan observasi/ketentuan terkini untuk diagnosis, bukan menghafal posisi tombol dari screenshot lama.
+
+Untuk workflow dengan checkpoint, lock persetujuan, manifest arsip dan QA hasil encode, ikuti [pipeline](../.agents/skills/geomotion/references/pipeline.md). Workflow ini mempertahankan player yang ada dan berakhir dengan handoff ke native Sites, bukan deployment palsu dari CLI.
