@@ -7,6 +7,7 @@ import argparse
 import json
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from config import DEFAULTS, SKILL_ROOT
 from execution import render
@@ -23,6 +24,7 @@ from qa import check, contact_sheet
 from timeline import resolve_scene
 from render_scene import validate
 from composition import validate_composition
+from delivery_staging import seed_existing_player, version_credits, promote_staged_delivery
 
 
 def checked_scene(path):
@@ -242,53 +244,64 @@ def main():
         if review["sha256"] != digest(a.video) or review["mode"] != a.mode:
             raise ValueError("Review is stale")
         binding, hosting = bound_site(a.site, a.binding)
-        command = [
-            sys.executable,
-            str(SKILL_ROOT / "scripts/prepare_delivery.py"),
-            str(a.video),
-            "--stage",
-            a.mode,
-            "--output",
-            str(a.site / hosting["static"]["directory"]),
-            "--title",
-            a.title,
-        ]
-        if scene.get("audio"):
-            command.append("--narrated")
-        if a.credits:
-            command += ["--credits", str(a.credits)]
-        subprocess.run(command, check=True)
         dist = a.site / hosting["static"]["directory"]
-        media = json.loads((dist / "media.json").read_text())
-        expected = DEFAULTS["delivery"][
-            "editing_qualities" if a.mode == "preview" else "final_qualities"
-        ]
-        if [v["height"] for v in media["variants"]] != expected:
-            raise ValueError("Delivery qualities differ from preset")
-        results = []
-        for variant in media["variants"]:
-            mode = (
-                "preview"
-                if variant["height"] == DEFAULTS["export"]["preview"]["width"]
-                else "final"
-            )
-            voice_end = (
-                timeline.output_time(scene["subtitles"][-1]["end"])
-                if scene.get("subtitles")
-                else None
-            )
-            report = check(
-                dist / variant["src"],
-                mode,
-                timeline.duration,
-                bool(scene.get("audio")),
-                voice_end=voice_end,
-            )
-            results.append(report)
-        if any(not r["automated_pass"] for r in results):
-            raise ValueError(
-                "Encoded delivery variant QA failed; no publication handoff"
-            )
+        # Stage outside the Site checkout. A failed preparation or QA must not
+        # change its currently active player, media or publication evidence.
+        with tempfile.TemporaryDirectory(
+            prefix=".geomotion-site-stage-", dir=a.site.resolve().parent
+        ) as temporary:
+            staged = Path(temporary)
+            seed_existing_player(dist, staged)
+            command = [
+                sys.executable,
+                str(SKILL_ROOT / "scripts/prepare_delivery.py"),
+                str(a.video),
+                "--stage",
+                a.mode,
+                "--output",
+                str(staged),
+                "--title",
+                a.title,
+            ]
+            if scene.get("audio"):
+                command.append("--narrated")
+            if a.credits:
+                command += ["--credits", str(a.credits)]
+            subprocess.run(command, check=True)
+            media = json.loads((staged / "media.json").read_text())
+            expected = DEFAULTS["delivery"][
+                "editing_qualities" if a.mode == "preview" else "final_qualities"
+            ]
+            if [v["height"] for v in media["variants"]] != expected:
+                raise ValueError("Delivery qualities differ from preset")
+            results = []
+            for variant in media["variants"]:
+                mode = (
+                    "preview"
+                    if variant["height"] == DEFAULTS["export"]["preview"]["width"]
+                    else "final"
+                )
+                voice_end = (
+                    timeline.output_time(scene["subtitles"][-1]["end"])
+                    if scene.get("subtitles")
+                    else None
+                )
+                report = check(
+                    staged / variant["src"],
+                    mode,
+                    timeline.duration,
+                    bool(scene.get("audio")),
+                    voice_end=voice_end,
+                )
+                results.append(report)
+            if any(not r["automated_pass"] for r in results):
+                raise ValueError(
+                    "Encoded delivery variant QA failed; previous Site files preserved"
+                )
+            # Credits have content-addressed names so the old manifest can
+            # safely remain active until the new manifest is installed.
+            media = version_credits(staged, media)
+            promote_staged_delivery(staged, dist, media)
         evidence = {
             "state": "publication_required",
             "project_id": binding["project_id"],
