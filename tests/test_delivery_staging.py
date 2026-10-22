@@ -78,6 +78,28 @@ class StagingHelpers(unittest.TestCase):
             self.assertEqual((current / "media.json").read_text(), '{"stage":"old"}')
 
 
+    def test_symlinked_site_media_dir_rejected_before_promotion(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            current, stage, external = root / "site", root / "stage", root / "external"
+            current.mkdir()
+            (stage / "media").mkdir(parents=True)
+            external.mkdir()
+            (current / "media").symlink_to(external, target_is_directory=True)
+            (current / "media.json").write_text('{"stage":"old"}')
+            (stage / "media/new.mp4").write_bytes(b"new")
+            (stage / "media/new.jpg").write_bytes(b"poster")
+            (stage / "media.json").write_text('{"stage":"new"}')
+            media = {
+                "variants": [{"src": "media/new.mp4"}],
+                "poster": "media/new.jpg",
+            }
+            with self.assertRaisesRegex(ValueError, "Unsafe Site destination"):
+                promote_staged_delivery(stage, current, media)
+            self.assertEqual((current / "media.json").read_text(), '{"stage":"old"}')
+            self.assertEqual(list(external.iterdir()), [])
+
+
 @unittest.skipUnless(
     shutil.which("ffmpeg") and shutil.which("ffprobe"), "FFmpeg required"
 )
