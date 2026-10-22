@@ -9,6 +9,7 @@ import shutil
 import subprocess
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
+from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
@@ -93,6 +94,11 @@ def color(value):
     return tuple(value or [75, 222, 239])
 
 
+@lru_cache(maxsize=128)
+def _cached_font(path, size):
+    return ImageFont.truetype(path, size)
+
+
 def load_font(size, bold=False):
     role = "bold_font" if bold else "regular_font"
     override = os.environ.get(
@@ -103,7 +109,23 @@ def load_font(size, bold=False):
         raise FileNotFoundError(
             f"Required font is missing: {path}. Restore the bundled font or set an explicit font override."
         )
-    return ImageFont.truetype(str(path), size)
+    return _cached_font(str(path.resolve()), size)
+
+
+def adjusted_basemap(image, settings):
+    """Skip identity enhancements; preserve configured adjustment order."""
+    if settings["saturation"] != 1:
+        image = ImageEnhance.Color(image).enhance(settings["saturation"])
+    if settings["brightness"] != 1:
+        image = ImageEnhance.Brightness(image).enhance(settings["brightness"])
+    return image
+
+
+def composite_glow(base, layer, radius):
+    """Composite an existing geographic layer with its original glow."""
+    if layer is not None:
+        base.alpha_composite(layer.filter(ImageFilter.GaussianBlur(radius)))
+        base.alpha_composite(layer)
 
 
 def projector(camera, width, height, scale, mode):
@@ -400,15 +422,13 @@ def main():
             im = mosaic.transform(
                 (width, height), Image.Transform.AFFINE, af, Image.Resampling.BICUBIC
             )
-            im = ImageEnhance.Color(im).enhance(basemap["saturation"])
-            im = ImageEnhance.Brightness(im).enhance(basemap["brightness"])
+            im = adjusted_basemap(im, basemap)
             im = im.convert("RGBA")
 
             def visible(item):
                 return item.get("start", 0) <= t < item.get("end", duration)
 
-            edges = Image.new("RGBA", im.size)
-            ed = ImageDraw.Draw(edges)
+            edges = None
             for region, polys in regions:
                 if not visible(region):
                     continue
@@ -439,20 +459,24 @@ def main():
                     for ring in poly:
                         limit = max(2, int(len(ring) * reveal))
                         if reveal > 0 and len(ring) > 1:
+                            if edges is None:
+                                edges = Image.new("RGBA", im.size)
+                                ed = ImageDraw.Draw(edges)
                             ed.line(
                                 ring[:limit],
                                 fill=col + (210,),
                                 width=max(1, round(2 * scale)),
                                 joint="curve",
                             )
-            im.alpha_composite(edges.filter(ImageFilter.GaussianBlur(6 * scale)))
-            im.alpha_composite(edges)
-            routes = Image.new("RGBA", im.size)
-            rd = ImageDraw.Draw(routes)
+            composite_glow(im, edges, 6 * scale)
+            routes = None
             for route in scene.get("routes", []):
                 if t < route["start"] or t >= route.get("hide_at", duration):
                     continue
                 trail, heading = route_pose(route, t, project)
+                if routes is None:
+                    routes = Image.new("RGBA", im.size)
+                    rd = ImageDraw.Draw(routes)
                 col = color(route.get("color", [255, 105, 68]))
                 rd.line(
                     trail,
@@ -478,8 +502,7 @@ def main():
                     )
                 else:
                     rd.ellipse((x - 3, y - 3, x + 3, y + 3), fill=(255, 246, 222, 255))
-            im.alpha_composite(routes.filter(ImageFilter.GaussianBlur(4 * scale)))
-            im.alpha_composite(routes)
+            composite_glow(im, routes, 4 * scale)
             overlay = Image.new("RGBA", im.size)
             draw = ImageDraw.Draw(overlay)
             for marker in scene.get("markers", []):
