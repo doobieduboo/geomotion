@@ -61,6 +61,10 @@ def promote_staged_delivery(stage, destination, media):
     if len(set(names)) != len(names):
         raise ValueError("Duplicate staged asset path")
     assets = [_stage_file(stage, name) for name in names]
+    site_root = destination.resolve()
+    for _, relative in assets:
+        if not (destination / relative).parent.resolve().is_relative_to(site_root):
+            raise ValueError("Unsafe Site destination: " + str(relative))
     manifest, _ = _stage_file(stage, "media.json")
     player = {}
     for name in ("index.html", "app.js"):
