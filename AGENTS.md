@@ -29,6 +29,18 @@ Treat a short topic/edit brief—including “outline”, “daratan diwarnai”
 
 The user authorizes task-scoped sub-agent delegation when useful. The lead agent chooses sub-agent models under this policy without asking the user to select a model for each task. This does not change the main conversation model, grant new external-action permissions, or override platform restrictions.
 
+Optimize for economical work with the approved quality retained. Start with the lead alone; activate a specialist only for a bounded task whose independent contribution justifies its cost. Roles are responsibilities, not an always-running team. The lead may perform every role on a small revision:
+
+| Responsibility | Ownership |
+| --- | --- |
+| Project stewardship | Load/save the authoritative composition, retained stage, approved inputs and latest usable deliverable. |
+| Visual editing | Change only assigned layers/assets/cues; preserve unrelated approved content. |
+| Reuse and rendering | Inspect dependencies/cache validity and propose the smallest compatible operation before rendering. |
+| Verification | Inspect the affected appearance, timing and joins; reuse applicable existing evidence. |
+| Coordination and delivery | Integrate edits, schedule expensive work once, own credentials and publish the verified result. |
+
+Keep one coordinator for the active project record and render scheduling. Give delegated tasks the relevant file paths, brief, approved constraints, output profile and expected result; avoid repeatedly copying the entire conversation. Do not let parallel agents overwrite the same state, render competing full revisions, regenerate the same assets or repeat completed checks. Waiting for a renderer or upload is not a reason to spawn more agents. Follow the [composition-first edit decision](.agents/skills/geomotion/references/pipeline.md#composition-first-edit-decision) before any expensive operation; delegation alone does not provide per-layer caches or eliminate source rendering.
+
 - Keep small edits, simple fixes and documentation work with one agent. Delegate only when an independent implementation, investigation or review materially helps; start with the fewest agents needed.
 - Use `gpt-6.1-sol` with `high` reasoning for delegated implementation, renderer changes, outline/flag integration, camera–VO timing fixes and relevant verification.
 - Use `gpt-6-astra` with `high` reasoning for difficult diagnosis or design review: projection seams, persistent camera glitches, continuity problems, architectural tradeoffs or approaches that have repeatedly failed. Give it a bounded question and evidence; do not add an Astra review to every routine change.

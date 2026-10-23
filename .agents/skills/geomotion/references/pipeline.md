@@ -78,6 +78,32 @@ For an existing approved final with no workspace record, record the already-give
 
 Save after a usable asset/segment/revision is completed and before handing off ongoing work. Preserve editable scene/layers, original media, approved audio/stems, cues, camera timing, relevant source hashes, segment hashes/frame ranges and verification results. Save new results atomically and retain the previous usable deliverable until its replacement passes checks. Load and inspect this state before generating assets, requesting imagery or starting rendering again. Reuse valid files; recover missing/corrupt work without discarding completed compatible work. Keep production files and any permitted caches outside the toolkit repo. Do not add a large master or permanent backup requirement to implement workspace save/load.
 
+## Composition-first edit decision
+
+Economy means reusing valid work while retaining approved quality. The editable composition, its assets and the saved active-project record remain the source of truth through previews and exports. An MP4 is a derived result, not a replacement project or proof that its visible elements remain separately editable. Do not restart a production from its exported video while the composition is available.
+
+Before spending on rendering, asset generation or publication, load the existing project and compare the requested change with its approved inputs. In the production's existing revision plan or saved state, record the changed layers/assets, affected intervals including dependent tails/neighbors, usable clean bases/checkpoints, operation chosen and any concrete reason a cheaper operation is invalid. Reference these files instead of creating another competing project ledger. This is the agent's decision record, not a new automatic planner CLI or a permission gate.
+
+Choose the first compatible operation below; preserve profile, factual assets, voice and reading quality:
+
+| Requested change and available evidence | Operation |
+| --- | --- |
+| Discussion, status, rules or non-rendering metadata only | Update the relevant source/notes; no render, VO regeneration or publication of media. |
+| Source and saved deliverable are still current | Reuse the verified deliverable; do not rerun a completed export. |
+| Appearance/position needs a decision | Produce one representative still or the shortest relevant sample, or reuse a still whose actual dependencies are unchanged. |
+| Add/change/remove an independently supplied overlay with a compatible clean native base | Edit its recipe/assets; inspect `composite --plan`, then recomposite only affected GOPs from that clean base. Removing a recipe entry does not remove pixels already baked into the base. |
+| Source layers changed and some range dependency keys remain valid | Import verified unaffected chunks; render missing/invalid ranges only. |
+| An element is baked into the available base, with no compatible clean layer | Render the necessary intervals from the editable composition; explain the dependency reason before starting. |
+| A global change actually invalidates every frame | Full source render is allowed with a recorded reason; resume valid work from that same revision if interrupted. |
+
+An overlay change does not inherently require another basemap render. Conversely, cache files alone do not prove that a changed camera, geometry, baked outline or layout can reuse old pixels. Never falsify cache identity, paint over old elements, silently lower resolution or retain a visual regression just to claim savings. Source rendering and final decoding/compositing/encoding are different costs; cached assets may still require composition into a new MP4.
+
+Keep existing clean bases, transparent graphics, editable text/cues, geographic masks, textures, effect settings and approved audio/stems separate when they already exist. For new independently composed graphics, retain the base and recipe so later revisions can rebuild from the base rather than stack compressed exports. Do not render a second full clean base solely to satisfy this policy; use supported composition steps and justify extra intermediate work by the expected edit need. Honor source-provider cache restrictions: this policy does not authorize a raw Esri tile disk cache.
+
+Current generic support is workspace save/load, source/assets, global layout plans, dependency-aware video chunks and additive PNG/atlas composition. Automatic independent raster caches for every basemap/fill/flag/outline/text/effect layer, real-time AE-style preview and extraction of hidden layers from a flattened MP4 are not implemented. Keep these distinctions explicit in planning and handoffs; do not describe task delegation as implementation of that missing architecture.
+
+After the chosen operation, inspect changed content and joins, run the applicable assembled-file checks once, and atomically save the resulting scene/recipe, dependencies, checkpoints, review and deliverable before handoff. Preserve the previous usable result until its replacement is verified. Do not repeat unchanged source research, TTS, renders, full-file checks or publication merely because another agent took over. Agent roles and model selection are owned by [AGENTS.md](../../../../AGENTS.md).
+
 ## Revision reuse
 
 Before rendering a revision, compare it with the saved source and record the affected layers, old/new time ranges and dependencies. Explain the selected render scope briefly. A file or whole-project fingerprint change is not by itself evidence that every frame needs to be rerendered.
