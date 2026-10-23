@@ -20,6 +20,7 @@ def build_plans(
     image_file,
     load_font,
     metadata_file,
+    precomputed_plans=None,
 ):
     width, height = size
     scale = width / DEFAULTS["design_width"]
@@ -114,6 +115,10 @@ def build_plans(
             (0, 0), text, font=font, align="center", stroke_width=stroke
         )
         cta_layout = {"text": text, "font": font, "metric": metric, "stroke": stroke}
+    # Checkpoint workers still prepare static fonts/callout geometry locally,
+    # but must not evaluate any frame's global position a second time.
+    if precomputed_plans is not None:
+        return precomputed_plans, callouts, cta_layout
     route_specs = [
         (r, metadata_file(r["atlas_metadata"]) if r.get("atlas") else None)
         for r in scene.get("routes", [])
