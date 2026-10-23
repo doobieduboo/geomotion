@@ -156,6 +156,49 @@ def render(
             if not valid:
                 pending.append((start, stop, file))
 
+        global_plan = checkpoint / "global-layout.json"
+        plan_hash = None
+        if pending and runner is None:
+            # Source/config identity guards the shared plan across resumptions.
+            profile_key = {
+                "mode": mode,
+                "width": profile["width"],
+                "height": profile["height"],
+                "fps": profile["fps"],
+            }
+            try:
+                record = json.loads(global_plan.read_text())
+                plan_valid = (
+                    record.get("version") == 1
+                    and record.get("fingerprint") == identity
+                    and record.get("profile") == profile_key
+                    and isinstance(record.get("plans"), list)
+                    and len(record["plans"]) == count
+                )
+            except (OSError, ValueError, TypeError, KeyError):
+                plan_valid = False
+            if not plan_valid:
+                command = [
+                    sys.executable,
+                    str(SKILL_ROOT / "scripts/render_scene.py"),
+                    str(scene_path),
+                    "--mode", mode,
+                    "--output", str(global_plan),
+                    "--plan-only",
+                    "--plan-fingerprint", identity,
+                ]
+                if final_requested:
+                    command.append("--final-requested")
+                subprocess.run(command, check=True)
+                record = json.loads(global_plan.read_text())
+                if (
+                    record.get("fingerprint") != identity
+                    or record.get("profile") != profile_key
+                    or len(record.get("plans", [])) != count
+                ):
+                    raise ValueError("Generated global layout does not match this render")
+            plan_hash = digest(global_plan)
+
         def job(item):
             start, stop, file = item
             if runner:
@@ -174,6 +217,8 @@ def render(
                     "--end-frame",
                     str(stop),
                     "--video-only",
+                    "--layout-plan", str(global_plan),
+                    "--plan-fingerprint", identity,
                 ]
                 if final_requested:
                     command.append("--final-requested")
@@ -196,6 +241,8 @@ def render(
                 key, record = future.result()
                 manifest["segments"][key] = record
                 atomic_json(manifest_path, manifest)
+        if plan_hash is not None and digest(global_plan) != plan_hash:
+            raise ValueError("Global layout changed during render; refusing to assemble")
         if snapshot(scene_path) != state:
             raise ValueError(
                 "Inputs changed during render; refusing to assemble mixed revisions"
