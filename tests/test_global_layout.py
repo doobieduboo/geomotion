@@ -145,6 +145,13 @@ class GlobalPlanRender(unittest.TestCase):
                 self.assertEqual(planning_calls, ["plan"])
                 self.assertEqual(second["rendered_segments"], 1)
                 self.assertEqual(second["resumed_segments"], 2)
+                # An altered global plan must be regenerated before another
+                # missing segment is rendered, even with unchanged input files.
+                global_plan.write_text('{"version":1,"plans":[]}')
+                (checkpoint / "0-5.mp4").write_bytes(b"corrupted")
+                third = render(scene, "preview", output, checkpoint)
+                self.assertEqual(planning_calls, ["plan", "plan"])
+                self.assertEqual(third["rendered_segments"], 1)
                 self.assertEqual(
                     len(json.loads(output.with_suffix(".layout.json").read_text())
                         ["composition"]["frames"]),
