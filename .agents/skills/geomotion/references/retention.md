@@ -12,7 +12,7 @@ Deliver information in short connected phrases with a clear progression and payo
 
 Follow the TTS preset: conversational, articulate and brisk rather than breathless or theatrical. The target speaking-rate range is guidance, not a fixed generation parameter. Use short punctuation pauses; keep meaningful suspense, sentence boundaries and room to understand names/numbers. Trim accidental dead air and unnecessary post-VO tail, not every breath or thoughtful pause. Do not automatically time-stretch/speed up approved audio.
 
-Use actual VO phrase timings to drive the camera and geographic labels. Establish context before the named place, focus on it with the phrase and maintain readable movement. A fast voice does not require fast spinning, repetitive zoom punches or arbitrary cuts. Avoid motion sickness, misframing and hidden geography. If narration is too dense for the visual, reduce complexity or discuss a script adjustment instead of concealing unreadable frames with more effects.
+Use the camera arrival, pre-roll and continuity rules in [composition.md](composition.md#camera-and-continuity). A fast voice does not require fast spinning, repetitive zoom punches or arbitrary cuts. If narration is too dense for the visual, reduce complexity or discuss a script adjustment instead of concealing unreadable frames with more effects.
 
 Subtitles remain phrase-synced with correct punctuation/capitalization, the preset line limit and centered placement. Do not add distracting word-by-word bouncing or flash unreadable text to satisfy a beat timer. Images, cards and labels must have enough screen time for phone viewing. Maintain continuity through working-part boundaries rather than resetting the hook at every part.
 

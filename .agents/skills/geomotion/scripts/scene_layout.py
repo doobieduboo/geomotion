@@ -3,9 +3,9 @@
 from PIL import Image, ImageDraw, ImageFont
 from config import DEFAULTS, SKILL_ROOT
 from composition import Composer, pixel_box, validate_composition
-from layout import callout_layout, wrap, inspect_boxes, overlaps
+from layout import callout_layout, callout_opacity, callout_image, wrap, inspect_boxes, overlaps
 from title_layer import render_title
-from map_assets import route_pose
+from map_assets import route_pose, route_visibility
 
 
 def build_plans(
@@ -23,6 +23,8 @@ def build_plans(
     precomputed_plans=None,
 ):
     width, height = size
+    for route in scene.get("routes", []):
+        route_visibility(route, timeline.source_duration)
     scale = width / DEFAULTS["design_width"]
     settings = validate_composition(scene)
     composer = Composer(size, fps, settings)
@@ -32,7 +34,8 @@ def build_plans(
     for i, item in enumerate(scene.get("callouts", [])):
         if item.get("placement", "auto") not in ("auto", "manual"):
             raise ValueError("Callout placement must be auto or manual")
-        image = image_file(item["image"]) if item.get("image") else None
+        callout_opacity(item, item.get("start", 0))  # Validate fade bounds before rendering.
+        image = callout_image(image_file(item["image"]) if item.get("image") else None, item)
         maximum = round(
             min(
                 width - 2 * composer.margin,

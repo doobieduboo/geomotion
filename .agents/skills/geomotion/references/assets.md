@@ -7,6 +7,16 @@ The [library catalog](../library/catalog.json) owns the ten category folders and
 ## Map data
 Use real coordinates, country/admin polygons, coastline/island geometry, and licensed imagery. Record the source version and historical applicability. GeoJSON is WGS84 lon/lat. Preserve Polygon holes and MultiPolygon parts. For long-distance scenes, unwrap longitudes or use a globe-aware projection to avoid antimeridian jumps.
 
+For historical stories, verify the period-specific country/empire name, flag and emblem, capital, administrative seat and territorial extent before labeling or filling them. A modern outline used only for orientation must be recorded as such; do not silently equate it with an empire's historical borders. Distinguish treaty, ratification, transfer and payment dates, and keep archive captions consistent with the actual document date. These facts remain project inputs, not reusable story defaults.
+
+## Geographic flag fills and emblems
+
+Prepare one intended flag composition per territory, clipped to verified land geometry with holes and disconnected islands preserved. Transparent sea and the intended land alpha retain the original imagery. Preserve the factual RGB of the period-specific flag and emblem; the ordinary colored-land multiply tint must not recolor a historical flag. Choose explicitly whether one composition spans the territory or distinct regions have separate textures; never accidentally tile the full flag or repeat its emblem across polygon parts.
+
+For a stable flag/emblem through camera pan, zoom, rotation and longitude wrap, supply a geographically prepared `world_overlays` texture as documented in [scene-format.md](scene-format.md). Bake the single emblem into the flag at a fixed geographic location. Both must undergo the same transform; do not recenter, duplicate or detach the emblem to keep it visible in a partial view. A restrained optional bloom may use the texture’s own colors and projected alpha; it must not replace those colors with the outline/focus hue. If its geographic position leaves the frame, it may leave the frame. Review mask edges, transparency, islands, dateline splits and raster resolution at the closest intended zoom. Keep the fill visible through subsequent camera/focus changes until an authored narrative or ownership transition, aligned with the actual VO.
+
+Ordinary `regions[].flag` uses screen-bounding-box texture fitting; it is not equivalent to a fixed geographic world texture during rotation or seam crossings. Select the supported method that meets the shot's stability requirements, prepare masks externally, and register textures, geometry and generation scripts in the production inputs. The renderer samples supplied overlays; it does not create historical masks or integrated emblems automatically.
+
 ## Documentary archives and reconstruction
 
 For map documentaries, prioritize authentic photographs, footage and primary records as visual evidence. Match each archive to the spoken claim. A press conference documents a statement; it does not by itself prove the alleged event. A response photograph does not establish an agency, deployment location or date beyond what its source supports. Do not replace relevant archives with generated imagery merely because reuse terms are not stated.
@@ -33,7 +43,7 @@ Generated or AI-assisted reconstructions are explanatory material, never archiva
 | Infographic | Real photo/image, verified caption/date, source/license; bubble is drawn procedurally |
 | Audio | Licensed/original score and SFX, levels, timing |
 
-A flag fill and a flagpole marker are separate layer types. A marker’s meaning comes from the brief; it must not silently assert sovereignty or territorial control. For archipelagos, document whether one texture spans the selected MultiPolygon or repeats per feature; see [scene-format.md](scene-format.md).
+A flag fill and a flagpole marker are separate layer types. A marker’s meaning comes from the brief; it must not silently assert sovereignty or territorial control. Texture extent and repetition follow the geographic flag contract above; see [scene-format.md](scene-format.md) for the implemented mapping.
 
 ## Sprite atlas schema
 
@@ -53,6 +63,8 @@ A flag fill and a flagpole marker are separate layer types. A marker’s meaning
 ```
 
 Each atlas row continues the clockwise heading sequence. Relative heading = world heading minus camera heading. Only use the 32-view claim after checking 32 distinct correct views. A fixed-camera top-down atlas supports yaw changes, not arbitrary pitch/orbit. Use screen-scaled sprites and a geographic ground anchor to avoid sliding.
+
+Optional `animation_frames` and `animation_fps` provide a looping supplied frame sequence per heading. Store all frames for heading0 first, then heading1, in row-major order. The first frame is also the idle frame after arrival. For a single fixed-view animated icon use `headings: 1`; do not label that as a multi-angle atlas. See the route timing contract in scene-format.md.
 
 ## Utilities
 `map_assets.py` implements:

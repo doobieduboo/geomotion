@@ -21,14 +21,15 @@ The item metadata checked on 2026-10-18 credits Esri, Vantor, Earthstar Geograph
 
 The renderer implements this exact service through `scripts/basemap.py`. The scene inherits the basemap preset; do not duplicate provider settings in templates. Other provider/type values raise an error before rendering. Brightness and saturation follow the preset, preserving source color by default.
 
-Service tiles use Web Mercator, 256px JPEG, levels 0–23; availability and detail vary by location/scale. Final mode requests two higher tile levels where supported and renders geometry/text at native final size. No preview upscaling. Preview stays 360p; final 1080p requires the user's request.
+Service tiles use Web Mercator, 256px JPEG, levels 0–23; availability and detail vary by location/scale. Final mode requests two higher tile levels where supported and renders geometry/text at native final size. No preview upscaling. Initial editing uses 360p; an explicit final request establishes the retained 1080p stage for that production under [delivery.md](delivery.md).
 
 Draw geographic outlines above the imagery; avoid opaque region fills masking terrain. Imagery is a background composite with different capture dates, not live evidence of fires or smoke. Source current observations independently.
 
 ## Access, terms and failure behavior
 
 - Host: `services.arcgisonline.com`; metadata/item host: `www.arcgis.com`. Do not send Gemini secrets to these hosts.
-- Tiles are held in session memory for rendering; no persistent offline tile cache or raw tile distribution is implemented. Service metadata reports `exportTilesAllowed: false`. A temporary client request does not itself establish rights to a particular published video; apply the current Esri terms to the actual account and workflow.
+- Tiles are held in session memory for rendering; no persistent offline tile cache or raw tile distribution is implemented. The source-buffer byte budget and available-memory check are documented in [pipeline.md](pipeline.md); final concurrency and numeric memory limits live in the execution preset. Service metadata reports `exportTilesAllowed: false`. A temporary client request does not itself establish rights to a particular published video; apply the current Esri terms to the actual account and workflow.
+- Save/load does not automatically add a raw-tile disk cache. Reuse compatible previously rendered video/map-containing segments before requesting the same basemap again; follow [revision reuse](pipeline.md#revision-reuse). A reusable clean map layer must actually exist with its camera/profile/provenance; do not claim the current renderer saves one automatically. Any future tile-cache implementation must follow the applicable service terms and retain attribution.
 - For offline workflows, follow the linked Esri export documentation/layer under the applicable rights. Do not change the service URL automatically or assume access is interchangeable.
 - HTTP, proxy, auth and image-decode errors stop rendering and identify the failing URL. Report the actual blocker. No fallback to another provider or a solid background.
 - Default contributor credit is inserted in the video; add accurate location/scale-specific citations when required. Preserve attribution in final exports and browser delivery. Never remove credits to clean up the design.

@@ -1,5 +1,6 @@
 import sys
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 sys.path.insert(
@@ -14,9 +15,16 @@ sys.path.insert(
 )
 from map_assets import clip_flag, flagpole, select_sprite
 from PIL import Image
+from render_scene import color
+from config import DEFAULTS
 
 
 class GeographicLayers(unittest.TestCase):
+    def test_layer_color_follows_preset_without_overriding_authored_color(self):
+        with patch.dict(DEFAULTS["palette"], outline="#123456"):
+            self.assertEqual(color(None), (18, 52, 86))
+            self.assertEqual(color([255, 46, 66]), (255, 46, 66))
+
     def test_disconnected_islands_and_hole_do_not_fill_sea(self):
         flag = Image.new("RGBA", (2, 2), (255, 0, 0, 255))
         regions = [
@@ -62,6 +70,25 @@ class GeographicLayers(unittest.TestCase):
                 },
                 90,
             )
+
+    def test_animation_preserves_heading_and_ground_anchor(self):
+        atlas = Image.new("RGBA", (32, 8))
+        for i, color in enumerate(["red", "yellow", "blue", "white"]):
+            atlas.paste(Image.new("RGBA", (8, 8), color), (i * 8, 0))
+        meta = dict(headings=2, columns=4, frame_width=8, frame_height=8,
+                    anchor=[4, 7], animation_frames=2, animation_fps=4)
+        first, anchor, heading = select_sprite(atlas, meta, 180, animation_time_s=0)
+        next_frame, next_anchor, next_heading = select_sprite(atlas, meta, 180, animation_time_s=.25)
+        self.assertEqual(first.getpixel((4, 4)), (0, 0, 255, 255))
+        self.assertEqual(next_frame.getpixel((4, 4)), (255, 255, 255, 255))
+        self.assertEqual((anchor, heading), (next_anchor, next_heading))
+        self.assertEqual(select_sprite(atlas, meta, 180, animation_time_s=.5)[0].tobytes(), first.tobytes())
+
+    def test_incomplete_animation_atlas_is_rejected(self):
+        with self.assertRaises(ValueError):
+            select_sprite(Image.new("RGBA", (8, 8)),
+                          dict(headings=1, columns=1, frame_width=8, frame_height=8,
+                               anchor=[4, 7], animation_frames=2), 0)
 
     def test_flagpole_ground_stays_pinned_during_flutter(self):
         flag = Image.new("RGBA", (20, 12), "red")

@@ -50,6 +50,21 @@ def callout_layout(
     return width, height, image_height, rows
 
 
+def callout_image(image, item):
+    """Display an exact source-pixel detail without modifying the original asset."""
+    crop = item.get("image_crop")
+    if crop is None:
+        return image
+    if image is None or not isinstance(crop, (list, tuple)) or len(crop) != 4:
+        raise ValueError("image_crop requires an image and four source-pixel bounds")
+    if any(type(v) is not int for v in crop):
+        raise ValueError("image_crop bounds must be integer source pixels")
+    left, top, right, bottom = crop
+    if not (0 <= left < right <= image.width and 0 <= top < bottom <= image.height):
+        raise ValueError("image_crop must stay inside the original image")
+    return image.crop((left, top, right, bottom))
+
+
 def overlaps(a, b):
     return a[0] < b[2] and a[2] > b[0] and a[1] < b[3] and a[3] > b[1]
 
@@ -64,3 +79,29 @@ def inspect_boxes(boxes, size):
             if overlaps(box, other_box):
                 errors.append(f"{name}: overlaps {other}")
     return errors
+
+
+def callout_opacity(item, time):
+    """Source-time eased visibility; unchanged full opacity when fades are omitted."""
+    start, end = item.get("start", 0), item.get("end", float("inf"))
+    fade_in, fade_out = item.get("fade_in", 0), item.get("fade_out", 0)
+    if fade_in < 0 or fade_out < 0 or fade_in + fade_out > end - start:
+        raise ValueError("Callout fades must be nonnegative and fit within its lifetime")
+    if time < start or time >= end:
+        return 0.0
+    def ease(value):
+        value = max(0.0, min(1.0, value))
+        return value * value * (3 - 2 * value)
+    incoming = ease((time - start) / fade_in) if fade_in else 1.0
+    outgoing = ease((end - time) / fade_out) if fade_out else 1.0
+    return min(incoming, outgoing)
+
+
+def fade_callout(layer, item, time):
+    """Fade the already composed frame, image, text and leader as one layer."""
+    opacity = callout_opacity(item, time)
+    if opacity >= 1:
+        return layer
+    result = layer.copy()
+    result.putalpha(layer.getchannel("A").point(lambda alpha: round(alpha * opacity)))
+    return result

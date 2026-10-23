@@ -272,7 +272,7 @@ fetch("media.json", { cache: "no-store" })
     document.querySelector("#hint").textContent =
       media.stage === "final"
         ? "Semua pilihan memakai file ringkas."
-        : "Selama revisi, pemutar dan download tetap 360p.";
+        : "Pada tahap preview, pemutar dan download tersedia dalam 360p.";
     if (media.poster) video.poster = media.poster;
     if (media.credits) {
       document.querySelector("#credits").href = media.credits;

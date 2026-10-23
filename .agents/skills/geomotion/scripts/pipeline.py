@@ -25,6 +25,7 @@ from timeline import resolve_scene
 from render_scene import validate
 from composition import validate_composition
 from delivery_staging import seed_existing_player, version_credits, promote_staged_delivery
+import project_workspace as workspace
 
 
 def checked_scene(path):
@@ -67,6 +68,24 @@ def review_path(video):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     sub = p.add_subparsers(dest="command", required=True)
+    save = sub.add_parser('save', help='Save active workspace state without rendering or copying assets')
+    save.add_argument('scene', type=Path)
+    save.add_argument('--project', type=Path)
+    save.add_argument('--mode', choices=('preview', 'final'))
+    save.add_argument('--final-requested', action='store_true')
+    save.add_argument('--return-to-preview', action='store_true')
+    save.add_argument('--checkpoint', type=Path)
+    save.add_argument('--video', type=Path)
+    load = sub.add_parser('load', help='Inspect saved paths, source changes and artifact availability')
+    load.add_argument('project', type=Path)
+    composite = sub.add_parser('composite', help='Add supplied transparent overlays to saved native checkpoints')
+    composite.add_argument('recipe', type=Path)
+    composite.add_argument('--output', type=Path, required=True)
+    composite.add_argument('--checkpoint', type=Path, required=True)
+    composite.add_argument('--mode', choices=('preview', 'final'))
+    composite.add_argument('--final-requested', action='store_true')
+    composite.add_argument('--project', type=Path)
+    composite.add_argument('--plan', action='store_true', help='Validate source/bounds and list reused ranges without encoding')
     approve = sub.add_parser(
         "approve", help="Record an existing explicit user approval; never infer it"
     )
@@ -77,7 +96,7 @@ def main():
     run.add_argument("scene", type=Path)
     run.add_argument("--output", type=Path, required=True)
     run.add_argument("--checkpoint", type=Path, required=True)
-    run.add_argument("--mode", choices=("preview", "final"), default="preview")
+    run.add_argument("--mode", choices=("preview", "final"))
     run.add_argument("--final-requested", action="store_true")
     run.add_argument("--lock", type=Path)
     run.add_argument(
@@ -86,12 +105,15 @@ def main():
         help="Comma-separated already-authorized revision domains",
     )
     run.add_argument("--workers", type=int)
+    run.add_argument('--project', type=Path, help='Workspace state; defaults beside the scene')
+    run.add_argument('--return-to-preview', action='store_true')
+    run.add_argument('--reuse-from', type=Path, action='append', default=[], help='Additional previous checkpoint directory')
     review = sub.add_parser(
         "review", help="Agent records review of actual encoded video/contact sheet"
     )
     review.add_argument("scene", type=Path)
     review.add_argument("--video", type=Path, required=True)
-    review.add_argument("--mode", choices=("preview", "final"), default="preview")
+    review.add_argument("--mode", choices=("preview", "final"))
     review.add_argument("--visual-note", required=True)
     review.add_argument("--fact-note", required=True)
     review.add_argument(
@@ -102,7 +124,7 @@ def main():
     prepare = sub.add_parser("prepare")
     prepare.add_argument("scene", type=Path)
     prepare.add_argument("--video", type=Path, required=True)
-    prepare.add_argument("--mode", choices=("preview", "final"), default="preview")
+    prepare.add_argument("--mode", choices=("preview", "final"))
     prepare.add_argument("--site", type=Path, required=True)
     prepare.add_argument("--title", required=True)
     prepare.add_argument("--credits", type=Path)
@@ -137,7 +159,39 @@ def main():
     a = p.parse_args()
     if hasattr(a, "scene"):
         a.scene = a.scene.resolve()
-    if a.command == "approve":
+        if a.command in ('review', 'prepare'):
+            a.mode = a.mode or (workspace.read(workspace.default_path(a.scene)) or {}).get('mode', 'preview')
+    if a.command == 'save':
+        checked_scene(a.scene)
+        result = workspace.save(a.scene, a.project, mode=a.mode,
+            final_requested=a.final_requested, return_to_preview=a.return_to_preview,
+            checkpoint=a.checkpoint, video=a.video)
+        print(json.dumps({'project': str(a.project or workspace.default_path(a.scene)),
+                          'mode': result['mode'], 'status': result['status']}))
+        return
+    elif a.command == 'load':
+        print(json.dumps(workspace.load(a.project), ensure_ascii=False, indent=2))
+        return
+    elif a.command == 'composite':
+        from compositor import composite as composite_video, plan as composite_plan
+        project = a.project or workspace.default_path(a.recipe)
+        mode, authorized = workspace.select_mode(workspace.read(project), a.mode, a.final_requested)
+        if a.plan:
+            receipt = composite_plan(a.recipe, mode=mode)
+        else:
+            workspace.begin_composite(a.recipe,a.output,a.checkpoint,path=project,
+                                      mode=mode,final_requested=authorized)
+            try:
+                receipt = composite_video(a.recipe, a.output, a.checkpoint,
+                                          mode=mode, final_requested=authorized)
+            except BaseException:
+                workspace.mark_status(project,'composite_interrupted')
+                raise
+            workspace.save_composite(a.recipe, a.output, a.checkpoint,
+                                     path=project, mode=mode, final_requested=authorized)
+        print(json.dumps(receipt, ensure_ascii=False, indent=2))
+        return
+    elif a.command == "approve":
         checked_scene(a.scene)
         if not a.approval_note.strip():
             p.error("An actual user approval reference is required")
@@ -151,6 +205,15 @@ def main():
         )
     elif a.command == "run":
         scene, timeline, warnings = checked_scene(a.scene)
+        project = a.project or workspace.default_path(a.scene)
+        saved = workspace.read(project)
+        a.mode, authorized = workspace.select_mode(saved, a.mode,
+            a.final_requested, a.return_to_preview)
+        reuse = list(a.reuse_from)
+        if saved:
+            if saved.get('checkpoint'):
+                reuse.append(Path(saved['checkpoint']))
+            reuse += [Path(v) for v in reversed(saved.get('history', []))]
         changes = []
         if a.lock:
             lock = json.loads(a.lock.read_text())
@@ -161,9 +224,14 @@ def main():
                 {"changes": changes, "scope": a.scope.split(",")},
             )
             check_lock(lock, current, set(a.scope.split(",")))
-        receipt = render(
-            a.scene, a.mode, a.output, a.checkpoint, a.workers, a.final_requested
-        )
+        workspace.save(a.scene, project, mode=a.mode, final_requested=authorized,
+            return_to_preview=a.return_to_preview, checkpoint=a.checkpoint, status='rendering')
+        try:
+            receipt = render(a.scene, a.mode, a.output, a.checkpoint, a.workers,
+                             authorized, reuse_from=reuse)
+        except BaseException:
+            workspace.mark_status(project,'render_interrupted')
+            raise
         voice_end = (
             timeline.output_time(scene["subtitles"][-1]["end"])
             if scene.get("subtitles")
@@ -219,6 +287,8 @@ def main():
             raise ValueError(
                 "Encoded QA failed; inspect " + str(a.output.with_suffix(".qa.json"))
             )
+        workspace.save(a.scene, project, mode=a.mode, final_requested=authorized,
+                       checkpoint=a.checkpoint, video=a.output, status='review_required')
     elif a.command == "review":
         checked_scene(a.scene)
         require_current_video(a.scene, a.video, a.mode)

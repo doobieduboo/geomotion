@@ -69,25 +69,29 @@ def flagpole(
     return out
 
 
-def select_sprite(atlas, metadata, world_heading_deg, camera_heading_deg=0):
+def select_sprite(atlas, metadata, world_heading_deg, camera_heading_deg=0, animation_time_s=0):
     """Returns (RGBA frame, frame-local ground anchor, selected heading index)."""
     n = int(metadata["headings"])
     cols = int(metadata["columns"])
     fw = int(metadata["frame_width"])
     fh = int(metadata["frame_height"])
-    if min(n, cols, fw, fh) < 1:
+    animation_frames = int(metadata.get("animation_frames", 1))
+    animation_fps = float(metadata.get("animation_fps", 1))
+    if min(n, cols, fw, fh, animation_frames) < 1 or not math.isfinite(animation_fps) or animation_fps <= 0:
         raise ValueError("Invalid atlas dimensions")
     if (
         metadata.get("heading_zero", "north") != "north"
         or metadata.get("heading_order", "clockwise") != "clockwise"
     ):
         raise ValueError("Normalize atlas headings to north-zero, clockwise")
-    if atlas.width < cols * fw or atlas.height < math.ceil(n / cols) * fh:
+    if atlas.width < cols * fw or atlas.height < math.ceil(n * animation_frames / cols) * fh:
         raise ValueError("Atlas image is smaller than its metadata grid")
     relative = (world_heading_deg - camera_heading_deg) % 360
     index = int(math.floor(relative / (360 / n) + 0.5)) % n
-    x = (index % cols) * fw
-    y = (index // cols) * fh
+    phase = int(max(0, animation_time_s) * animation_fps) % animation_frames
+    cell = index * animation_frames + phase
+    x = (cell % cols) * fw
+    y = (cell // cols) * fh
     return (
         atlas.crop((x, y, x + fw, y + fh)).convert("RGBA"),
         tuple(metadata["anchor"]),
@@ -114,3 +118,12 @@ def route_pose(route, time_s, project):
         if remaining <= 0:
             break
     return trail, heading
+
+
+def route_visibility(route, duration):
+    """Visual lifetime uses hide_at; motion end must not truncate a held stroke."""
+    from layout import callout_opacity
+    cue = dict(start=route["start"], end=route.get("hide_at", duration),
+               fade_in=route.get("fade_in", 0), fade_out=route.get("fade_out", 0))
+    callout_opacity(cue, cue["start"])
+    return cue

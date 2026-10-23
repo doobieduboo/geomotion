@@ -1,5 +1,5 @@
 {
-  "version": 10,
+  "version": 18,
   "design_width": 720,
   "export": {
     "preview": {
@@ -35,7 +35,7 @@
   "palette": {
     "text": "#FFFFFF",
     "cta": "#FFF4DD",
-    "outline": "#78DCE8",
+    "outline": "#4BDEEF",
     "focus": "#F3C873",
     "text_shadow": "#081219"
   },
@@ -148,7 +148,8 @@
   "delivery": {
     "provider": "sites",
     "publish_after_verified_render": true,
-    "reuse_player": true,
+    "format": "direct_mp4",
+    "reuse_player": false,
     "editing_qualities": [
       360
     ],
@@ -198,6 +199,8 @@
   },
   "execution": {
     "max_workers": 2,
+    "final_max_workers": 1,
+    "max_tile_buffer_mb": 3072,
     "checkpoint_seconds": 4,
     "memory_reserve_mb": 512,
     "estimated_worker_mb": 1536
@@ -213,5 +216,108 @@
     "black_min_seconds": 0.4,
     "silence_noise_db": -40,
     "silence_min_seconds": 0.6
+  },
+  "region_fill": {
+    "solid_opacity": 230,
+    "flag_opacity": 180,
+    "blend": "terrain_tint",
+    "tint_exposure": 1.75,
+    "tint_gamma": 1.2,
+    "tint_floor": 0.15,
+    "palette": {
+      "red": [
+        255,
+        24,
+        40
+      ],
+      "blue": [
+        0,
+        64,
+        255
+      ],
+      "green": [
+        24,
+        255,
+        64
+      ],
+      "yellow": [
+        255,
+        194,
+        0
+      ]
+    },
+    "glow": {
+      "enabled": true,
+      "strength": 1,
+      "inside_gain": 0.025,
+      "flag_strength": 0.35,
+      "layers": [
+        {
+          "radius_design": 4,
+          "gain": 0.09
+        },
+        {
+          "radius_design": 12,
+          "gain": 0.03
+        }
+      ]
+    }
+  },
+  "region_outline": {
+    "color": [
+      245,
+      248,
+      246
+    ],
+    "reveal": 0,
+    "stroke_width_design": 1.3333333333333333,
+    "casing_width_design": 1.3333333333333333,
+    "casing_opacity": 0,
+    "casing_color": [
+      7,
+      12,
+      18
+    ],
+    "glow_radius_design": 1.3333333333333333,
+    "glow_opacity": 65,
+    "antialias_scale": 2,
+    "focus_preset": {
+      "color": [
+        255,
+        46,
+        66
+      ],
+      "stroke_width_design": 1.3333333333333333,
+      "casing_opacity": 0
+    },
+    "focus_color_alternatives": [
+      [
+        255,
+        194,
+        0
+      ],
+      [
+        0,
+        195,
+        255
+      ]
+    ],
+    "glow": {
+      "enabled": true,
+      "layers": [
+        {
+          "radius_design": 1.3333333333333333,
+          "gain": 0.2
+        },
+        {
+          "radius_design": 4,
+          "gain": 0.14
+        },
+        {
+          "radius_design": 10.666666666666666,
+          "gain": 0.06
+        }
+      ]
+    }
   }
 }

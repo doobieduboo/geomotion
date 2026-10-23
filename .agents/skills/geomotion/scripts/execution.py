@@ -5,6 +5,7 @@ import fcntl
 import json
 import math
 import os
+import shutil
 import subprocess
 import sys
 from contextlib import contextmanager
@@ -14,7 +15,7 @@ from project_state import atomic_json, digest, snapshot, fingerprint, load_proje
 from timeline import resolve_scene
 
 
-def worker_limit(requested=None):
+def worker_limit(requested=None, mode="preview"):
     cfg = DEFAULTS["execution"]
     cpu = (
         len(os.sched_getaffinity(0))
@@ -44,7 +45,8 @@ def worker_limit(requested=None):
     )
     if requested is not None and requested < 1:
         raise ValueError("workers must be positive")
-    return max(1, min(cpu, memory, cfg["max_workers"], requested or cfg["max_workers"]))
+    cap = min(cfg["max_workers"], cfg.get("final_max_workers", cfg["max_workers"])) if mode == "final" else cfg["max_workers"]
+    return max(1, min(cpu, memory, cap, requested or cap))
 
 
 @contextmanager
@@ -93,6 +95,8 @@ def verify_segment(path, frames, profile):
         frames,
     ) or abs(a / b - profile["fps"]) > 0.001:
         raise ValueError("Checkpoint geometry/frame count mismatch")
+    if v.get("codec_name") != "h264" or v.get("pix_fmt") != "yuv420p":
+        raise ValueError("Checkpoint must be H.264/yuv420p")
 
 
 def render(
@@ -103,6 +107,7 @@ def render(
     requested_workers=None,
     final_requested=False,
     runner=None,
+    reuse_from=None,
 ):
     """runner is an explicit embedding/test hook, never a provider fallback."""
     if mode == "final" and not final_requested:
@@ -121,6 +126,22 @@ def render(
     checkpoint.mkdir(parents=True, exist_ok=True)
     output.parent.mkdir(parents=True, exist_ok=True)
     identity = fingerprint(state, mode)
+    # A custom runner owns dependencies beyond the generic scene contract.
+    keys = {}
+    if runner is None:
+        from revision_cache import render_keys
+        keys = render_keys(scene_path, mode, ranges, state=state)
+    candidates = []
+    for directory in reuse_from or []:
+        directory = Path(directory).resolve()
+        if directory == checkpoint or not (directory / 'checkpoint.json').is_file():
+            continue
+        try:
+            old = json.loads((directory / 'checkpoint.json').read_text())
+        except (OSError, ValueError):
+            continue
+        if isinstance(old, dict) and isinstance(old.get('segments'), dict) and old.get('fingerprint') and old.get('producer') == 'geomotion-scene-render' and old.get('dependency_contract') == 1:
+            candidates.append((directory, old))
     with exclusive(checkpoint / "render.lock"):
         manifest_path = checkpoint / "checkpoint.json"
         manifest = (
@@ -136,13 +157,16 @@ def render(
             )
         atomic_json(manifest_path, manifest)
         pending = []
+        reused = 0
+        if runner is None:
+            manifest.update(producer='geomotion-scene-render', dependency_contract=1)
         for start, stop in ranges:
             key = f"{start}-{stop}"
             file = checkpoint / (key + ".mp4")
             record = manifest["segments"].get(key)
             sidecar = file.with_suffix(".layout.json")
             valid = (
-                record
+                isinstance(record, dict)
                 and file.is_file()
                 and digest(file) == record.get("sha256")
                 and sidecar.is_file()
@@ -153,6 +177,36 @@ def render(
                     verify_segment(file, stop - start, profile)
                 except (ValueError, subprocess.CalledProcessError, KeyError):
                     valid = False
+            if not valid:
+                for directory, old in candidates:
+                    previous = old.get('segments', {}).get(key, {})
+                    if not isinstance(previous, dict):
+                        continue
+                    if not keys.get((start, stop)) or previous.get('render_key') != keys[(start, stop)]:
+                        continue
+                    source = directory / file.name
+                    source_layout = source.with_suffix('.layout.json')
+                    if not source.is_file() or not source_layout.is_file():
+                        continue
+                    if digest(source) != previous.get('sha256') or digest(source_layout) != previous.get('layout_sha256'):
+                        continue
+                    try:
+                        verify_segment(source, stop-start, profile)
+                        trace = json.loads(source_layout.read_text())
+                        if [f['frame'] for f in trace.get('composition', {}).get('frames', [])] != list(range(start, stop)):
+                            continue
+                    except (ValueError, KeyError, TypeError, subprocess.CalledProcessError):
+                        continue
+                    for origin, target in ((source, file), (source_layout, sidecar)):
+                        temporary = target.with_name(target.name + '.importing')
+                        shutil.copy2(origin, temporary)
+                        temporary.replace(target)
+                    manifest['segments'][key] = {**previous, 'reused_from':
+                        {'checkpoint': str(directory), 'fingerprint': old['fingerprint']}}
+                    atomic_json(manifest_path, manifest)
+                    valid = True
+                    reused += 1
+                    break
             if not valid:
                 pending.append((start, stop, file))
 
@@ -232,13 +286,16 @@ def render(
             sidecar = file.with_suffix(".layout.json")
             if not sidecar.is_file():
                 raise ValueError("Renderer must write layout telemetry")
-            return f"{start}-{stop}", {
+            record = {
                 "sha256": digest(file),
                 "layout_sha256": digest(sidecar),
                 "frames": stop - start,
             }
+            if keys:
+                record['render_key'] = keys[(start, stop)]
+            return f"{start}-{stop}", record
 
-        workers = worker_limit(requested_workers)
+        workers = worker_limit(requested_workers, mode)
         # At most `workers` expensive render processes; failed/completed chunks stay resumable.
         with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as pool:
             futures = [pool.submit(job, item) for item in pending]
@@ -249,6 +306,10 @@ def render(
         if plan_hash is not None and digest(global_plan) != plan_hash:
             raise ValueError("Global layout changed during render; refusing to assemble")
         if snapshot(scene_path) != state:
+            # Workers load inputs independently. Do not retain receipts for a
+            # range that might have read an input changed during this attempt.
+            manifest['segments'] = {}
+            atomic_json(manifest_path, manifest)
             raise ValueError(
                 "Inputs changed during render; refusing to assemble mixed revisions"
             )
@@ -315,6 +376,8 @@ def render(
             elif runner is None:
                 raise ValueError("Missing segment layout report")
         if snapshot(scene_path) != state:
+            manifest['segments'] = {}
+            atomic_json(manifest_path, manifest)
             raise ValueError(
                 "Inputs changed during audio assembly; keeping previous deliverable"
             )
@@ -330,6 +393,7 @@ def render(
             "workers": workers,
             "rendered_segments": len(pending),
             "resumed_segments": len(ranges) - len(pending),
+            "reused_segments": reused,
         }
         atomic_json(output.with_suffix(".render.json"), receipt)
         return receipt

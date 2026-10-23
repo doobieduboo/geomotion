@@ -73,6 +73,34 @@ class Timing(unittest.TestCase):
 
 
 class Provenance(unittest.TestCase):
+    def test_archive_keeps_catalog_year_precision_and_document_dates(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "photo.jpg").write_bytes(b"original")
+            item = dict(id="historic", file="photo.jpg", source_url="https://example.org/item",
+                        credit="Archive", context="Verified historic object", fact_status="verified",
+                        reuse_status="public_domain", date_basis="Catalog gives year only", capture_date="1855")
+            path = root / "archives.json"
+            atomic_json(path, dict(version=1, archives=[item]))
+            records, _ = archive_manifest(path)
+            self.assertEqual(records["historic"]["capture_date"], "1855")
+            item["capture_date"] = "1860/1865"
+            atomic_json(path, dict(version=1, archives=[item]))
+            self.assertEqual(archive_manifest(path)[0]["historic"]["capture_date"], "1860/1865")
+            for invalid in ("1865/1860", "1860/1867-13", "1860/1865/1867"):
+                item["capture_date"] = invalid
+                atomic_json(path, dict(version=1, archives=[item]))
+                with self.assertRaises(ValueError):
+                    archive_manifest(path)
+            item.pop("capture_date")
+            item["document_date"] = "1867-06-20"
+            atomic_json(path, dict(version=1, archives=[item]))
+            self.assertEqual(archive_manifest(path)[0]["historic"]["document_date"], "1867-06-20")
+            item["document_date"] = "1867-13"
+            atomic_json(path, dict(version=1, archives=[item]))
+            with self.assertRaises(ValueError):
+                archive_manifest(path)
+
     def test_scope_separates_voice_and_visual(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -357,8 +385,8 @@ class NativeExecution(unittest.TestCase):
                 ):
                     render_main()
 
-            def run_with_fixture(scene, mode, out, cp, workers, final_requested):
-                return render(scene, mode, out, cp, 1, final_requested, runner=runner)
+            def run_with_fixture(scene, mode, out, cp, workers, final_requested, reuse_from=None):
+                return render(scene, mode, out, cp, 1, final_requested, runner=runner, reuse_from=reuse_from)
 
             video = project / "preview.mp4"
             with patch("pipeline.render", side_effect=run_with_fixture), patch(

@@ -6,13 +6,21 @@ Fast-paced production follows [retention.md](retention.md); align useful visual 
 
 ## Camera and continuity
 
-Establish geographic context before a specific location is spoken; start its focus move with the relevant phrase, not seconds early. A short hook push-in then contextual pullback is an option, not a mandatory sequence. Maintain gentle pan/zoom/rotation during longer holds without distracting from the narrative. End by widening to the relevant geographic context; do not always choose the same country.
+Plan arrival against actual recorded phrase timing: the intended place should already be recognizable when it is named or the relevant claim is made. Start travel slightly before that phrase when necessary, while preserving the preceding clause's geographic meaning. Do not reveal the next destination so early that it misrepresents the current narration. Pre-roll and arrival remain authored keyframes, not an automatic speech-alignment feature.
+
+Use smooth acceleration into travel and deceleration into focus. Combine push-in and contextual pullback when they help the route read; do not force a zoom reversal on every phrase. Keep important locations and labels inside the frame, allow time to read on arrival, and avoid sudden jumps, velocity changes or long delayed moves. Gentle drift on a hold is optional when it improves the shot. End by widening to the relevant geographic context; do not always choose the same country.
 
 Working parts must assemble as one flowing scene. Match boundary poses, movement direction/velocity, zoom, rotation, persistent layers, effect phase and audio placement. Do not insert black gaps or visible stops at clip joins. Narration can cross a visual part boundary. Trim unnecessary silence after the final spoken word while allowing a natural release/fade.
 
 ## Geography and evidence
 
+Keep thematic fill, focus emphasis and ownership state separate. Define topic-relevant persistent color/flag layers over their intended story interval, independent of which territory the camera currently discusses. A focus change alters outline emphasis without switching those fills off and on. Preserve a completed reference outline outside focus when needed; see the reveal contract in [scene-format.md](scene-format.md).
+
+For an ownership change, choose the verified narrative event and author old/new fill visibility on the shared source clock. Keep unrelated territory layers persistent, and avoid blank frames, accidental double fills or premature changes. Do not change ownership merely because the camera enters/leaves a region. The renderer has no automatic ownership state machine: a bare phrase `event` on a region limits it to that phrase's interval. Persistent layers need explicit lifetimes extending until the next intended state change; world overlays and nested focus cues use explicit source times. Project colors, historical dates and transition timing belong to the production.
+
 Use compatible country/province geometry and a deduplicated shared-line network; avoid parallel coastlines from differently detailed sources. Fit geographic endpoints when a route needs both visible. Inspect coast/island preservation and projection seams. See [scene-format.md](scene-format.md) for the flat renderer's limits.
+
+Routes and arrows must express a specific relationship in the spoken clause. Verify source and destination coordinates and ensure the head reaches the intended land/point rather than a nearby ocean or neighboring territory. Author curved geographic samples when a curved arrow helps. Reveal from source toward destination, hold the completed route long enough to read, and remove/fade it when its meaning ends. Do not present an illustrative relationship as a researched physical journey, invasion or transfer route. The head, trail and glow must share the same timing and geographic transform.
 
 Use actual observations/coordinates when claiming a measured distribution. Match source periods rather than altering points to resemble an undated reference image. Distinguish observations from unique events and accumulate repeat detections only with clear description. Keep allegations, established findings and illustrative markers distinct.
 

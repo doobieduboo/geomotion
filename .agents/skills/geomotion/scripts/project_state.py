@@ -4,6 +4,7 @@ import copy
 import hashlib
 import json
 import os
+import re
 from pathlib import Path
 from urllib.parse import urlparse
 from datetime import date
@@ -58,13 +59,27 @@ def archive_manifest(path):
             "restricted",
         ):
             raise ValueError("Invalid archive reuse_status")
-        if not any(item.get(k) for k in ("capture_date", "publication_date")):
+        if not any(item.get(k) for k in ("capture_date", "publication_date", "document_date")):
             raise ValueError(
-                "Record a known capture or publication date, with date_basis"
+                "Record a known capture, publication or document date, with date_basis"
             )
-        for key in ("capture_date", "publication_date"):
+        for key in ("capture_date", "publication_date", "document_date"):
             if item.get(key):
-                date.fromisoformat(item[key])
+                value = item[key]
+                # Preserve catalog precision and closed ISO intervals.
+                parts = value.split("/")
+                if len(parts) > 2:
+                    raise ValueError("Invalid archive date interval")
+                checked = []
+                for part in parts:
+                    if re.fullmatch(r"\d{4}", part):
+                        checked.append(date(int(part), 1, 1))
+                    elif re.fullmatch(r"\d{4}-\d{2}", part):
+                        checked.append(date.fromisoformat(part + "-01"))
+                    else:
+                        checked.append(date.fromisoformat(part))
+                if len(checked) == 2 and checked[0] > checked[1]:
+                    raise ValueError("Archive date interval is reversed")
         if not item.get("date_basis"):
             raise ValueError("Archive requires date_basis")
         asset = (path.parent / item["file"]).resolve()
@@ -88,6 +103,7 @@ def load_project(path):
         "duration",
         "camera",
         "basemap",
+        "world_overlays",
         "export",
         "regions",
         "routes",
@@ -172,6 +188,7 @@ def snapshot(path):
     for group in (
         "camera",
         "regions",
+        "world_overlays",
         "routes",
         "markers",
         "callouts",
@@ -204,7 +221,7 @@ def snapshot(path):
             "index": i,
             **{
                 key: item[key]
-                for key in ("archive_id", "image", "title", "lines")
+                for key in ("archive_id", "image", "image_crop", "title", "lines")
                 if key in item
             },
         }

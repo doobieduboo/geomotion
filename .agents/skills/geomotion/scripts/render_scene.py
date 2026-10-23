@@ -15,13 +15,17 @@ from pathlib import Path
 import numpy as np
 from basemap import ATTRIBUTION, tile_url, tile_zoom, validate_basemap
 from config import DEFAULTS, SKILL_ROOT
-from map_assets import clip_flag, flagpole, select_sprite, route_pose
+from map_assets import clip_flag, flagpole, select_sprite, route_pose, route_visibility
+from world_overlay import project_world_overlay
+from effects import paint_land, composite_emission, glow_settings
+from region_stroke import prepare_stroke, revealed_paths, projected_stroke_copies, stroke_state, validate_focus_strokes, outline_style, paint_outlines
 from timeline import resolve_scene
 from project_state import load_project, atomic_json, snapshot, fingerprint
-from layout import wrap, inspect_boxes
+from layout import wrap, inspect_boxes, fade_callout, callout_image
 from scene_layout import build_plans
+from tile_memory import check_tile_memory
 from composition import validate_composition
-from PIL import Image, ImageDraw, ImageEnhance, ImageFilter, ImageFont
+from PIL import Image, ImageColor, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 from title_layer import render_title, title_config
 
 
@@ -67,6 +71,18 @@ def validate(scene):
     if not math.isfinite(scene.get("duration", 0)) or scene.get("duration", 0) <= 0:
         raise ValueError("duration must be positive")
     keys = scene.get("camera", [])
+    for region in scene.get('regions',[]):
+        validate_focus_strokes(region)
+        outline_style(region)
+        glow_settings(region.get('fill_glow'),land=True)
+        if region.get('fill_blend',DEFAULTS['region_fill']['blend']) not in ('normal','terrain_tint'):
+            raise ValueError('Invalid region fill_blend')
+        for cue in region.get('focus_strokes',[]):outline_style(region,cue)
+    for overlay in scene.get('world_overlays',[]):
+        kind=overlay.get('fill_kind','flag');blend=overlay.get('fill_blend','normal')
+        if kind not in ('color','flag') or blend not in ('normal','terrain_tint') or (kind=='flag' and blend!='normal'):
+            raise ValueError('Invalid world overlay fill_kind/fill_blend')
+        glow_settings(overlay.get('glow'),land=True)
     if not keys:
         raise ValueError("camera requires at least one keyframe")
     last = -1
@@ -91,7 +107,7 @@ def validate(scene):
 
 
 def color(value):
-    return tuple(value or [75, 222, 239])
+    return tuple(value) if value else ImageColor.getrgb(DEFAULTS["palette"]["outline"])
 
 
 @lru_cache(maxsize=128)
@@ -220,6 +236,7 @@ def main():
         for n in range(count if args.plan_only else stop)
     ]
     prepared = all_cameras[first:stop]
+    world_images = {o["image"] for o in scene.get("world_overlays", [])}
     image_cache = {}
     metadata_cache = {}
 
@@ -230,7 +247,7 @@ def main():
 
     def image_file(value):
         if value not in image_cache:
-            image_cache[value] = Image.open(path(value)).convert("RGBA")
+            image_cache[value] = Image.open(path(value)).convert("RGBa" if value in world_images else "RGBA")
         return image_cache[value]
 
     regions = []
@@ -245,6 +262,7 @@ def main():
                 else [{"geometry": data, "properties": {}}]
             )
         )
+        combined_polys = []
         for feature in features:
             if any(
                 feature.get("properties", {}).get(k) != v
@@ -257,7 +275,16 @@ def main():
             polys = (
                 g["coordinates"] if g["type"] == "MultiPolygon" else [g["coordinates"]]
             )
-            regions.append((region, polys))
+            combined_polys.extend(polys)
+        if combined_polys:
+            regions.append((region, combined_polys))
+    region_strokes = {}
+    for region, polys in regions:
+        origins = [region.get("stroke_origin")] + [c.get("stroke_origin", region.get("stroke_origin")) for c in region.get("focus_strokes", [])]
+        for origin in origins:
+            key = (id(region), tuple(origin) if origin is not None else None)
+            if key not in region_strokes:
+                region_strokes[key] = prepare_stroke(polys, origin)
     titles = []
     for item in scene.get("titles", []):
         definition = item["definition"]
@@ -320,9 +347,12 @@ def main():
         return
     # Session-memory tiles only: this viewing service does not allow offline tile export.
     tile_images = {}
+    # One source level for the complete scene, including checkpoint renders.
+    # Changing integer tile levels mid-ramp changes the imagery underneath it.
+    imagery_zoom = tile_zoom(max(k["zoom"] for k in scene["camera"]), args.mode)
     needed = set()
     for camera in prepared:
-        z = tile_zoom(camera["zoom"], args.mode)
+        z = imagery_zoom
         c = merc(*camera["center"], z)
         s = 2 ** (camera["zoom"] - z) * scale
         r = math.hypot(width, height) / 2 / s + 3
@@ -342,11 +372,10 @@ def main():
         xmax = max(tile[1] for tile in tiles)
         ymin = min(tile[2] for tile in tiles)
         ymax = max(tile[2] for tile in tiles)
-        if (xmax - xmin + 1) * (ymax - ymin + 1) > 1800:
-            raise ValueError("Tile mosaic too large; split camera sequence into shots")
         bounds[z] = (xmin, xmax, ymin, ymax)
     # Deduplicate wrapped tiles before parallel requests.
     physical_tiles = {(z, x % (2**z), y) for z, x, y in needed}
+    check_tile_memory(bounds, len(physical_tiles))
 
     def fetch(tile):
         z, x, y = tile
@@ -376,6 +405,7 @@ def main():
                 tile_images[(z, x % (2**z), y)], ((x - xmin) * 256, (y - ymin) * 256)
             )
         mosaics[z] = (im, np.array([xmin * 256, ymin * 256]))
+    tile_images.clear()  # Mosaics own source pixels; release decoded tiles.
     command = [
         "ffmpeg",
         "-y",
@@ -438,7 +468,7 @@ def main():
         for n, camera in enumerate(prepared, start=first):
             t = timeline.source_time(min(n / fps, timeline.duration))
             boxes = []
-            z = tile_zoom(camera["zoom"], args.mode)
+            z = imagery_zoom
             zoom_scale = 2 ** (camera["zoom"] - z) * scale
             center = merc(*camera["center"], z)
             a = math.radians(camera.get("rotation", 0))
@@ -473,67 +503,92 @@ def main():
             def visible(item):
                 return item.get("start", 0) <= t < item.get("end", duration)
 
-            edges = None
-            for region, polys in regions:
-                if not visible(region):
-                    continue
-                projected = [
-                    [[project(ll) for ll in ring] for ring in poly] for poly in polys
-                ]
-                if region.get("fill"):
-                    texture = Image.new("RGBA", (1, 1), color(region["fill"]) + (255,))
-                    im.alpha_composite(
-                        clip_flag(
-                            texture, projected, im.size, region.get("opacity", 80)
-                        )
-                    )
-                if region.get("flag"):
-                    im.alpha_composite(
-                        clip_flag(
-                            image_file(region["flag"]),
-                            projected,
-                            im.size,
-                            region.get("opacity", 180),
-                        )
-                    )
-                col = color(region.get("color"))
-                reveal = ease(
-                    (t - region.get("start", 0)) / max(0.01, region.get("reveal", 1))
-                )
-                for poly in projected:
-                    for ring in poly:
-                        limit = max(2, int(len(ring) * reveal))
-                        if reveal > 0 and len(ring) > 1:
-                            if edges is None:
-                                edges = Image.new("RGBA", im.size)
-                                ed = ImageDraw.Draw(edges)
-                            ed.line(
-                                ring[:limit],
-                                fill=col + (210,),
-                                width=max(1, round(2 * scale)),
-                                joint="curve",
-                            )
-            composite_glow(im, edges, 6 * scale)
+            for overlay in scene.get("world_overlays", []):
+                if visible(overlay):
+                    layer = project_world_overlay(image_file(overlay["image"]), camera, im.size, scale)
+                    fade = 1.0
+                    if overlay.get("fade_in", 0) > 0:
+                        fade = min(fade, ease((t - overlay.get("start", 0)) / overlay["fade_in"]))
+                    if overlay.get("fade_out", 0) > 0:
+                        fade = min(fade, ease((overlay.get("end", duration) - t) / overlay["fade_out"]))
+                    if fade < 1:
+                        layer.putalpha(layer.getchannel("A").point(lambda a: round(a * fade)))
+                    im = paint_land(im,layer,scale,blend=overlay.get('fill_blend','normal'),kind=overlay.get('fill_kind','flag'),glow=overlay.get('glow'))
+            if any(visible(region) for region, _ in regions):
+                reference_jobs, focus_jobs = [], []
+                world_pixels = 256 * 2 ** camera["zoom"] * scale
+
+                def projected_paths(region, origin, progress):
+                    return [copy
+                        for path_points in revealed_paths(region_strokes[(id(region), origin)], ease(progress))
+                        for copy in projected_stroke_copies(path_points, project,
+                            (world_pixels * cs, world_pixels * sn), im.size)]
+
+                for region, polys in sorted(regions, key=lambda pair: stroke_state(pair[0], t)[2] is not None):
+                    if not visible(region):
+                        continue
+                    projected = [[[project(ll) for ll in ring] for ring in poly] for poly in polys]
+                    if region.get("fill"):
+                        texture = Image.new("RGBA", (1, 1), color(region["fill"]) + (255,))
+                        layer=clip_flag(texture, projected, im.size,
+                            region.get("opacity", DEFAULTS["region_fill"]["solid_opacity"]))
+                        im=paint_land(im,layer,scale,blend=region.get("fill_blend",DEFAULTS["region_fill"]["blend"]),kind="color",glow=region.get("fill_glow"))
+                    if region.get("flag"):
+                        layer=clip_flag(image_file(region["flag"]), projected, im.size,
+                            region.get("opacity", DEFAULTS["region_fill"]["flag_opacity"]))
+                        im=paint_land(im,layer,scale,kind="flag",glow=region.get("fill_glow"))
+                    base_progress, base_origin, _ = stroke_state({**region, "focus_strokes": []}, t)
+                    style = outline_style(region)
+                    style["color"] = color(style["color"])
+                    reference_jobs.append((projected_paths(region, base_origin, base_progress), style))
+                    progress, origin, cue = stroke_state(region, t)
+                    if cue is not None:
+                        style = outline_style(region, cue)
+                        style["color"] = color(style["color"])
+                        fade = cue.get("glow_fade_out", 0)
+                        opacity = ease((cue["end"]-t)/fade) if fade > 0 else 1
+                        focus_jobs.append((projected_paths(region, origin, progress), style, opacity))
+                outline,emission=paint_outlines(im.size, scale, reference_jobs, focus_jobs,return_emission=True)
+                im=composite_emission(im,emission)
+                im.alpha_composite(outline)
             routes = None
             for route in scene.get("routes", []):
                 if t < route["start"] or t >= route.get("hide_at", duration):
                     continue
-                trail, heading = route_pose(route, t, project)
                 if routes is None:
                     routes = Image.new("RGBA", im.size)
                     rd = ImageDraw.Draw(routes)
+                fading = "fade_in" in route or "fade_out" in route
+                route_layer = Image.new("RGBA", im.size) if fading else routes
+                route_draw = ImageDraw.Draw(route_layer) if fading else rd
+                trail, heading = route_pose(route, t, project)
                 col = color(route.get("color", [255, 105, 68]))
-                rd.line(
+                if route.get("casing_width", 0) > 0:
+                    route_draw.line(trail, fill=tuple(route.get("casing_color", [7,12,18]))+(255,),
+                            width=max(1,round(route["casing_width"]*scale)), joint="curve")
+                route_draw.line(
                     trail,
                     fill=col + (255,),
                     width=max(1, round(route.get("width", 4) * scale)),
                     joint="curve",
                 )
                 x, y = trail[-1]
-                if route.get("atlas"):
+                if route.get("arrow"):
+                    angle = math.radians(heading)
+                    dx, dy = math.sin(angle), -math.cos(angle)
+                    progress = max(0, min(1, (t-route["start"])/(route["end"]-route["start"])))
+                    grow = min(1, progress / .08)
+                    length = route.get("head_length", 18) * scale * grow
+                    half = route.get("head_width", 14) * scale * grow / 2
+                    bx, by = x - dx * length, y - dy * length
+                    route_draw.polygon([(x,y),(bx-dy*half,by+dx*half),
+                                (bx+dy*half,by-dx*half)], fill=col+(255,),
+                               outline=tuple(route.get("casing_color", [7,12,18]))+(255,))
+                elif route.get("atlas"):
                     meta = metadata_file(route["atlas_metadata"])
                     frame, anchor, _ = select_sprite(
-                        image_file(route["atlas"]), meta, heading
+                        image_file(route["atlas"]), meta, heading,
+                        animation_time_s=t-route["start"] if t < route["end"] else 0,
                     )
                     factor = route.get("sprite_scale", 1) * scale
                     size = (
@@ -541,12 +596,14 @@ def main():
                         max(1, round(frame.height * factor)),
                     )
                     frame = frame.resize(size, Image.Resampling.LANCZOS)
-                    routes.alpha_composite(
+                    route_layer.alpha_composite(
                         frame,
                         (round(x - anchor[0] * factor), round(y - anchor[1] * factor)),
                     )
                 else:
-                    rd.ellipse((x - 3, y - 3, x + 3, y + 3), fill=(255, 246, 222, 255))
+                    route_draw.ellipse((x - 3, y - 3, x + 3, y + 3), fill=(255, 246, 222, 255))
+                if fading:
+                    routes.alpha_composite(fade_callout(route_layer, route_visibility(route, duration), t))
             composite_glow(im, routes, 4 * scale)
             overlay = Image.new("RGBA", im.size)
             draw = ImageDraw.Draw(overlay)
@@ -567,7 +624,7 @@ def main():
                             canvas_size=im.size,
                         )
                     )
-                else:
+                elif marker.get("show_dot", True):
                     draw.ellipse(
                         (x - r, y - r, x + r, y + r),
                         fill=(7, 20, 28, 230),
@@ -608,8 +665,10 @@ def main():
             for i, callout, geometry in callout_layouts:
                 if not visible(callout):
                     continue
+                panel_layer = Image.new("RGBA", im.size)
+                panel_draw = ImageDraw.Draw(panel_layer)
                 ax, ay = project(callout["position"])
-                image = image_file(callout["image"]) if callout.get("image") else None
+                image = callout_image(image_file(callout["image"]) if callout.get("image") else None, callout)
                 padding = max(
                     2, round(DEFAULTS["layout"]["callout_padding_design"] * scale)
                 )
@@ -620,8 +679,9 @@ def main():
                 col = color(callout.get("color"))
                 px = max(x + padding, min(x + w - padding, ax))
                 edge = y + h if ay > y + h / 2 else y
-                draw.line([(ax, ay), (px, edge)], fill=col + (210,), width=1)
-                draw.rounded_rectangle(
+                if callout.get("show_leader", True):
+                    panel_draw.line([(ax, ay), (px, edge)], fill=col + (210,), width=1)
+                panel_draw.rounded_rectangle(
                     (x, y, x + w, y + h),
                     radius=max(4, round(14 * scale)),
                     fill=(9, 22, 29, 240),
@@ -632,11 +692,12 @@ def main():
                     pic = image.resize(
                         (w - 2 * padding, image_height), Image.Resampling.LANCZOS
                     )
-                    overlay.alpha_composite(pic, (x + padding, y + padding))
+                    panel_layer.alpha_composite(pic, (x + padding, y + padding))
                 for text, font, xx, yy in rows:
-                    draw.text(
+                    panel_draw.text(
                         (x + xx, y + yy), text, font=font, fill=(239, 247, 239, 255)
                     )
+                overlay.alpha_composite(fade_callout(panel_layer, callout, t))
             for cue in scene.get("subtitles", []):
                 if not visible(cue):
                     continue
