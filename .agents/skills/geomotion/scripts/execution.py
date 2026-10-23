@@ -177,6 +177,8 @@ def render(
                 )
             except (OSError, ValueError, TypeError, KeyError):
                 plan_valid = False
+            if plan_valid:
+                plan_valid = manifest.get("layout_plan_sha256") == digest(global_plan)
             if not plan_valid:
                 command = [
                     sys.executable,
@@ -198,6 +200,9 @@ def render(
                 ):
                     raise ValueError("Generated global layout does not match this render")
             plan_hash = digest(global_plan)
+            if manifest.get("layout_plan_sha256") != plan_hash:
+                manifest["layout_plan_sha256"] = plan_hash
+                atomic_json(manifest_path, manifest)
 
         def job(item):
             start, stop, file = item
