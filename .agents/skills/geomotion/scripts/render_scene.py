@@ -17,7 +17,7 @@ from basemap import ATTRIBUTION, tile_url, tile_zoom, validate_basemap
 from config import DEFAULTS, SKILL_ROOT
 from map_assets import clip_flag, flagpole, select_sprite, route_pose
 from timeline import resolve_scene
-from project_state import load_project, atomic_json
+from project_state import load_project, atomic_json, snapshot, fingerprint
 from layout import wrap, inspect_boxes
 from scene_layout import build_plans
 from composition import validate_composition
@@ -154,7 +154,19 @@ def main():
     parser.add_argument("--start-frame", type=int, default=0)
     parser.add_argument("--end-frame", type=int)
     parser.add_argument("--video-only", action="store_true")
+    parser.add_argument("--plan-only", action="store_true",
+                        help="Compute the complete layout without imagery or video")
+    parser.add_argument("--layout-plan", type=Path,
+                        help="Reuse a previously validated global layout")
+    parser.add_argument("--plan-fingerprint",
+                        help="Exact source/config fingerprint required for layout sharing")
     args = parser.parse_args()
+    if args.plan_only and args.layout_plan:
+        parser.error("--plan-only and --layout-plan cannot be combined")
+    if args.plan_only and (args.start_frame != 0 or args.end_frame is not None):
+        parser.error("--plan-only requires the full source timeline")
+    if (args.plan_only or args.layout_plan) and not args.plan_fingerprint:
+        parser.error("Shared layout requires --plan-fingerprint")
     if args.mode == "final" and not args.final_requested:
         parser.error(
             "Final requires the user's explicit request; pass --final-requested to record it"
@@ -169,7 +181,7 @@ def main():
     scene, timeline = resolve_scene(scene)
     validate(scene)
     validate_composition(scene)
-    if not shutil.which("ffmpeg"):
+    if not args.plan_only and not shutil.which("ffmpeg"):
         parser.error("Install FFmpeg")
     root = args.scene.resolve().parent
 
@@ -201,15 +213,113 @@ def main():
         scene["attribution"] = " · ".join(
             filter(None, [scene.get("attribution"), ATTRIBUTION])
         )
-    # Session-memory tiles only: this viewing service does not allow offline tile export.
-    tile_images = {}
     all_cameras = [
         camera_at(
             scene["camera"], timeline.source_time(min(n / fps, timeline.duration))
         )
-        for n in range(stop)
+        for n in range(count if args.plan_only else stop)
     ]
     prepared = all_cameras[first:stop]
+    image_cache = {}
+    metadata_cache = {}
+
+    def metadata_file(value):
+        if value not in metadata_cache:
+            metadata_cache[value] = json.loads(path(value).read_text())
+        return metadata_cache[value]
+
+    def image_file(value):
+        if value not in image_cache:
+            image_cache[value] = Image.open(path(value)).convert("RGBA")
+        return image_cache[value]
+
+    regions = []
+    for region in scene.get("regions", []):
+        data = json.loads(path(region["geojson"]).read_text())
+        features = (
+            data["features"]
+            if data["type"] == "FeatureCollection"
+            else (
+                [data]
+                if data["type"] == "Feature"
+                else [{"geometry": data, "properties": {}}]
+            )
+        )
+        for feature in features:
+            if any(
+                feature.get("properties", {}).get(k) != v
+                for k, v in region.get("match", {}).items()
+            ):
+                continue
+            g = feature["geometry"]
+            if g["type"] not in ["Polygon", "MultiPolygon"]:
+                continue
+            polys = (
+                g["coordinates"] if g["type"] == "MultiPolygon" else [g["coordinates"]]
+            )
+            regions.append((region, polys))
+    titles = []
+    for item in scene.get("titles", []):
+        definition = item["definition"]
+        source = (
+            SKILL_ROOT / definition
+            if definition.startswith("library/")
+            else path(definition)
+        )
+        config = title_config(json.loads(source.read_text()), item.get("overrides"))
+        start = float(item.get("start", 0))
+        if not math.isfinite(start) or start < 0:
+            raise ValueError("Title start must be nonnegative and finite")
+        titles.append((start, item.get("end", duration), config))
+    current_fingerprint = None
+    shared_plan = None
+    if args.plan_only or args.layout_plan:
+        current_fingerprint = fingerprint(snapshot(args.scene), args.mode)
+        if current_fingerprint != args.plan_fingerprint:
+            raise ValueError("Global layout fingerprint differs from current source")
+        if args.layout_plan:
+            document = json.loads(args.layout_plan.read_text())
+            profile = {"mode": args.mode, "width": width, "height": height, "fps": fps}
+            if (
+                document.get("version") != 1
+                or document.get("fingerprint") != current_fingerprint
+                or document.get("profile") != profile
+                or not isinstance(document.get("plans"), list)
+                or len(document["plans"]) != count
+            ):
+                raise ValueError("Global layout is stale or incompatible")
+            shared_plan = document["plans"]
+    plans, callout_layouts, cta_layout = build_plans(
+        scene,
+        timeline,
+        all_cameras,
+        fps,
+        (width, height),
+        lambda camera: projector(camera, width, height, scale, args.mode),
+        regions,
+        titles,
+        image_file,
+        load_font,
+        metadata_file,
+        precomputed_plans=shared_plan,
+    )
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    if args.plan_only:
+        if fingerprint(snapshot(args.scene), args.mode) != current_fingerprint:
+            raise ValueError("Scene inputs changed during global layout planning")
+        atomic_json(args.output, {
+            "version": 1,
+            "fingerprint": current_fingerprint,
+            "profile": {"mode": args.mode, "width": width, "height": height, "fps": fps},
+            "plans": [
+                {"positions": plan["positions"], "focuses": plan["focuses"]}
+                for plan in plans
+            ],
+        })
+        print(args.output.resolve())
+        return
+    # Session-memory tiles only: this viewing service does not allow offline tile export.
+    tile_images = {}
     needed = set()
     for camera in prepared:
         z = tile_zoom(camera["zoom"], args.mode)
@@ -266,71 +376,6 @@ def main():
                 tile_images[(z, x % (2**z), y)], ((x - xmin) * 256, (y - ymin) * 256)
             )
         mosaics[z] = (im, np.array([xmin * 256, ymin * 256]))
-    image_cache = {}
-    metadata_cache = {}
-
-    def metadata_file(value):
-        if value not in metadata_cache:
-            metadata_cache[value] = json.loads(path(value).read_text())
-        return metadata_cache[value]
-
-    def image_file(value):
-        if value not in image_cache:
-            image_cache[value] = Image.open(path(value)).convert("RGBA")
-        return image_cache[value]
-
-    regions = []
-    for region in scene.get("regions", []):
-        data = json.loads(path(region["geojson"]).read_text())
-        features = (
-            data["features"]
-            if data["type"] == "FeatureCollection"
-            else (
-                [data]
-                if data["type"] == "Feature"
-                else [{"geometry": data, "properties": {}}]
-            )
-        )
-        for feature in features:
-            if any(
-                feature.get("properties", {}).get(k) != v
-                for k, v in region.get("match", {}).items()
-            ):
-                continue
-            g = feature["geometry"]
-            if g["type"] not in ["Polygon", "MultiPolygon"]:
-                continue
-            polys = (
-                g["coordinates"] if g["type"] == "MultiPolygon" else [g["coordinates"]]
-            )
-            regions.append((region, polys))
-    titles = []
-    for item in scene.get("titles", []):
-        definition = item["definition"]
-        source = (
-            SKILL_ROOT / definition
-            if definition.startswith("library/")
-            else path(definition)
-        )
-        config = title_config(json.loads(source.read_text()), item.get("overrides"))
-        start = float(item.get("start", 0))
-        if not math.isfinite(start) or start < 0:
-            raise ValueError("Title start must be nonnegative and finite")
-        titles.append((start, item.get("end", duration), config))
-    plans, callout_layouts, cta_layout = build_plans(
-        scene,
-        timeline,
-        all_cameras,
-        fps,
-        (width, height),
-        lambda camera: projector(camera, width, height, scale, args.mode),
-        regions,
-        titles,
-        image_file,
-        load_font,
-        metadata_file,
-    )
-    args.output.parent.mkdir(parents=True, exist_ok=True)
     command = [
         "ffmpeg",
         "-y",
