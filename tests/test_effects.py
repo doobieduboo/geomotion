@@ -4,12 +4,25 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'.agents/skills/geomotion/scripts'))
-from effects import paint_land, glow_settings, composite_emission
+from effects import paint_land, _paint_land, glow_settings, composite_emission
 from region_stroke import outline_style, paint_outlines
 from render_scene import validate
 
 
 class GeographicEffects(unittest.TestCase):
+    def test_visible_window_preserves_pixels_at_output_scales_and_frame_edges(self):
+        random=np.random.default_rng(8)
+        base=Image.fromarray(random.integers(10,200,(160,120,3),dtype=np.uint8)).convert('RGBA')
+        for box in ((40,60,55,85),(0,0,15,20),(105,140,119,159)):
+            layer=Image.new('RGBA',base.size)
+            ImageDraw.Draw(layer).rectangle(box,fill=(255,24,40,180))
+            for scale in (.5,1.5,2.25):
+                for kind,blend in (('flag','normal'),('color','terrain_tint')):
+                    with self.subTest(box=box,scale=scale,kind=kind):
+                        full=_paint_land(base,layer,scale,kind=kind,blend=blend)
+                        window=paint_land(base,layer,scale,kind=kind,blend=blend)
+                        self.assertEqual(full.tobytes(),window.tobytes())
+
     def test_tint_preserves_terrain_and_does_not_color_the_ocean(self):
         terrain=Image.new('RGBA',(100,80),(50,50,50,255))
         ImageDraw.Draw(terrain).rectangle((50,0,99,79),fill=(150,150,150,255))

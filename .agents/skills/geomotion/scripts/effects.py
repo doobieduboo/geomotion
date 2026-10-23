@@ -69,7 +69,7 @@ def bloom_emission(layer, settings, scale):
     return result * settings.get('strength', 1)
 
 
-def paint_land(base, layer, scale, *, blend='normal', kind='flag', glow=None):
+def _paint_land(base, layer, scale, *, blend='normal', kind='flag', glow=None):
     """Clip color to supplied geometry; only emitted light falls outside its edge."""
     if blend not in ('normal', 'terrain_tint') or kind not in ('color', 'flag'):
         raise ValueError('Invalid land blend or kind')
@@ -105,3 +105,28 @@ def paint_land(base, layer, scale, *, blend='normal', kind='flag', glow=None):
     if kind == 'flag':
         emission *= settings['flag_strength']
     return composite_emission(base, emission)
+
+
+def paint_land(base, layer, scale, *, blend='normal', kind='flag', glow=None):
+    """Limit temporary arrays and blur work to the visible mask and its support."""
+    if blend not in ('normal', 'terrain_tint') or kind not in ('color', 'flag'):
+        raise ValueError('Invalid land blend or kind')
+    if kind == 'flag' and blend != 'normal':
+        raise ValueError('Flag colors must use normal blending')
+    settings = glow_settings(glow, land=True)
+    extent = layer.getchannel('A').getbbox()
+    if extent is None:
+        return base
+    radius = max((item['radius_design'] * scale for item in settings['layers']), default=0)
+    # Pillow GaussianBlur uses finite box-filter support. Four radii plus a
+    # sampling guard retain that support, including fractional output scaling.
+    padding = math.ceil(4 * radius) + 2 if settings['enabled'] else 0
+    box = (max(0, extent[0] - padding), max(0, extent[1] - padding),
+           min(base.width, extent[2] + padding), min(base.height, extent[3] + padding))
+    if box == (0, 0, base.width, base.height):
+        return _paint_land(base, layer, scale, blend=blend, kind=kind, glow=settings)
+    result = _paint_land(base.crop(box), layer.crop(box), scale,
+                         blend=blend, kind=kind, glow=settings)
+    output = base.copy()
+    output.paste(result, box[:2])
+    return output
