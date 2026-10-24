@@ -23,6 +23,8 @@ Explicit user instructions override repository defaults; session/platform instru
 
 ## Short briefs
 
+Topic-only and PDF briefs inherit the [required territory treatment](.agents/skills/geomotion/references/style.md#required-territory-treatment) and [global/contextual framing](.agents/skills/geomotion/references/composition.md#global-context-and-territory-framing). Author these in the scene before production; do not treat a local storyboard as permission to omit them. Explicit user exceptions retain priority.
+
 Treat a short topic/edit brief—including “outline”, “daratan diwarnai” or “bendera”—as sufficient to apply the current production defaults. Load saved project/stage when continuing; choose routine colors, outline roles, glow, terrain tint, geographic flag treatment, reveal/hold, layout and delivery from their owning preset/reference instead of asking the user to repeat them. Keep reusable appearance settings topic-agnostic; actual locations, coordinates, assets and ownership states belong to the production. Ask only for missing information that materially changes the story, scope or result. Explicit requested exceptions override defaults locally. Do not claim a preset automatically researches geography, aligns speech or invents focus cues: author those from the actual project inputs. Keep invocation shortcuts as optional aliases to this same workflow when requested, not another preset or parallel rule system. A fresh conversation inherits repository changes only from a checkout or installed skill containing them; local edits are not remote updates. Verify the revision actually fetched or installed before claiming cross-session availability.
 
 ## Agent delegation and model selection

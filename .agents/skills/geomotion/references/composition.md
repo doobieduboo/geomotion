@@ -6,6 +6,14 @@ Fast-paced production follows [retention.md](retention.md); align useful visual 
 
 ## Camera and continuity
 
+### Global context and territory framing
+
+Establish the story on a recognizable global/contextual map before entering local detail. Frame the relevant countries or territories together, with their readable outlined/colored land and geographic labels; then connect the overview to regional action through continuous camera movement. When moving to a different theater or country, reestablish the wider geographic relationship before its detail. Preserve territory layers during these moves under the persistence contract below.
+
+Every shot must retain geographic orientation through the treated territory, relevant labeled places, a recognizable boundary/coastline or a clear visual connection to the established overview. Avoid a sequence composed only of tight satellite-ground textures with tiny city pins and route marks. Fit the active territory or meaningful boundary/context into the framing when the close view would otherwise lose its identity. Regional battle graphics still need this map context; a PDF's city-level storyboard is not an instruction to omit surrounding territory treatment. Follow explicit user framing exceptions when supplied.
+
+Before a full production render, inspect an overview and the tightest representative detail at the retained delivery profile. Confirm that location and highlighted land remain recognizable, action is prominent, and the overview-to-detail relationship reads. Reuse valid existing samples; this is not a reason to render another full video. Appearance values remain owned by `defaults.json` and [style.md](style.md).
+
 Plan arrival against actual recorded phrase timing: the intended place should already be recognizable when it is named or the relevant claim is made. Start travel slightly before that phrase when necessary, while preserving the preceding clause's geographic meaning. Do not reveal the next destination so early that it misrepresents the current narration. Pre-roll and arrival remain authored keyframes, not an automatic speech-alignment feature.
 
 Use smooth acceleration into travel and deceleration into focus. Combine push-in and contextual pullback when they help the route read; do not force a zoom reversal on every phrase. Keep important locations and labels inside the frame, allow time to read on arrival, and avoid sudden jumps, velocity changes or long delayed moves. Gentle drift on a hold is optional when it improves the shot. End by widening to the relevant geographic context; do not always choose the same country.
