@@ -13,7 +13,7 @@ from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
-from basemap import ATTRIBUTION, tile_url, tile_zoom, validate_basemap
+from basemap import tile_url, tile_zoom, validate_basemap
 from config import DEFAULTS, SKILL_ROOT
 from map_assets import clip_flag, flagpole, select_sprite, route_pose, route_visibility
 from world_overlay import project_world_overlay
@@ -27,6 +27,7 @@ from tile_memory import check_tile_memory
 from composition import validate_composition
 from PIL import Image, ImageColor, ImageDraw, ImageEnhance, ImageFilter, ImageFont
 from title_layer import render_title, title_config
+from text_policy import visual_attribution
 
 
 def merc(lon, lat, zoom):
@@ -87,6 +88,9 @@ def validate(scene):
         raise ValueError("camera requires at least one keyframe")
     last = -1
     for k in keys:
+        unknown = set(k) - {"time", "center", "zoom", "rotation", "ease"}
+        if unknown:
+            raise ValueError("Unsupported camera fields: " + ", ".join(sorted(unknown)))
         if not math.isfinite(k["time"]) or k["time"] < 0 or k["time"] <= last:
             raise ValueError("camera times must increase strictly")
         last = k["time"]
@@ -170,6 +174,7 @@ def main():
     parser.add_argument("--start-frame", type=int, default=0)
     parser.add_argument("--end-frame", type=int)
     parser.add_argument("--video-only", action="store_true")
+    parser.add_argument("--still", action="store_true", help="Render one native PNG frame without video encoding or audio")
     parser.add_argument("--plan-only", action="store_true",
                         help="Compute the complete layout without imagery or video")
     parser.add_argument("--layout-plan", type=Path,
@@ -197,7 +202,9 @@ def main():
     scene, timeline = resolve_scene(scene)
     validate(scene)
     validate_composition(scene)
-    if not args.plan_only and not shutil.which("ffmpeg"):
+    if args.still and (args.plan_only or args.output.suffix.lower() != '.png'):
+        parser.error('--still requires a PNG output and cannot be combined with --plan-only')
+    if not args.plan_only and not args.still and not shutil.which("ffmpeg"):
         parser.error("Install FFmpeg")
     root = args.scene.resolve().parent
 
@@ -214,21 +221,18 @@ def main():
     duration = timeline.source_duration
     count = max(1, round(timeline.duration * fps))
     first, stop = args.start_frame, (
-        args.end_frame if args.end_frame is not None else count
+        args.start_frame + 1 if args.still else (args.end_frame if args.end_frame is not None else count)
     )
     if not 0 <= first < stop <= count:
         parser.error("Frame range must satisfy 0 <= start < end <= total frames")
-    if scene.get("audio") and not args.video_only and (first != 0 or stop != count):
+    if scene.get("audio") and not args.video_only and not args.still and (first != 0 or stop != count):
         parser.error("Partial render requires --video-only when scene has audio")
-    if args.video_only:
+    if args.video_only or args.still:
         scene.pop("audio", None)
     scale = width / DEFAULTS["design_width"]
     basemap = {**DEFAULTS["basemap"], **scene.get("basemap", {})}
     validate_basemap(basemap)
-    if ATTRIBUTION not in scene.get("attribution", ""):
-        scene["attribution"] = " · ".join(
-            filter(None, [scene.get("attribution"), ATTRIBUTION])
-        )
+    scene["attribution"] = visual_attribution(scene)
     all_cameras = [
         camera_at(
             scene["camera"], timeline.source_time(min(n / fps, timeline.duration))
@@ -454,7 +458,7 @@ def main():
     ]
     if scene.get("audio"):
         command += ["-c:a", "aac", "-b:a", export["audio_bitrate"]]
-    temporary = args.output.with_name(args.output.stem + ".rendering.mp4")
+    temporary = args.output.with_name(args.output.stem + (".rendering.png" if args.still else ".rendering.mp4"))
     command += [
         "-t",
         str((stop - first) / fps),
@@ -462,7 +466,7 @@ def main():
         "+faststart",
         str(temporary),
     ]
-    p = subprocess.Popen(command, stdin=subprocess.PIPE)
+    p = None if args.still else subprocess.Popen(command, stdin=subprocess.PIPE)
     layout_issues = {}
     try:
         for n, camera in enumerate(prepared, start=first):
@@ -790,19 +794,24 @@ def main():
                     "last_frame"
                 ] = n
             im.alpha_composite(overlay)
-            if n in {0, count // 2, count - 1}:
+            if not args.still and n in {0, count // 2, count - 1}:
                 im.convert("RGB").save(
                     args.output.with_name(args.output.stem + f"_frame_{n}.jpg")
                 )
-            p.stdin.write(im.convert("RGB").tobytes())
+            if args.still:
+                im.convert('RGB').save(temporary, format='PNG')
+            else:
+                p.stdin.write(im.convert("RGB").tobytes())
     except BaseException:
-        p.stdin.close()
-        p.wait()
+        if p is not None:
+            p.stdin.close()
+            p.wait()
         temporary.unlink(missing_ok=True)
         raise
     else:
-        p.stdin.close()
-    if p.wait() != 0:
+        if p is not None:
+            p.stdin.close()
+    if p is not None and p.wait() != 0:
         temporary.unlink(missing_ok=True)
         raise RuntimeError("FFmpeg render failed")
     temporary.replace(args.output)

@@ -27,7 +27,7 @@ _RENDER_SCRIPTS = (
     "render_scene.py", "scene_layout.py", "composition.py", "layout.py",
     "map_assets.py", "effects.py", "region_stroke.py", "world_overlay.py", "title_layer.py",
     "basemap.py", "timeline.py", "config.py", "project_state.py",
-    "revision_cache.py", "tile_memory.py",
+    "revision_cache.py", "tile_memory.py", "text_policy.py",
 )
 _PRESET_FIELDS = (
     "design_width", "typography", "palette", "composition", "subtitles",
@@ -92,7 +92,7 @@ def render_keys(scene_path, mode, ranges, *, state=None):
     the edited cue ends. Appending a later cue preserves earlier ranges, except
     genuine global dependencies (subtitle reservation, geometry, imagery level).
     """
-    from basemap import ATTRIBUTION, tile_zoom
+    from basemap import tile_zoom
     from composition import validate_composition
     from render_scene import camera_at, validate
 
@@ -141,14 +141,14 @@ def render_keys(scene_path, mode, ranges, *, state=None):
                     for key, item in value.items() if key not in ("event", "archive_id")}
         return value
 
-    attribution = scene.get("attribution", "")
-    if ATTRIBUTION not in attribution:
-        attribution = " · ".join(filter(None, [attribution, ATTRIBUTION]))
+    from text_policy import visual_attribution
+    attribution = visual_attribution(scene)
     global_state = {
         "version": VERSION, "mode": mode, "configuration": _configuration(state),
         "profile": {key: profile[key] for key in _VIDEO_PROFILE_FIELDS},
         "basemap": {**DEFAULTS["basemap"], **scene.get("basemap", {})},
         "attribution": attribution, "composition": scene.get("composition", {}),
+        "text_policy": scene.get("text_policy", {}),
         # build_plans reserves subtitle space even before the first actual cue.
         "subtitle_reservation": bool(scene.get("subtitles")),
         "imagery_zoom": tile_zoom(max(k["zoom"] for k in scene["camera"]), mode),

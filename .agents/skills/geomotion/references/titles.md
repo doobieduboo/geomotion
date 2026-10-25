@@ -44,6 +44,6 @@ Add this optional field to a map scene:
 }
 ```
 
-`library/` paths resolve against the skill root; other definition paths resolve against the scene. `start` is a nonnegative scene time; animation time is `scene_time - start`. Omit `titles` for an unchanged scene. Multiple instances reuse the renderer. Inspect title/subtitle/map-label collisions and retain the map-documentary text policy; an available title does not mean every scene needs one.
+`library/` paths resolve against the skill root; other definition paths resolve against the scene. `start` is a nonnegative scene time; animation time is `scene_time - start`. Use only explicitly approved/authored opening titles; do not generate supplementary titles from narration or archive metadata. Omit `titles` for an unchanged scene. Multiple instances reuse the renderer. Inspect title/subtitle/map-label collisions and retain the map-documentary text policy; an available title does not mean every scene needs one.
 
 The library catalog records implementation and visual approval separately. Update status only after verifying the actual component; do not mark future title styles as implemented by association.

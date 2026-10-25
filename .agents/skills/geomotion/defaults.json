@@ -1,5 +1,5 @@
 {
-  "version": 18,
+  "version": 20,
   "design_width": 720,
   "export": {
     "preview": {
@@ -58,12 +58,15 @@
     "visual_style": "map_documentary",
     "text_policy": {
       "explanation": "voiceover_and_phrase_subtitles",
-      "overlays": "brief_labels_key_figures_evidence_captions_and_optional_cta",
+      "overlays": "geographic_names_voiceover_subtitles_and_explicitly_requested_titles",
       "paragraphs": false,
       "bullet_slides": false,
       "duplicate_narration_as_cards": false,
       "persistent_headlines": false,
-      "cards_optional": true
+      "cards_optional": false,
+      "source_credits": false,
+      "media_captions": false,
+      "extra_annotations": false
     },
     "layout": {
       "margin_design": 20,

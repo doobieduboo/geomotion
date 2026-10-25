@@ -6,6 +6,7 @@ from composition import Composer, pixel_box, validate_composition
 from layout import callout_layout, callout_opacity, callout_image, wrap, inspect_boxes, overlaps
 from title_layer import render_title
 from map_assets import route_pose, route_visibility
+from text_policy import apply as apply_text_policy
 
 
 def build_plans(
@@ -22,6 +23,7 @@ def build_plans(
     metadata_file,
     precomputed_plans=None,
 ):
+    scene = apply_text_policy(scene)
     width, height = size
     for route in scene.get("routes", []):
         route_visibility(route, timeline.source_duration)
@@ -95,13 +97,15 @@ def build_plans(
                 max(safe[3] * height, template[3]),
             )
         )
-    credit_font = load_font(max(8, round(12 * scale)))
-    margin = max(4, round(10 * scale))
-    credit = "\n".join(wrap(scene["attribution"], credit_font, width - 2 * margin))
-    credit_bounds = draw.multiline_textbbox((0, 0), credit, font=credit_font)
-    credit_position = (margin, height - margin - credit_bounds[3])
-    credit_box = draw.multiline_textbbox(credit_position, credit, font=credit_font)
-    reserved.append(credit_box)
+    credit_box = None
+    if scene.get("attribution"):
+        credit_font = load_font(max(8, round(12 * scale)))
+        margin = max(4, round(10 * scale))
+        credit = "\n".join(wrap(scene["attribution"], credit_font, width - 2 * margin))
+        credit_bounds = draw.multiline_textbbox((0, 0), credit, font=credit_font)
+        credit_position = (margin, height - margin - credit_bounds[3])
+        credit_box = draw.multiline_textbbox(credit_position, credit, font=credit_font)
+        reserved.append(credit_box)
     cta_layout = None
     cta = scene.get("cta")
     if cta:
@@ -324,7 +328,7 @@ def build_plans(
             boxes = (
                 annotations
                 + [(key, box) for key, box in positions.items()]
-                + [("attribution", credit_box)]
+                + ([("attribution", credit_box)] if credit_box else [])
             )
             errors = inspect_boxes(boxes, size)
             if errors:

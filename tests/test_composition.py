@@ -170,6 +170,7 @@ class RenderComposition(unittest.TestCase):
             Image.new("RGB", (600, 400), "#d9b05d").save(root / "photo.jpg")
             scene = {
                 "duration": 1,
+                "text_policy": {"media_captions": True, "extra_annotations": True},
                 "camera": [
                     {"time": 0, "center": [0, 0], "zoom": 6},
                     {"time": 1, "center": [1, 0], "zoom": 6},

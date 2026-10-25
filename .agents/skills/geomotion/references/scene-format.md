@@ -22,18 +22,23 @@ The input is a scene description, not a story template. No subject, place, date 
 | `metadata` | Optional informational project metadata; no renderer behavior |
 | `focuses` | Source/event-timed protected geographic bounds or region IDs; [composition contract](composition.md#executable-composition-contract) |
 | `composition` | Explicit overrides of preset layout limits, spacing and tracking |
-| `cta` | Optional authored text and source interval/event; centered clear placement above focus |
+| `text_policy` | Root scene boolean overrides of `source_credits`, `media_captions`, `extra_annotations`; default `false` for each, enable for explicit user text requests |
+| `cta` | Explicitly requested authored text and source interval/event, enabled by `text_policy.extra_annotations`; centered clear placement above focus |
 | `camera` | Required keyframes: `time`, `center`, `zoom`, optional `rotation` in degrees; `ease: "linear"` disables easing for that incoming segment |
 | `basemap` | Esri World Imagery only: `type: "satellite"`, `provider: "esri_world_imagery"`; optional `saturation` and `brightness` inherited from the preset. Other providers and solid backgrounds are rejected. See [basemaps.md](basemaps.md) |
 | `regions` | Optional GeoJSON geometry layers with outline/reveal and optional flag fill |
 | `markers` | Optional geographic points, labels and flagpole markers |
 | `routes` | Optional animated paths and atlas sprites |
-| `callouts` | Optional geographic infographic bubbles, with image and text |
+| `callouts` | Optional geographic image callouts, image-only by default; requested captions or supporting text use `text_policy` |
 | `titles` | Editable title layers: `definition`, optional scene `start` and `overrides`; see [titles.md](titles.md) |
 | `audio` | Optional path to an actual audio file; omitted means silent |
-| `attribution` | Additional on-video source credit; required Esri credit is always retained |
+| `attribution` | Authored source credit shown only with `text_policy.source_credits: true`; provider metadata remains in private project records |
 
 A visual layer may have `start` and `end` visibility times unless specified below. RGB colors are three integers from 0 to 255. Avoid hidden mandatory decorative layers.
+
+## Text policy
+
+Root scene `text_policy` accepts boolean `source_credits`, `media_captions` and `extra_annotations`, inheriting the preset when omitted. All three default to `false`. Enable only for explicit user text requests. `source_credits` controls automatic/provider and authored visual source credits. `media_captions` enables authored image-callout `title`/`lines`; no archive description is inferred. `extra_annotations` enables supporting text-only callouts and CTA. Geographic names, VO subtitles and explicitly approved/authored opening titles remain available. Keep provenance, dates, limits, source credit/license and reconstruction notes in project `SOURCES.md` regardless of display. See [style.md](style.md#type-and-placement).
 
 ## Regions
 
@@ -59,9 +64,9 @@ Supplied sprite atlas metadata may additionally set `animation_frames` and `anim
 
 ## Callouts
 
-`position` anchors the leader line. `title`, `lines` (explicit line breaks as separate strings), optional `image`, `color`, screen `width` and preferred `offset` define a compact bubble. `placement` is `auto` by default; `manual` checks the authored position without relocation. Width is a maximum for text-only bubbles: actual font measurement determines compact bounds and wrapping. Padding comes from the preset. Image panels use that width and preserve the original image ratio; oversized panels fail rather than crop silently. Inspect placement and subtitle collisions. This is an optional information layer, not a fixed slide layout. Optional `fade_in` and `fade_out` are nonnegative source-clock seconds whose sum must fit the callout lifetime. Smoothstep opacity applies to the complete panel, original image, caption and leader together. The full rectangle remains reserved during fades; omitted fields preserve abrupt full visibility.
+`position` anchors the leader line. Image callouts are image-only by default; `title`/`lines` are shown only with `text_policy.media_captions: true`. Text-only callouts require `text_policy.extra_annotations: true`. When explicitly enabled, `title`, `lines` (explicit line breaks as separate strings), optional `image`, `color`, screen `width` and preferred `offset` define a compact bubble. `placement` is `auto` by default; `manual` checks the authored position without relocation. Width is a maximum for text-only bubbles: actual font measurement determines compact bounds and wrapping. Padding comes from the preset. Image panels use that width and preserve the original image ratio; oversized panels fail rather than crop silently. Inspect placement and subtitle collisions. This is an optional information layer, not a fixed slide layout. Optional `fade_in` and `fade_out` are nonnegative source-clock seconds whose sum must fit the callout lifetime. Smoothstep opacity applies to the complete panel, original image, caption and leader together. The full rectangle remains reserved during fades; omitted fields preserve abrupt full visibility.
 
-Image callouts may set `image_crop: [left, top, right, bottom]` as integer pixel bounds in the original source image. The rectangle must be nonempty and wholly inside that image; invalid bounds fail instead of padding or clipping silently. Layout and rendering use the same cropped aspect ratio. This is an exact source-pixel detail view, not regenerated imagery; preserve the source file/provenance, caption an excerpt as such, and retain full-document context when the brief requires it. `show_leader: false` omits only that callout's geographic connector; the panel, placement checks and whole-layer fades remain active. Two simultaneous image views require an explicit scene media-budget override if they exceed the preset.
+Image callouts may set `image_crop: [left, top, right, bottom]` as integer pixel bounds in the original source image. The rectangle must be nonempty and wholly inside that image; invalid bounds fail instead of padding or clipping silently. Layout and rendering use the same cropped aspect ratio. This is an exact source-pixel detail view, not regenerated imagery; preserve the source file/provenance, record an excerpt as such in `SOURCES.md`, and retain full-document context when the brief requires it. `show_leader: false` omits only that callout's geographic connector; the panel, placement checks and whole-layer fades remain active. Two simultaneous image views require an explicit scene media-budget override if they exceed the preset.
 
 ## Global movement
 

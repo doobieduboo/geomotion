@@ -1,6 +1,6 @@
 # Esri World Imagery — single basemap
 
-Esri World Imagery is the only permitted basemap. Do not use another provider or a plain vector background, including when access fails.
+The default is a full-frame flat satellite map. Esri World Imagery is the only permitted basemap. Do not use another provider or a plain vector background, including when access fails.
 
 ## Esri World Imagery — requested visual reference
 
@@ -13,9 +13,9 @@ The user-selected visual reference is Esri World Imagery. Use these exact links 
 - [Esri terms summary](https://goto.arcgis.com/termsofuse/viewsummary) and [terms of use](https://goto.arcgis.com/termsofuse/viewtermsofuse)
 - [World Imagery (for Export)](https://www.arcgis.com/home/item.html?id=226d23f076da478bba4589e7eae95952), the separately documented layer for supported offline export workflows.
 
-Esri World Imagery is a satellite/aerial imagery service, not an open-source imagery dataset. Open-source mapping clients may use the service subject to its terms; their code license does not grant rights to the imagery. Do not assume that public viewing or an HTTP 200 authorizes arbitrary tile downloads, redistribution, offline caching or commercial video export. Check the applicable account/service terms for the actual production workflow and retain required attribution.
+Esri World Imagery is a satellite/aerial imagery service, not an open-source imagery dataset. Open-source mapping clients may use the service subject to its terms; their code license does not grant rights to the imagery. Do not assume that public viewing or an HTTP 200 authorizes arbitrary tile downloads, redistribution, offline caching or commercial video export. Check the applicable account/service terms for the actual production workflow and retain provider/source attribution metadata in the private project records.
 
-The item metadata checked on 2026-10-18 credits Esri, Vantor, Earthstar Geographics and the GIS User Community. Actual contributors vary with location and scale; use the service's current imagery citations for the scene, not this list as a permanent exhaustive credit. Record the item/service, access date, relevant imagery date and citations in the production SOURCES.md and place required credits in the delivered output. The overview explicitly distinguishes this viewing layer from the layer intended for offline exports.
+The item metadata checked on 2026-10-18 credits Esri, Vantor, Earthstar Geographics and the GIS User Community. Actual contributors vary with location and scale; use the service's current imagery citations for the scene, not this list as a permanent exhaustive credit. Record the item/service, access date, relevant imagery date and citations in the production SOURCES.md with current source credit/license details. Automatic visual credit overlays are disabled by `composition.text_policy.source_credits`; an explicit user request may enable them through root scene `text_policy.source_credits`. This display preference does not establish downstream reuse rights. The overview explicitly distinguishes this viewing layer from the layer intended for offline exports.
 
 ## Implemented source and rendering
 
@@ -32,5 +32,5 @@ Draw geographic outlines above the imagery; avoid opaque region fills masking te
 - Save/load does not automatically add a raw-tile disk cache. Reuse compatible previously rendered video/map-containing segments before requesting the same basemap again; follow [revision reuse](pipeline.md#revision-reuse). A reusable clean map layer must actually exist with its camera/profile/provenance; do not claim the current renderer saves one automatically. Any future tile-cache implementation must follow the applicable service terms and retain attribution.
 - For offline workflows, follow the linked Esri export documentation/layer under the applicable rights. Do not change the service URL automatically or assume access is interchangeable.
 - HTTP, proxy, auth and image-decode errors stop rendering and identify the failing URL. Report the actual blocker. No fallback to another provider or a solid background.
-- Default contributor credit is inserted in the video; add accurate location/scale-specific citations when required. Preserve attribution in final exports and browser delivery. Never remove credits to clean up the design.
-- Inspect a representative preview frame: textured land/sea, aligned boundaries, original source brightness, no missing tiles/seams, and legible credit. Keep caches and downloaded production media out of this reusable repo.
+- Preserve provider attribution metadata and location/scale-specific citations privately in the production’s `SOURCES.md`. Do not insert source credits into frames automatically; root scene `text_policy.source_credits: true` supports an explicit user request. Keep original notices in source assets. Credit display does not certify factual authenticity or rights clearance and does not change Google or another service’s authenticity judgment.
+- Inspect a representative preview frame: textured land/sea, aligned boundaries, original source brightness, no missing tiles/seams, and the requested text policy. Keep caches and downloaded production media out of this reusable repo.

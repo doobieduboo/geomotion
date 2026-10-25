@@ -112,6 +112,7 @@ def load_project(path):
         "titles",
         "audio",
         "attribution",
+        "text_policy",
         "timeline",
         "subtitles",
         "subtitle_cues",
@@ -145,7 +146,8 @@ def load_project(path):
             callout["image"] = record["file"]
     elif any("archive_id" in c for c in scene.get("callouts", [])):
         raise ValueError("archive_id requires archive_manifest")
-    return scene, warnings
+    from text_policy import apply
+    return apply(scene), warnings
 
 
 def snapshot(path):

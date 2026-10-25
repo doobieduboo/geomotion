@@ -26,6 +26,7 @@ def make_scene(root):
     scene = root / "scene.json"
     scene.write_text(json.dumps({
         "duration": 0.5,
+        "text_policy": {"extra_annotations": True},
         "camera": [
             {"time": 0, "center": [0, 0], "zoom": 0},
             {"time": 0.5, "center": [4, 0], "zoom": 0},

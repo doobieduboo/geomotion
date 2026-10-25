@@ -6,7 +6,7 @@ Use the editorial ranges in [defaults.json](../defaults.json) → `pacing` as st
 
 Establish an understandable hook and geographic anchor promptly. Start with a meaningful question, consequence or visual event rather than a long greeting, logo, blank hold or unrelated headline. Keep the promise aligned with what the clip actually explains; do not create a misleading hook or invent facts for excitement.
 
-Deliver information in short connected phrases with a clear progression and payoff. Respect the approved narrative instead of rewriting it automatically. At each natural information beat, reveal or change something useful: focus/outline, route, marker, photo, concise bubble or evidence-linked effect. Avoid several seconds of empty movement where the story needs a visual explanation. A sustained contextual view is appropriate when viewers need time to read or locate a place.
+Deliver information in short connected phrases with a clear progression and payoff. Respect the approved narrative instead of rewriting it automatically. At each natural information beat, reveal or change something useful: focus/outline, route, geographic marker, image-only photo callout or evidence-linked effect. Avoid several seconds of empty movement where the story needs a visual explanation. A sustained contextual view is appropriate when viewers need time to read or locate a place.
 
 ## Fast voice, understandable map
 
@@ -18,6 +18,6 @@ Subtitles remain phrase-synced with correct punctuation/capitalization, the pres
 
 ## Ending and verification
 
-Deliver the narrative payoff; use a brief relevant question/CTA only when it fits. Avoid unrelated slogans and long silent outros. The camera may widen to the relevant geographic context while the final phrase and fade complete naturally.
+Deliver the narrative payoff; use a brief relevant question/CTA only when explicitly requested and enabled through `text_policy.extra_annotations`. Avoid unrelated slogans and long silent outros. The camera may widen to the relevant geographic context while the final phrase and fade complete naturally.
 
 At preview stage, inspect opening clarity, reading time, cadence, information progression, camera-to-phrase sync and the last spoken word. Use [quality.md](quality.md) for output checks and [composition.md](composition.md) for geographic continuity. Keep revisions at the preview profile. No extra TTS generations or high-resolution renders merely to test a pacing hypothesis; first reuse approved audio and inspect only affected scene sections.

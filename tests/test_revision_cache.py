@@ -27,6 +27,7 @@ class RevisionDependencies(unittest.TestCase):
         self.path = self.root / "scene.json"
         self.scene = {
             "duration": 4,
+            "text_policy": {"extra_annotations": True},
             "camera": [{"time": 0, "center": [0, 0], "zoom": 1}],
             "export": {"preview": {"fps": 4}},
         }
